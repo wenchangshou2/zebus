@@ -1,0 +1,10 @@
+{}
+{}
+{}
+{}
+{"level":"info","time":"2019-03-14T16:49:16.477+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:64","msg":"log 初始化成功","serviceName":"spikeProxy"}
+{"level":"info","time":"2019-03-14T16:49:27.065+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:64","msg":"log 初始化成功"}
+{"level":"info","time":"2019-03-14T16:50:08.615+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:66","msg":"log 初始化成功"}
+{"level":"info","time":"2019-03-14T17:08:07.292+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:66","msg":"log 初始化成功"}
+{"level":"info","time":"2019-03-14T17:09:38.421+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:66","msg":"log 初始化成功"}
+{"level":"info","time":"2019-03-14T17:12:25.511+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:66","msg":"log 初始化成功"}

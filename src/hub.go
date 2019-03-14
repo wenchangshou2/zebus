@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/segmentio/objconv/json"
+	"github.com/wenchangshou2/zebus/src/pkg/e"
+	"strings"
+)
 
 type Hub struct{
 	// Registered clients.
@@ -21,6 +26,7 @@ func newHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+		forward:make(chan  []byte),
 	}
 }
 
@@ -34,6 +40,7 @@ func (h *Hub) run() {
 				delete(h.clients, client)
 				close(client.send)
 			}
+			fmt.Println("unregister")
 		case message := <-h.broadcast:
 			for client := range h.clients {
 				select {
@@ -43,8 +50,14 @@ func (h *Hub) run() {
 					delete(h.clients, client)
 				}
 			}
-			case message:=<-h.forward://
-				fmt.Println("forward",string(message))
+		case message:=<-h.forward://
+			cmdBody:=e.ForwardCmd{}
+			json.Unmarshal(message,&cmdBody)
+			for client:=range h.clients{
+				if strings.Compare(client.SocketName,cmdBody.ReceiverName)==0{
+					client.send<-message
+				}
+			}
 
 		}
 	}

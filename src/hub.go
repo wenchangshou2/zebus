@@ -1,8 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/segmentio/objconv/json"
 	"github.com/wenchangshou2/zebus/src/pkg/e"
 	"strings"
 )

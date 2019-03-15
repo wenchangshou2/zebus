@@ -11,6 +11,6 @@ func InitSchedume(addr string)(err error){
 	http.HandleFunc("/ws",func(w http.ResponseWriter,r *http.Request){
 		serveWs(hub,w,r)
 	})
-	err=http.ListenAndServe(addr,nil)
+	go http.ListenAndServe(addr,nil)
 	return
 }

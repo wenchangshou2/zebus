@@ -9,6 +9,7 @@ import (
 const maxBufferSize=1024
 func GetServerInfo()(data []byte,err error){
 	tmp:=map[string]interface{}{}
+	tmp["Service"]="RegisterInfo"
 	tmp["ip"]=setting.ServerSetting.ServerIp
 	tmp["port"]=setting.ServerSetting.ServerPort
 	return json.Marshal(tmp)
@@ -37,6 +38,7 @@ func InituPnpServer(ip string,port int)(err error){
 	pc,err:=net.ListenUDP("udp",&addr)
 	fmt.Println("pc",pc,addr)
 	if err!=nil{
+		fmt.Println("err",err)
 		return
 	}
 	go upnpServer(pc)

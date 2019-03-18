@@ -114,7 +114,7 @@ func (c *Client) readPump() {
 			logging.G_Logger.Error(tmp)
 			continue
 		}
-		fmt.Println("messageType",data.MessageType)
+		fmt.Println("messageType",data.MessageType,data.SocketName)
 		if  strings.Compare(data.MessageType,"RegisterToDaemon")==0{
 			arguments:=data.Arguments
 			if ip,ok:=arguments["ip"];ok{
@@ -147,6 +147,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	tmp:=map[string]interface{}{}
 	tmp["ip"]=strings.Split(conn.RemoteAddr().String(),":")[0]
 	tmp["Service"]="registerCall"
+	fmt.Println("send")
 	conn.WriteJSON(tmp)
 	//client.hub.register <- client
 	go client.writePump()

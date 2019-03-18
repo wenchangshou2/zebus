@@ -53,8 +53,10 @@ func (h *Hub) run() {
 		case message:=<-h.forward://
 			cmdBody:=e.ForwardCmd{}
 			json.Unmarshal(message,&cmdBody)
+			//tmp:=strings.Split(cmdBody.ReceiverName)
 			for client:=range h.clients{
-				if strings.Compare(client.SocketName,cmdBody.ReceiverName)==0{
+				fmt.Println("name",client.SocketName,cmdBody.ReceiverName)
+				if strings.Compare(client.SocketName,cmdBody.ReceiverName)==0||strings.HasPrefix(client.SocketName,cmdBody.ReceiverName){
 					client.send<-message
 				}
 			}

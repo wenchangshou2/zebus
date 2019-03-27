@@ -25,6 +25,7 @@ func main(){
 		logging.G_Logger.Error("创建调度失败")
 		return
 	}
+	
 	fmt.Println("1111")
 	if err=InituPnpServer("0.0.0.0",8888);err!=nil{
 		logging.G_Logger.Error("创建 pnp失败")

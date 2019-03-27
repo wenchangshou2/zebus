@@ -56,7 +56,8 @@ func (h *Hub) run() {
 			//tmp:=strings.Split(cmdBody.ReceiverName)
 			for client:=range h.clients{
 				fmt.Println("name",client.SocketName,cmdBody.ReceiverName)
-				if strings.Compare(client.SocketName,cmdBody.ReceiverName)==0||strings.HasPrefix(client.SocketName,cmdBody.ReceiverName){
+				if strings.Compare(client.SocketName,cmdBody.ReceiverName)==0||strings.HasPrefix(cmdBody.ReceiverName,client.SocketName){
+					fmt.Println("yyyy")
 					client.send<-message
 				}
 			}

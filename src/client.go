@@ -116,7 +116,9 @@ func (c *Client) readPump() {
 		}
 		fmt.Println("messageType",data.MessageType,data.SocketName)
 		if  strings.Compare(data.MessageType,"RegisterToDaemon")==0{
+			fmt.Println("111111",data)
 			arguments:=data.Arguments
+			fmt.Println("222",arguments)
 			if ip,ok:=arguments["ip"];ok{
 				c.Ip=ip.(string)
 			}
@@ -124,12 +126,22 @@ func (c *Client) readPump() {
 				c.Mac=mac.(string)
 			}
 			if topic,ok:=arguments["topic"];ok{
+				fmt.Println("toipc",topic.(string))
+				//if len(strings.Split(topic, "/"))
 				c.Topic=topic.(string)
+
 			}
-			c.SocketName=data.SocketName
+			nameAry:=strings.Split(data.SocketName,"/")
+			fmt.Println("len",len(nameAry))
+			if len(nameAry)<=2{
+				fmt.Println("c.conn.RemoteAddr()",c.conn.RemoteAddr().String(),nameAry[1])
+				c.SocketName=fmt.Sprintf("/zebus/%s/%s",strings.Split(c.conn.RemoteAddr().String(),":")[0],nameAry[1])
+			}else{
+				c.SocketName=data.SocketName
+			}
+			fmt.Println("socketname",c.SocketName)
 			c.hub.register<-c
 		}else{
-			fmt.Println("转发")
 			c.hub.forward<-message
 		}
 

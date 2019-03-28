@@ -13,7 +13,6 @@ func GetServerInfo()(data []byte,err error){
 	tmp["ip"]=setting.ServerSetting.ServerIp
 	tmp["port"]=setting.ServerSetting.ServerPort
 	return json.Marshal(tmp)
-	//tmp["ip"]=setting.AppSetting
 }
 func upnpServer(conn  net.PacketConn){
 	buffer:=make([]byte,maxBufferSize)
@@ -22,7 +21,6 @@ func upnpServer(conn  net.PacketConn){
 		if err!=nil{
 			continue
 		}
-		fmt.Println("buffer",string(buffer))
 		data,err:=GetServerInfo()
 		if err==nil{
 			conn.WriteTo(data,addr)
@@ -30,13 +28,11 @@ func upnpServer(conn  net.PacketConn){
 	}
 }
 func InituPnpServer(ip string,port int)(err error){
-	fmt.Println("initpnp")
 	addr:=net.UDPAddr{
 		Port:port,
 		IP:net.ParseIP(ip),
 	}
 	pc,err:=net.ListenUDP("udp",&addr)
-	fmt.Println("pc",pc,addr)
 	if err!=nil{
 		fmt.Println("err",err)
 		return

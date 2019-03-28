@@ -25,6 +25,7 @@ const (
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
 )
+
 var (
 	newline = []byte{'\n'}
 	space   = []byte{' '}
@@ -40,26 +41,25 @@ type Client struct {
 	hub *Hub
 
 	// The websocket connection.
-	conn *websocket.Conn
-	Ip string
-	Mac string
-	Topic string
-	SocketName string
+	conn        *websocket.Conn
+	Ip          string
+	Mac         string
+	Topic       string
+	SocketName  string
 	MessageType int
 	// Buffered channel of outbound messages.
 	send chan []byte
-
-
 }
-func (c *Client) writePump(){
-	ticker:=time.NewTicker(pingPeriod)
-	defer func(){
+
+func (c *Client) writePump() {
+	ticker := time.NewTicker(pingPeriod)
+	defer func() {
 		ticker.Stop()
 		c.conn.Close()
 	}()
-	for{
-		select{
-		case message,ok:=<-c.send:
+	for {
+		select {
+		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The hub closed the channel.
@@ -101,53 +101,58 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
+		fmt.Println("message",string(message))
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
-		data:=e.RequestCmd{}
-		if err=json.Unmarshal(message,&data);err!=nil{
-			tmp:=fmt.Sprintf("解析json错误:%s",string(message))
-			fmt.Println("err",err)
+		data := e.RequestCmd{}
+		if err = json.Unmarshal(message, &data); err != nil {
+			tmp := fmt.Sprintf("解析json错误:%s", string(message))
+			fmt.Println("err", err)
 			logging.G_Logger.Error(tmp)
 			continue
 		}
-		fmt.Println("messageType",data.MessageType,data.SocketName)
-		if  strings.Compare(data.MessageType,"RegisterToDaemon")==0{
-			fmt.Println("111111",data)
-			arguments:=data.Arguments
-			fmt.Println("222",arguments)
-			if ip,ok:=arguments["ip"];ok{
-				c.Ip=ip.(string)
+		fmt.Println("messageType", data.MessageType, data.SocketName)
+		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
+			fmt.Println("111111", data)
+			arguments := data.Arguments
+			fmt.Println("222", arguments)
+			if ip, ok := arguments["ip"]; ok {
+				c.Ip = ip.(string)
 			}
-			if mac,ok:=arguments["mac"];ok{
-				c.Mac=mac.(string)
+			if mac, ok := arguments["mac"]; ok {
+				c.Mac = mac.(string)
 			}
-			if topic,ok:=arguments["topic"];ok{
-				fmt.Println("toipc",topic.(string))
+			if topic, ok := arguments["topic"]; ok {
+				fmt.Println("toipc", topic.(string))
 				//if len(strings.Split(topic, "/"))
-				c.Topic=topic.(string)
+				c.Topic = topic.(string)
 
 			}
-			nameAry:=strings.Split(data.SocketName,"/")
-			fmt.Println("len",len(nameAry))
-			if len(nameAry)<=2{
-				fmt.Println("c.conn.RemoteAddr()",c.conn.RemoteAddr().String(),nameAry[1])
-				c.SocketName=fmt.Sprintf("/zebus/%s/%s",strings.Split(c.conn.RemoteAddr().String(),":")[0],nameAry[1])
-			}else{
-				c.SocketName=data.SocketName
+			fmt.Println("type",data.SocketType)
+			if data.SocketType != "Daemon" {
+				c.SocketName = data.SocketName
+			} else {
+				nameAry := strings.Split(data.SocketName, "/")
+				if len(nameAry) <= 2 {
+					fmt.Println("c.conn.RemoteAddr()", c.conn.RemoteAddr().String(), nameAry[1])
+					c.SocketName = fmt.Sprintf("/zebus/%s", strings.Split(c.conn.RemoteAddr().String(), ":")[0])
+				} else {
+					c.SocketName = data.SocketName
+				}
 			}
-			fmt.Println("socketname",c.SocketName)
-			c.hub.register<-c
-		}else{
-			c.hub.forward<-message
+			c.hub.register <- c
+		} else {
+			c.hub.forward <- message
 		}
 
 	}
 }
-// serveWs handles websocket requests from the peer.
+
+// serveWs handles websocket requests from  the peer.
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -156,10 +161,9 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-	tmp:=map[string]interface{}{}
-	tmp["ip"]=strings.Split(conn.RemoteAddr().String(),":")[0]
-	tmp["Service"]="registerCall"
-	fmt.Println("send")
+	tmp := map[string]interface{}{}
+	tmp["ip"] = strings.Split(conn.RemoteAddr().String(), ":")[0]
+	tmp["Service"] = "registerCall"
 	conn.WriteJSON(tmp)
 	//client.hub.register <- client
 	go client.writePump()

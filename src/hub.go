@@ -34,6 +34,7 @@ func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
+			fmt.Println("register",client)
 			h.clients[client] = true
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
@@ -42,6 +43,7 @@ func (h *Hub) run() {
 			}
 			fmt.Println("unregister")
 		case message := <-h.broadcast:
+			fmt.Println("brodcast")
 			for client := range h.clients {
 				select {
 				case client.send <- message:
@@ -51,14 +53,27 @@ func (h *Hub) run() {
 				}
 			}
 		case message:=<-h.forward://
+		fmt.Println("forward",string(message),h.clients)
 			cmdBody:=e.ForwardCmd{}
 			json.Unmarshal(message,&cmdBody)
 			//tmp:=strings.Split(cmdBody.ReceiverName)
 			for client:=range h.clients{
-				fmt.Println("name",client.SocketName,cmdBody.ReceiverName)
-				if strings.Compare(client.SocketName,cmdBody.ReceiverName)==0||strings.HasPrefix(cmdBody.ReceiverName,client.SocketName){
-					fmt.Println("yyyy")
-					client.send<-message
+				//fmt.Println("name",client.SocketName,cmdBody.ReceiverName)
+				//if strings.Compare(client.SocketName,cmdBody.ReceiverName)==0{
+				//	fmt.Println("yyyy1222",client.SocketName)
+				//	go func() {
+				//		client.send<-message
+				//	}()
+				//}
+				fmt.Println(client.SocketName,cmdBody.ReceiverName,strings.Compare(client.SocketName,cmdBody.ReceiverName))
+				if strings.Compare(client.SocketName,cmdBody.ReceiverName)!=0{
+					continue
+				}
+				select {
+				case client.send <- message:
+				default:
+					close(client.send)
+					delete(h.clients, client)
 				}
 			}
 

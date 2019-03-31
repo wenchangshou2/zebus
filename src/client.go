@@ -83,7 +83,6 @@ func (c *Client) writePump() {
 				return
 			}
 		case <-ticker.C:
-			fmt.Println("ticker")
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
@@ -101,7 +100,6 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
-		fmt.Println("message",string(message))
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -111,15 +109,12 @@ func (c *Client) readPump() {
 		data := e.RequestCmd{}
 		if err = json.Unmarshal(message, &data); err != nil {
 			tmp := fmt.Sprintf("解析json错误:%s", string(message))
-			fmt.Println("err", err)
 			logging.G_Logger.Error(tmp)
 			continue
 		}
 		fmt.Println("messageType", data.MessageType, data.SocketName)
 		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
-			fmt.Println("111111", data)
 			arguments := data.Arguments
-			fmt.Println("222", arguments)
 			if ip, ok := arguments["ip"]; ok {
 				c.Ip = ip.(string)
 			}
@@ -128,11 +123,9 @@ func (c *Client) readPump() {
 			}
 			if topic, ok := arguments["topic"]; ok {
 				fmt.Println("toipc", topic.(string))
-				//if len(strings.Split(topic, "/"))
 				c.Topic = topic.(string)
 
 			}
-			fmt.Println("type",data.SocketType)
 			if data.SocketType != "Daemon" {
 				c.SocketName = data.SocketName
 			} else {

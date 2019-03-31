@@ -5,6 +5,7 @@ import (
 	"github.com/wenchangshou2/zebus/src/pkg/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"net/url"
 	"os"
 	"path"
 	"time"
@@ -13,6 +14,10 @@ import (
 var (
 	G_Logger *zap.Logger
 )
+func newWinFileSink(u *url.URL) (zap.Sink, error) {
+	// Remove leading slash left by url.Parse()
+	return os.OpenFile(u.Path[1:], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+}
 func InitLogging(logPath string,level string)(err error){
 	var (
 		atom zap.AtomicLevel
@@ -48,7 +53,9 @@ func InitLogging(logPath string,level string)(err error){
 	formatted := fmt.Sprintf("%d-%02d-%02d",
 		t.Year(), t.Month(), t.Day())
 	formatted=formatted+".log"
-	fileSavePath:=path.Join(logPath,formatted)
+	fileSavePath:="winfile:///" + path.Join(logPath,formatted)
+	zap.RegisterSink("winfile", newWinFileSink)
+
 	config := zap.Config{
 		Level:            atom,                                                // 日志级别
 		Development:      true,                                                // 开发模式，堆栈跟踪

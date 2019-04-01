@@ -48,6 +48,7 @@ type Client struct {
 	Topic       string
 	SocketName  string
 	MessageType int
+	IsRegister bool
 	// Buffered channel of outbound messages.
 	send chan []byte
 }
@@ -120,6 +121,7 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 		}
 	}
 	c.Ip = strings.Split(c.conn.RemoteAddr().String(), ":")[0]
+	c.IsRegister=true
 	c.hub.register <- c
 }
 func (c *Client) execute(data []byte) {
@@ -188,12 +190,13 @@ func (c *Client) readPump() {
 			continue
 		}
 		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
-			fmt.Println("YYY")
+			//fmt.Println("YYY")
 			c.registerToDaemon(data)
 		} else if strings.Compare(data.ReceiverName, "/zebus") == 0 {
 			c.execute(message)
 		} else {
-			// c.hub.forward <- message
+			fmt.Println("fore",string(message))
+			c.hub.forward <- message
 		}
 
 	}
@@ -213,7 +216,12 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	tmp["ip"] = strings.Split(conn.RemoteAddr().String(), ":")[0]
 	tmp["Service"] = "registerCall"
 	conn.WriteJSON(tmp)
-	client.hub.register <- client
+	time.AfterFunc(5*time.Second, func() {
+		if !client.IsRegister{
+			close(client.send)
+			client.conn.Close()
+		}
+	})
 	go client.writePump()
 	go client.readPump()
 }

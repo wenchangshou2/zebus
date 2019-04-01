@@ -80,6 +80,7 @@ func (h *Hub) run() {
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
 		case client := <-h.unregister:
+
 			if _, ok := h.clients[client]; ok {
 				fmt.Println("ok", client.send)
 				delete(h.clients, client)
@@ -100,7 +101,12 @@ func (h *Hub) run() {
 			cmdBody := e.ForwardCmd{}
 			json.Unmarshal(message, &cmdBody)
 			for client := range h.clients {
+				fmt.Println("clientl.socket",cmdBody.ReceiverName,client.SocketName)
+				if len(client.SocketName)==0{
+					continue
+				}
 				if strings.Compare(client.SocketName, cmdBody.ReceiverName) == 0 || strings.HasPrefix(cmdBody.ReceiverName, client.SocketName) {
+					fmt.Println("send")
 					select {
 					case client.send <- message:
 					default:

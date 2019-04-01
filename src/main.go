@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	_ "net/http/pprof"
+
 	"github.com/kardianos/service"
 	"github.com/pkg/errors"
 	"github.com/wenchangshou2/zebus/src/pkg/logging"

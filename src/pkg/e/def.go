@@ -3,6 +3,7 @@ type RequestCmd struct{
 	MessageType string `json:"messageType"`
 	SocketName string `json:"socketName"`
 	SocketType string `json:"SocketType"`
+	ReceiverName string `json:"receiverName"`
 	Arguments map[string]interface{} `json:"Arguments"`
 
 }

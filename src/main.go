@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	_ "net/http/pprof"
 
@@ -26,9 +25,11 @@ func (*Service) Start(_ service.Service) error {
 	confPath, _ := utils.GetFullPath("conf/app.ini")
 	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
 	if err = setting.InitSetting(confPath); err != nil {
+		fmt.Println("读取配置文件失败")
 		return errors.New("读取配置文件失败")
 	}
 	if err = logging.InitLogging(logPath, setting.AppSetting.LogLevel); err != nil {
+		fmt.Println("创建日志失败")
 		return errors.New("创建日志失败")
 	}
 
@@ -38,11 +39,11 @@ func (*Service) Start(_ service.Service) error {
 
 	}
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
+		fmt.Println("创建pnp失败")
 		return errors.New("创建pnp失败")
 	}
-	for {
-		time.Sleep(1 * time.Second)
-	}
+	fmt.Println("server", serverAddr)
+	return nil
 }
 func (*Service) Stop(_ service.Service) error {
 	return nil

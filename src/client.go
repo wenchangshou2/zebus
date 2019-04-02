@@ -48,7 +48,7 @@ type Client struct {
 	Topic       string
 	SocketName  string
 	MessageType int
-	IsRegister bool
+	IsRegister  bool
 	// Buffered channel of outbound messages.
 	send chan []byte
 }
@@ -121,7 +121,7 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 		}
 	}
 	c.Ip = strings.Split(c.conn.RemoteAddr().String(), ":")[0]
-	c.IsRegister=true
+	c.IsRegister = true
 	c.hub.register <- c
 }
 func (c *Client) execute(data []byte) {
@@ -195,7 +195,7 @@ func (c *Client) readPump() {
 		} else if strings.Compare(data.ReceiverName, "/zebus") == 0 {
 			c.execute(message)
 		} else {
-			fmt.Println("fore",string(message))
+			fmt.Println("fore", string(message))
 			c.hub.forward <- message
 		}
 
@@ -217,7 +217,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	tmp["Service"] = "registerCall"
 	conn.WriteJSON(tmp)
 	time.AfterFunc(5*time.Second, func() {
-		if !client.IsRegister{
+		if !client.IsRegister {
 			close(client.send)
 			client.conn.Close()
 		}

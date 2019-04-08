@@ -56,14 +56,12 @@ type Client struct {
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		fmt.Println("close")
 		ticker.Stop()
 		c.conn.Close()
 	}()
 	for {
 		select {
 		case message, ok := <-c.send:
-			fmt.Println("sadfdsf")
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The hub closed the channel.
@@ -88,7 +86,6 @@ func (c *Client) writePump() {
 				return
 			}
 		case <-ticker.C:
-			fmt.Println("tick")
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
@@ -96,6 +93,8 @@ func (c *Client) writePump() {
 		}
 	}
 }
+
+//注册到Daemon的事件
 func (c *Client) registerToDaemon(data e.RequestCmd) {
 	arguments := data.Arguments
 	if ip, ok := arguments["ip"]; ok {
@@ -105,7 +104,6 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 		c.Mac = mac.(string)
 	}
 	if topic, ok := arguments["topic"]; ok {
-		fmt.Println("toipc", topic.(string))
 		c.Topic = topic.(string)
 
 	}
@@ -114,7 +112,6 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	} else {
 		nameAry := strings.Split(data.SocketName, "/")
 		if len(nameAry) <= 2 {
-			fmt.Println("c.conn.RemoteAddr()", c.conn.RemoteAddr().String(), nameAry[1])
 			c.SocketName = fmt.Sprintf("/zebus/%s", strings.Split(c.conn.RemoteAddr().String(), ":")[0])
 		} else {
 			c.SocketName = data.SocketName
@@ -122,7 +119,26 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	}
 	c.Ip = strings.Split(c.conn.RemoteAddr().String(), ":")[0]
 	c.IsRegister = true
+	// c.send <-
+	b, err := c.generateResponse(&map[string]interface{}{
+		"MessageType": data.MessageType,
+		"Action":      data.MessageType,
+	})
+	if err == nil {
+		c.send <- b
+	}
+
 	c.hub.register <- c
+}
+func (c *Client) generateResponse(data *map[string]interface{}) ([]byte, error) {
+	result := make(map[string]interface{})
+	result["message"] = "成功"
+	result["state"] = 200
+	result["senderName"] = "/zebus"
+	for k, v := range *data {
+		result[k] = v
+	}
+	return json.Marshal(result)
 }
 func (c *Client) execute(data []byte) {
 	type zeBusCmd struct {
@@ -152,6 +168,7 @@ func (c *Client) execute(data []byte) {
 		rtu["message"] = err.Error()
 	}
 	rtu["receiverName"] = cmd.SenderName
+	rtu["Action"] = cmd.Action
 	rtu["senderName"] = "/zebus"
 	if len(d) > 0 {
 		rtu["data"] = d
@@ -190,12 +207,10 @@ func (c *Client) readPump() {
 			continue
 		}
 		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
-			//fmt.Println("YYY")
 			c.registerToDaemon(data)
 		} else if strings.Compare(data.ReceiverName, "/zebus") == 0 {
 			c.execute(message)
 		} else {
-			fmt.Println("fore", string(message))
 			c.hub.forward <- message
 		}
 

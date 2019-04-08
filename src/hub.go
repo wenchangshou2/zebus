@@ -45,16 +45,12 @@ func (h *Hub) GetAllClientInfo() map[string]interface{} {
 	offlineClient := make([]string, 0)
 	for k, _ := range h.online {
 		if len(k) > 0 {
-			fmt.Println("k", k)
-
 			onlineClient = append(onlineClient, k)
 		}
 	}
 	for k, _ := range h.offline {
 		if len(k) > 0 {
-			fmt.Println("k", k)
 			offlineClient = append(offlineClient, k)
-
 		}
 	}
 	rtu["online"] = onlineClient
@@ -101,8 +97,8 @@ func (h *Hub) run() {
 			cmdBody := e.ForwardCmd{}
 			json.Unmarshal(message, &cmdBody)
 			for client := range h.clients {
-				fmt.Println("clientl.socket",cmdBody.ReceiverName,client.SocketName)
-				if len(client.SocketName)==0{
+				fmt.Println("clientl.socket", cmdBody.ReceiverName, client.SocketName)
+				if len(client.SocketName) == 0 {
 					continue
 				}
 				if strings.Compare(client.SocketName, cmdBody.ReceiverName) == 0 || strings.HasPrefix(cmdBody.ReceiverName, client.SocketName) {

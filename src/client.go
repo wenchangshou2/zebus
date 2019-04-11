@@ -132,7 +132,7 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 func (c *Client) generateResponse(data *map[string]interface{}) ([]byte, error) {
 	result := make(map[string]interface{})
 	result["message"] = "成功"
-	result["state"] = 200
+	result["state"] = 0
 	result["senderName"] = "/zebus"
 	for k, v := range *data {
 		result[k] = v
@@ -160,7 +160,7 @@ func (c *Client) execute(data []byte) {
 		return
 	}
 	rtu := make(map[string]interface{})
-	rtu["state"] = 200
+	rtu["state"] = 0
 	rtu["message"] = "成功"
 	if err != nil {
 		rtu["state"] = 400

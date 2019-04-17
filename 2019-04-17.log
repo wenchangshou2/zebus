@@ -11,3 +11,5 @@
 {"level":"info","time":"2019-04-17T23:26:40.408+0800","caller":"/Users/wcs/go/pkg/mod/github.com/wenchangshou2/zebus@v0.0.0-20190417083907-eb86fee4ec49/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
 {"level":"info","time":"2019-04-17T23:27:31.432+0800","caller":"/Users/wcs/go/pkg/mod/github.com/wenchangshou2/zebus@v0.0.0-20190417083907-eb86fee4ec49/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
 {"level":"info","time":"2019-04-17T23:28:20.154+0800","caller":"/Users/wcs/go/pkg/mod/github.com/wenchangshou2/zebus@v0.0.0-20190417083907-eb86fee4ec49/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-04-17T23:29:16.657+0800","caller":"/Users/wcs/go/pkg/mod/github.com/wenchangshou2/zebus@v0.0.0-20190417083907-eb86fee4ec49/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-04-17T23:31:01.126+0800","caller":"/Users/wcs/go/pkg/mod/github.com/wenchangshou2/zebus@v0.0.0-20190417083907-eb86fee4ec49/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}

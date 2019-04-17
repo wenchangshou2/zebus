@@ -14,6 +14,7 @@ var (
 )
 
 func InitEtcd() (err error){
+	fmt.Println("etcd config",setting.EtcdSetting)
 	config = clientv3.Config{
 		Endpoints:   []string{setting.EtcdSetting.ConnStr},
 		DialTimeout: 5 * time.Second,

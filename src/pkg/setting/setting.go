@@ -1,32 +1,41 @@
 package setting
 
 import (
-	"github.com/go-ini/ini"
 	"log"
+
+	"github.com/go-ini/ini"
 )
-type App struct{
+
+type App struct {
 	LogSavePath string
 	LogSaveName string
-	LogLevel string
+	LogLevel    string
 }
-type Server struct{
-	ServerIp string
+type Server struct {
+	ServerIp   string
 	ServerPort int
 }
+type Etcd struct {
+	ConnStr string
+}
+
 var (
-	cfg *ini.File
-	AppSetting=&App{}
-	ServerSetting=&Server{}
+	cfg           *ini.File
+	AppSetting    = &App{}
+	ServerSetting = &Server{}
+	EtcdSetting   = &Etcd{}
 )
-func InitSetting(path string)(err error){
-	if cfg,err=ini.Load(path);err!=nil{
+
+func InitSetting(path string) (err error) {
+	if cfg, err = ini.Load(path); err != nil {
 		return
 	}
-	mapTo("app",AppSetting)
-	mapTo("server",ServerSetting)
+	mapTo("app", AppSetting)
+	mapTo("server", ServerSetting)
+	mapTo("etcd", EtcdSetting)
 	return
 }
-func mapTo(section string, v interface{}){
+func mapTo(section string, v interface{}) {
 	err := cfg.Section(section).MapTo(v)
 	if err != nil {
 		log.Fatalf("Cfg.MapTo RedisSetting err: %v", err)

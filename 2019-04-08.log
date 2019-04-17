@@ -1,6 +1,0 @@
-{"level":"info","time":"2019-04-08T10:55:51.544+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
-{"level":"info","time":"2019-04-08T10:56:35.885+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
-{"level":"info","time":"2019-04-08T12:46:59.442+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
-{"level":"info","time":"2019-04-08T14:24:50.891+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
-{"level":"info","time":"2019-04-08T14:25:26.078+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
-{"level":"info","time":"2019-04-08T14:25:48.934+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}

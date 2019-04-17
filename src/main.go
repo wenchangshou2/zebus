@@ -19,15 +19,17 @@ type Service struct {
 }
 
 func (*Service) Start(_ service.Service) error {
+
 	var (
 		err error
 	)
 	confPath, _ := utils.GetFullPath("conf/app.ini")
-	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
 	if err = setting.InitSetting(confPath); err != nil {
 		fmt.Println("读取配置文件失败")
 		return errors.New("读取配置文件失败")
 	}
+	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
+	fmt.Println("log path", logPath)
 	if err = logging.InitLogging(logPath, setting.AppSetting.LogLevel); err != nil {
 		fmt.Println("创建日志失败")
 		return errors.New("创建日志失败")
@@ -38,11 +40,15 @@ func (*Service) Start(_ service.Service) error {
 		return errors.New("创建调试失败")
 
 	}
+	if err = InitEtcd(); err != nil {
+		fmt.Println("初始化etcd失败")
+		return errors.New("创建etcd客户失败")
+	}
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
 		fmt.Println("创建pnp失败")
 		return errors.New("创建pnp失败")
 	}
-	fmt.Println("server", serverAddr)
+	//fmt.Println("server", serverAddr)
 	return nil
 }
 func (*Service) Stop(_ service.Service) error {
@@ -52,6 +58,7 @@ func (*Service) Stop(_ service.Service) error {
 var serviceFlag = flag.String("service", "", "Control the service")
 
 func main() {
+	fmt.Println("ff")
 	var (
 		err error
 		s   service.Service

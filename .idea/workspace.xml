@@ -3,15 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="9d1a3320-54ec-41c8-97dc-48db16f4c8c3" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/11" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/2019-04-17.log" beforeDir="false" afterPath="$PROJECT_DIR$/2019-04-17.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gopkg.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gopkg.toml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/2019-04-17.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/2019-04-17.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/etcd.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/etcd.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zebus" beforeDir="false" afterPath="$PROJECT_DIR$/zebus" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zebus" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -21,11 +17,32 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/etcd.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="16" column="50" lean-forward="true" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="50" />
+            <state relative-caret-position="250">
+              <caret line="16" column="50" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="50" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/client.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="199">
+              <caret line="20" column="12" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="12" />
+              <folding>
+                <element signature="e#14#213#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1500">
+              <caret line="74" selection-start-line="74" selection-end-line="74" />
             </state>
           </provider>
         </entry>
@@ -42,7 +59,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>成功</find>
       <find>appen</find>
       <find>con</find>
       <find>messageType</find>
@@ -72,6 +88,7 @@
       <find>register</find>
       <find>&quot;server</find>
       <find>server</find>
+      <find>pongWait</find>
     </findStrings>
     <dirStrings>
       <dir>C:\Users\zoolon\go\src\github.com\wenchangshou2\zebus</dir>
@@ -98,17 +115,17 @@
         <option value="$PROJECT_DIR$/src/pkg/e/def.go" />
         <option value="$PROJECT_DIR$/conf/app.ini" />
         <option value="$PROJECT_DIR$/src/hub.go" />
-        <option value="$PROJECT_DIR$/src/client.go" />
         <option value="$PROJECT_DIR$/src/main.go" />
         <option value="$PROJECT_DIR$/src/etcd.go" />
+        <option value="$PROJECT_DIR$/src/client.go" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="1280" />
-    <option name="y" value="23" />
-    <option name="width" value="1280" />
-    <option name="height" value="1341" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-10" />
+    <option name="y" value="-10" />
+    <option name="width" value="2580" />
+    <option name="height" value="1420" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -116,7 +133,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -133,6 +149,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -217,10 +234,10 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="23" width="1280" height="1341" extended-state="0" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49579832" visible="true" weight="0.28109854" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49579832" visible="true" weight="0.23726542" />
       <window_info id="Structure" order="1" sideWeight="0.5031579" side_tool="true" weight="0.19638069" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -301,16 +318,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Gopkg.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="9" column="14" selection-start-line="9" selection-start-column="12" selection-end-line="9" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Gopkg.lock">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Gopkg.toml" />
+    <entry file="file://$PROJECT_DIR$/Gopkg.lock" />
     <entry file="file://$PROJECT_DIR$/../../kardianos/service/service.go" />
     <entry file="file://$PROJECT_DIR$/../../../zoolon-resources/src/pkg/utils/utils.go" />
     <entry file="file://$PROJECT_DIR$/../../kardianos/service/example/logging/main.go" />
@@ -367,23 +376,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/client.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2626">
-          <caret line="2" column="7" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
-          <folding>
-            <element signature="e#14#213#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../../go.etcd.io/etcd/clientv3/config.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="27" column="22" selection-start-line="27" selection-start-column="16" selection-end-line="27" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../go.etcd.io/etcd/clientv3/config.go" />
     <entry file="file://$PROJECT_DIR$/src/pkg/setting/setting.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
@@ -394,16 +387,7 @@
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/@">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="598">
-          <caret line="74" column="22" selection-start-line="74" selection-start-column="22" selection-end-line="74" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/@" />
     <entry file="file://$PROJECT_DIR$/vendor/modules.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
@@ -416,8 +400,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/etcd.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="16" column="50" lean-forward="true" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="50" />
+        <state relative-caret-position="250">
+          <caret line="16" column="50" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1500">
+          <caret line="74" selection-start-line="74" selection-end-line="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="199">
+          <caret line="20" column="12" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="12" />
+          <folding>
+            <element signature="e#14#213#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

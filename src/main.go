@@ -19,10 +19,11 @@ type Service struct {
 }
 
 func (*Service) Start(_ service.Service) error {
-
 	var (
 		err error
 	)
+	// time.Sleep(60 * time.Second)
+
 	confPath, _ := utils.GetFullPath("conf/app.ini")
 	if err = setting.InitSetting(confPath); err != nil {
 		fmt.Println("读取配置文件失败")
@@ -40,10 +41,10 @@ func (*Service) Start(_ service.Service) error {
 		return errors.New("创建调试失败")
 
 	}
-	if err = InitEtcd(); err != nil {
-		fmt.Println("初始化etcd失败")
-		return errors.New("创建etcd客户失败")
-	}
+	// if err = InitEtcd(); err != nil {
+	// 	fmt.Println("初始化etcd失败")
+	// 	return errors.New("创建etcd客户失败")
+	// }
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
 		fmt.Println("创建pnp失败")
 		return errors.New("创建pnp失败")

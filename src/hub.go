@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -68,15 +69,37 @@ func (h *Hub) SetClientInfo(ip string, isRegister bool) {
 		h.offline[ip] = true
 	}
 }
+func (h *Hub) isIp(str string) bool {
+	matched, _ := regexp.MatchString("(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3}", str)
+	return matched
+}
+func (h *Hub) checkIp(source, target string) bool {
+	fmt.Println("checkIp")
+	arr1 := strings.Split(source, "/")
+	arr2 := strings.Split(target, "/")
+	fmt.Println("arr", len(arr1), len(arr2))
+	if len(arr1) > 2 && len(arr2) > 2 {
+		ip1Str := arr1[2]
+		ip2Str := arr2[2]
+		fmt.Println("ip1111", ip1Str, ip2Str)
+		if h.isIp(ip1Str) && h.isIp(ip2Str) {
+			if strings.Compare(ip1Str, ip2Str) != 0 {
+				return false
+			}
+
+		}
+	}
+	return true
+}
 func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
-			fmt.Println("register")
+			fmt.Println("register", client.SocketName)
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
 		case client := <-h.unregister:
-
+			fmt.Println("unregister", client.SocketName)
 			if _, ok := h.clients[client]; ok {
 				fmt.Println("ok", client.send)
 				delete(h.clients, client)
@@ -97,12 +120,10 @@ func (h *Hub) run() {
 			cmdBody := e.ForwardCmd{}
 			json.Unmarshal(message, &cmdBody)
 			for client := range h.clients {
-				fmt.Println("clientl.socket", cmdBody.ReceiverName, client.SocketName)
 				if len(client.SocketName) == 0 {
 					continue
 				}
-				if strings.Compare(client.SocketName, cmdBody.ReceiverName) == 0 || strings.HasPrefix(cmdBody.ReceiverName, client.SocketName) {
-					fmt.Println("send")
+				if strings.Compare(client.SocketName, cmdBody.ReceiverName) == 0 || strings.HasPrefix(cmdBody.ReceiverName, client.SocketName) && h.checkIp(client.SocketName, cmdBody.ReceiverName) {
 					select {
 					case client.send <- message:
 					default:

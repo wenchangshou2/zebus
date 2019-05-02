@@ -18,13 +18,13 @@ const (
 	writeWait = 10 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
+	pongWait = 5 * time.Second
 
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
 
 	// Maximum message size allowed from peer.
-	maxMessageSize = 5120
+	maxMessageSize = 500 * 1024
 )
 
 var (
@@ -33,8 +33,8 @@ var (
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  500 * 1024,
+	WriteBufferSize: 500 * 1024,
 }
 
 // Client is a middleman between the websocket connection and the hub.
@@ -49,6 +49,7 @@ type Client struct {
 	SocketName  string
 	MessageType int
 	IsRegister  bool
+	SocketType  string
 	// Buffered channel of outbound messages.
 	send chan []byte
 }
@@ -85,10 +86,12 @@ func (c *Client) writePump() {
 				return
 			}
 		case <-ticker.C:
+			// if strings.Compare(c.SocketName, "Daemon") == 0 {
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
+			// }
 		}
 	}
 }
@@ -107,8 +110,10 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 
 	}
 	if data.SocketType != "Daemon" {
+		c.SocketType = "Services"
 		c.SocketName = data.SocketName
 	} else {
+		c.SocketType = "Daemon"
 		nameAry := strings.Split(data.SocketName, "/")
 		if len(nameAry) <= 2 {
 			c.SocketName = fmt.Sprintf("/zebus/%s", strings.Split(c.conn.RemoteAddr().String(), ":")[0])
@@ -212,7 +217,6 @@ func (c *Client) readPump() {
 		} else {
 			c.hub.forward <- message
 		}
-
 	}
 }
 

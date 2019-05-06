@@ -117,6 +117,7 @@ func (h *Hub) run() {
 				}
 			}
 		case message := <-h.forward: //
+
 			cmdBody := e.ForwardCmd{}
 			json.Unmarshal(message, &cmdBody)
 			for client := range h.clients {

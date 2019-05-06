@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/wenchangshou2/zebus/src/pkg/setting"
 
 	"github.com/gorilla/websocket"
 	"github.com/wenchangshou2/zebus/src/pkg/e"
@@ -160,9 +161,9 @@ func (c *Client) execute(data []byte) {
 	}
 	switch cmd.Action {
 	case "getClients":
-		if setting.EtcdSetting.Enable{
-			d["online"],err=G_workerMgr.ListWorkers()
-		}else{
+		if setting.EtcdSetting.Enable {
+			d["online"], err = G_workerMgr.ListWorkers()
+		} else {
 			d = c.hub.GetAllClientInfo()
 		}
 		//d=G_workerMgr.ListWorkers()
@@ -221,9 +222,18 @@ func (c *Client) readPump() {
 		} else if strings.Compare(data.ReceiverName, "/zebus") == 0 {
 			c.execute(message)
 		} else {
-			c.hub.forward <- message
+			c.process(message)
 		}
 	}
+}
+func (c *Client) process(data []byte) {
+	fmt.Println("process")
+	if setting.EtcdSetting.Enable {
+		G_ScheduleMgr.ProcessData<-data
+	} else {
+		c.hub.forward <- data
+	}
+
 }
 
 // serveWs handles websocket requests from  the peer.
@@ -249,3 +259,4 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.writePump()
 	go client.readPump()
 }
+

@@ -14,3 +14,10 @@ type ForwardCmd struct{
 	SenderName string `json:"senderName"`
 	Type int `json:"type"`
 }
+type WorkerInfo struct{
+	Ip string
+	Server []string
+}
+var(
+	JOB_WORKER_DIR = "/zebus/"
+)

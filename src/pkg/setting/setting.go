@@ -17,6 +17,7 @@ type Server struct {
 }
 type Etcd struct {
 	ConnStr string
+	Enable bool
 }
 
 var (

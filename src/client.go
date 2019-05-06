@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/wenchangshou2/zebus/src/pkg/setting"
 	"log"
 	"net/http"
 	"strings"
@@ -159,7 +160,12 @@ func (c *Client) execute(data []byte) {
 	}
 	switch cmd.Action {
 	case "getClients":
-		d = c.hub.GetAllClientInfo()
+		if setting.EtcdSetting.Enable{
+			d["online"],err=G_workerMgr.ListWorkers()
+		}else{
+			d = c.hub.GetAllClientInfo()
+		}
+		//d=G_workerMgr.ListWorkers()
 	}
 	if len(cmd.SenderName) == 0 {
 		return

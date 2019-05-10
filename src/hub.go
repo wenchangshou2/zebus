@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/wenchangshou2/zebus/src/pkg/logging"
 	"regexp"
 	"strings"
 	"sync"
@@ -95,11 +96,11 @@ func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
-			fmt.Println("register", client.SocketName)
+			logging.G_Logger.Info(fmt.Sprintf("register:%s",client.SocketName))
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
 		case client := <-h.unregister:
-			fmt.Println("unregister", client.SocketName)
+			logging.G_Logger.Info("unregister "+client.SocketName)
 			if _, ok := h.clients[client]; ok {
 				fmt.Println("ok", client.send)
 				delete(h.clients, client)

@@ -117,7 +117,9 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 		c.SocketType = "Daemon"
 		nameAry := strings.Split(data.SocketName, "/")
 		if len(nameAry) <= 2 {
-			c.SocketName = fmt.Sprintf("/zebus/%s", strings.Split(c.conn.RemoteAddr().String(), ":")[0])
+			remoteIp:=strings.Split(c.conn.RemoteAddr().String(), ":")[0]
+			c.SocketName = fmt.Sprintf("/zebus/%s", remoteIp)
+			G_workerMgr.PutServerInfo(remoteIp)
 		} else {
 			c.SocketName = data.SocketName
 		}

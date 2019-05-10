@@ -20,4 +20,5 @@ type WorkerInfo struct{
 }
 var(
 	JOB_WORKER_DIR = "/zebus/"
+	JOG_SERVER_DIR="/server/"
 )

@@ -40,11 +40,7 @@ func (*Service) Start(_ service.Service) error {
 	if err = InitSchedume(serverAddr); err != nil {
 		return errors.New("创建调试失败")
 	}
-	if setting.EtcdSetting.Enable{
-		if err=InitWorkerMgr();err!=nil{
-			return errors.New("创建etcd workerear失败")
-		}
-	}
+
 
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
 		fmt.Println("创建pnp失败")

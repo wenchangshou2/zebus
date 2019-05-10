@@ -22,3 +22,11 @@
 {"level":"info","time":"2019-05-06T17:34:18.127+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
 {"level":"info","time":"2019-05-06T17:35:10.836+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
 {"level":"info","time":"2019-05-06T17:35:54.515+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-06T21:30:32.782+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-06T21:30:39.653+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-06T21:30:58.618+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-06T22:18:28.046+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-06T22:22:47.231+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-06T22:23:29.236+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-06T22:27:50.520+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-06T22:29:01.759+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}

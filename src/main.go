@@ -56,7 +56,6 @@ func (*Service) Stop(_ service.Service) error {
 var serviceFlag = flag.String("service", "", "Control the service")
 
 func main() {
-	fmt.Println("ff")
 	var (
 		err error
 		s   service.Service

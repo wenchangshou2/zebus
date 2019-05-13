@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/coreos/etcd/clientv3"
-	"github.com/segmentio/objconv/json"
+	"go.etcd.io/etcd/clientv3"
 	"github.com/wenchangshou2/zebus/src/pkg/e"
 	"github.com/wenchangshou2/zebus/src/pkg/setting"
 	"github.com/wenchangshou2/zebus/src/pkg/utils"
@@ -24,11 +24,11 @@ func (scheduleMgr *ConfigMgr) Process(){
 	for{
 		select {
 		case message, ok := <-scheduleMgr.ProcessData:
-			fmt.Println("?ok",ok)
 			if !ok{
 				return
 			}
 			msg:=e.RequestCmd{}
+
 			json.Unmarshal(message,&msg)
 			if utils.IsDaemon(msg.ReceiverName){
 				ip:=utils.ExtractWorkerIP(msg.ReceiverName)

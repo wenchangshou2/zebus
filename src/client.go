@@ -133,7 +133,9 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 		"Action":      data.MessageType,
 	})
 	if err == nil {
-		c.send <- b
+		if c.send!=nil{
+			c.send <- b
+		}
 	}
 
 	c.hub.register <- c
@@ -148,6 +150,7 @@ func (c *Client) generateResponse(data *map[string]interface{}) ([]byte, error) 
 	}
 	return json.Marshal(result)
 }
+
 func (c *Client) execute(data []byte) {
 	type zeBusCmd struct {
 		Action       string `json:"action"`
@@ -164,7 +167,24 @@ func (c *Client) execute(data []byte) {
 	switch cmd.Action {
 	case "getClients":
 		if setting.EtcdSetting.Enable {
-			d["online"], err = G_workerMgr.ListWorkers()
+			tmpOnlineList,err:=G_workerMgr.ListWorkers()
+			tmpOfflineList:=make([]string,0)
+			allServer,err:=G_workerMgr.GetAllClient()
+			if err==nil{
+				for _,v:=range allServer{
+					isOffline:=true
+					for _,onlineClient:=range tmpOnlineList{
+						if strings.Compare(v,onlineClient.Ip)==0{
+							isOffline=false
+						}
+					}
+					if isOffline{
+						tmpOfflineList=append(tmpOfflineList,v)
+					}
+					d["online"]=tmpOnlineList
+					d["offline"]=tmpOfflineList
+				}
+			}
 		} else {
 			d = c.hub.GetAllClientInfo()
 		}

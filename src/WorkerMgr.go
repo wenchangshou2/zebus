@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/wenchangshou2/zebus/src/pkg/logging"
 	"strings"
 	"time"
 
@@ -51,7 +52,6 @@ func InitWorkerMgr(hub *Hub) (err error) {
 	return
 }
 func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) {
-	fmt.Println("list worker")
 	var (
 		getResp  *clientv3.GetResponse
 		kv       *mvccpb.KeyValue
@@ -62,8 +62,6 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 		return
 	}
 	for _, kv = range getResp.Kvs {
-		fmt.Println("kv", string(kv.Key))
-		fmt.Println("is Daemon", string(kv.Key))
 
 		if utils2.IsDaemon(string(kv.Key)) {
 			workerIp = utils2.ExtractWorkerIP(string(kv.Key))
@@ -71,20 +69,44 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 				Ip:     workerIp,
 				Server: make([]string, 0),
 			}
-			fmt.Println("111", serverInfo, workerIp)
 			workerArr = append(workerArr, serverInfo)
 		} else {
-			fmt.Println("is server")
 			workerIp, serverName := utils2.ExtractServerName(string(kv.Key))
-			fmt.Println("info ", workerIp, serverName)
 			for idx, server := range workerArr {
 				if strings.Compare(server.Ip, workerIp) == 0 {
-					fmt.Println("yes")
 					workerArr[idx].Server = append(server.Server, serverName)
 				}
 			}
 		}
 	}
 	fmt.Println("server info", workerArr)
+	return
+}
+func (WorkerMgr *WorkerMgr)PutServerInfo(ip string)(err error){
+	logging.G_Logger.Info("111111111111 putserverinfo"+e.JOG_SERVER_DIR+ip)
+	ctx,_:=context.WithTimeout(context.Background(),3*time.Second)
+	_,err=WorkerMgr.client.Put(ctx,e.JOG_SERVER_DIR+ip,"")
+	//cancel()
+	if err!=nil{
+		fmt.Println("err",err)
+		return
+	}
+	return
+}
+func (WorkerMgr *WorkerMgr)GetAllClient()(clients []string,err error){
+	var(
+		resp *clientv3.GetResponse
+	)
+	clients=make([]string,0)
+	ctx,_:=context.WithTimeout(context.Background(),3*time.Second)
+	resp,err=WorkerMgr.client.Get(ctx,e.JOG_SERVER_DIR,clientv3.WithPrefix())
+	if err!=nil{
+		logging.G_Logger.Warn("get cleitns error:"+err.Error())
+		return clients,err
+	}
+	for _,ev:=range resp.Kvs{
+		tmp:=strings.Split(string(ev.Key),"/")
+		clients=append(clients,tmp[2])
+	}
 	return
 }

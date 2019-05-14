@@ -120,7 +120,10 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 		if len(nameAry) <= 2 {
 			remoteIp:=strings.Split(c.conn.RemoteAddr().String(), ":")[0]
 			c.SocketName = fmt.Sprintf("/zebus/%s", remoteIp)
-			G_workerMgr.PutServerInfo(remoteIp)
+			if setting.EtcdSetting.Enable{
+				G_workerMgr.PutServerInfo(remoteIp)
+
+			}
 		} else {
 			c.SocketName = data.SocketName
 		}
@@ -161,7 +164,7 @@ func (c *Client) execute(data []byte) {
 	cmd := zeBusCmd{}
 	err := json.Unmarshal(data, &cmd)
 	if err != nil {
-		logging.G_Logger.Error("解析json错误")
+		logging.G_Logger.Error("解析json错误:"+err.Error())
 		return
 	}
 	switch cmd.Action {
@@ -224,18 +227,19 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
-
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
+
 				break
 			}
+			logging.G_Logger.Error("接收失败:"+err.Error())
 			break
 		}
 
 		data := e.RequestCmd{}
 		if err = json.Unmarshal(message, &data); err != nil {
-			tmp := fmt.Sprintf("解析json错误:%s", string(message))
+			tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message),err.Error())
 			logging.G_Logger.Error(tmp)
 			continue
 		}
@@ -244,12 +248,12 @@ func (c *Client) readPump() {
 		} else if strings.Compare(data.ReceiverName, "/zebus") == 0 {
 			c.execute(message)
 		} else {
-			c.process(message)
+			c.hub.forward <- message
 		}
+		//time.Sleep(100*time.Millisecond)
 	}
 }
 func (c *Client) process(data []byte) {
-	fmt.Println("process")
 	if setting.EtcdSetting.Enable {
 		G_ScheduleMgr.ProcessData<-data
 	} else {

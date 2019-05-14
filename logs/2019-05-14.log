@@ -1,0 +1,16 @@
+{"level":"info","time":"2019-05-14T11:22:34.910+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T11:23:04.915+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T11:23:36.186+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T11:51:46.530+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T14:12:11.296+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T14:12:37.847+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T14:12:49.782+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T14:19:09.975+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T14:19:11.964+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/WorkerMgr.go:86","msg":"111111111111 putserverinfo/server/192.168.20.27"}
+{"level":"info","time":"2019-05-14T14:19:11.968+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:99","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-05-14T14:19:13.440+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/client.go:237","msg":"接收消息错误:read tcp 192.168.20.27:8181->192.168.20.27:4883: wsarecv: An existing connection was forcibly closed by the remote host.","stacktrace":"main.(*Client).readPump\n\tC:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/client.go:237"}
+{"level":"info","time":"2019-05-14T14:19:13.440+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:103","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-05-14T14:19:24.038+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/WorkerMgr.go:86","msg":"111111111111 putserverinfo/server/192.168.20.27"}
+{"level":"info","time":"2019-05-14T14:19:24.041+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:99","msg":"register:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-05-14T17:16:44.395+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/WorkerMgr.go:86","msg":"111111111111 putserverinfo/server/192.168.20.113"}
+{"level":"info","time":"2019-05-14T17:16:44.596+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:99","msg":"register:/zebus/192.168.20.113"}

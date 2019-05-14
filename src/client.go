@@ -125,7 +125,7 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 
 			}
 		} else {
-			c.SocketName = data.SocketName
+			c.SocketName = strings.TrimPrefix(data.SocketName,"/")
 		}
 	}
 	c.Ip = strings.Split(c.conn.RemoteAddr().String(), ":")[0]

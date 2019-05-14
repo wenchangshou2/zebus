@@ -114,6 +114,7 @@ func (h *Hub) forwareClientMessage(client *Client,message[] byte){
 	}
 }
 func (h *Hub) forwardProcess(data []byte) {
+	fmt.Println("forwareProcess")
 	var (
 		ReceiverNmae string
 		ok           bool
@@ -121,9 +122,11 @@ func (h *Hub) forwardProcess(data []byte) {
 	)
 	cmdBody := make(map[string]interface{})
 	if err := json.Unmarshal(data, &cmdBody); err != nil {
+		fmt.Println("err",err)
 		return
 	}
-	if ReceiverNmae, ok = cmdBody["ReceiverName"].(string); !ok {
+	if ReceiverNmae, ok = cmdBody["receiverName"].(string); !ok {
+		fmt.Println("没有receiverName")
 		return
 	}
 
@@ -132,13 +135,14 @@ func (h *Hub) forwardProcess(data []byte) {
 			continue
 		}
 		ReceiverNmae = h.trimPrefix(ReceiverNmae)
+		fmt.Println("rece11",ReceiverNmae,client.SocketName)
 		if strings.Compare(ReceiverNmae, client.SocketName) == 0 {//指定 发送第三方服务
 			h.forwareClientMessage(client,data)
 			return
 		}
 		isIp, ip := h.getIp(ReceiverNmae)
 		if isIp && strings.Compare(ip, client.Ip) == 0 {   //转发给daemon
-			cmdBody["ReceiverName"]=ReceiverNmae
+			cmdBody["receiverName"]=ReceiverNmae
 			data,err=json.Marshal(cmdBody)
 			if err==nil{
 				h.forwareClientMessage(client,data)
@@ -160,7 +164,7 @@ func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
-			logging.G_Logger.Info(fmt.Sprintf("register:%s", client.SocketName))
+				logging.G_Logger.Info(fmt.Sprintf("register:%s", client.SocketName))
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
 		case client := <-h.unregister:

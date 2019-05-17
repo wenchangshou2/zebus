@@ -113,19 +113,19 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	}
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
-		c.SocketName = data.SocketName
+		c.SocketName = strings.TrimPrefix(data.SocketName, "/")
 	} else {
 		c.SocketType = "Daemon"
 		nameAry := strings.Split(data.SocketName, "/")
 		if len(nameAry) <= 2 {
-			remoteIp:=strings.Split(c.conn.RemoteAddr().String(), ":")[0]
+			remoteIp := strings.Split(c.conn.RemoteAddr().String(), ":")[0]
 			c.SocketName = fmt.Sprintf("/zebus/%s", remoteIp)
-			if setting.EtcdSetting.Enable{
+			if setting.EtcdSetting.Enable {
 				G_workerMgr.PutServerInfo(remoteIp)
 
 			}
 		} else {
-			c.SocketName = strings.TrimPrefix(data.SocketName,"/")
+			c.SocketName = strings.TrimPrefix(data.SocketName, "/")
 		}
 	}
 	c.Ip = strings.Split(c.conn.RemoteAddr().String(), ":")[0]
@@ -136,7 +136,7 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 		"Action":      data.MessageType,
 	})
 	if err == nil {
-		if c.send!=nil{
+		if c.send != nil {
 			c.send <- b
 		}
 	}
@@ -164,28 +164,28 @@ func (c *Client) execute(data []byte) {
 	cmd := zeBusCmd{}
 	err := json.Unmarshal(data, &cmd)
 	if err != nil {
-		logging.G_Logger.Error("解析json错误:"+err.Error())
+		logging.G_Logger.Error("解析json错误:" + err.Error())
 		return
 	}
 	switch cmd.Action {
 	case "getClients":
 		if setting.EtcdSetting.Enable {
-			tmpOnlineList,err:=G_workerMgr.ListWorkers()
-			tmpOfflineList:=make([]string,0)
-			allServer,err:=G_workerMgr.GetAllClient()
-			if err==nil{
-				for _,v:=range allServer{
-					isOffline:=true
-					for _,onlineClient:=range tmpOnlineList{
-						if strings.Compare(v,onlineClient.Ip)==0{
-							isOffline=false
+			tmpOnlineList, err := G_workerMgr.ListWorkers()
+			tmpOfflineList := make([]string, 0)
+			allServer, err := G_workerMgr.GetAllClient()
+			if err == nil {
+				for _, v := range allServer {
+					isOffline := true
+					for _, onlineClient := range tmpOnlineList {
+						if strings.Compare(v, onlineClient.Ip) == 0 {
+							isOffline = false
 						}
 					}
-					if isOffline{
-						tmpOfflineList=append(tmpOfflineList,v)
+					if isOffline {
+						tmpOfflineList = append(tmpOfflineList, v)
 					}
-					d["online"]=tmpOnlineList
-					d["offline"]=tmpOfflineList
+					d["online"] = tmpOnlineList
+					d["offline"] = tmpOfflineList
 				}
 			}
 		} else {
@@ -233,13 +233,13 @@ func (c *Client) readPump() {
 
 				break
 			}
-			logging.G_Logger.Error("接收失败:"+err.Error())
+			logging.G_Logger.Error("接收失败:" + err.Error())
 			break
 		}
 
 		data := e.RequestCmd{}
 		if err = json.Unmarshal(message, &data); err != nil {
-			tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message),err.Error())
+			tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message), err.Error())
 			logging.G_Logger.Error(tmp)
 			continue
 		}
@@ -255,7 +255,7 @@ func (c *Client) readPump() {
 }
 func (c *Client) process(data []byte) {
 	if setting.EtcdSetting.Enable {
-		G_ScheduleMgr.ProcessData<-data
+		G_ScheduleMgr.ProcessData <- data
 	} else {
 		c.hub.forward <- data
 	}
@@ -285,4 +285,3 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.writePump()
 	go client.readPump()
 }
-

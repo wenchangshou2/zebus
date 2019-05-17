@@ -65,3 +65,10 @@
 {"level":"info","time":"2019-05-14T18:46:14.233+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:167","msg":"register:/zebus/192.168.20.27"}
 {"level":"info","time":"2019-05-14T18:46:14.235+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:167","msg":"register:/zebus/192.168.20.113"}
 {"level":"info","time":"2019-05-14T18:46:19.975+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:167","msg":"register:/test"}
+{"level":"info","time":"2019-05-14T18:50:29.685+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-14T18:50:30.490+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/WorkerMgr.go:86","msg":"111111111111 putserverinfo/server/192.168.20.27"}
+{"level":"info","time":"2019-05-14T18:50:30.494+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:167","msg":"register:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-05-14T18:50:32.386+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/WorkerMgr.go:86","msg":"111111111111 putserverinfo/server/192.168.20.113"}
+{"level":"info","time":"2019-05-14T18:50:32.389+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:167","msg":"register:/zebus/192.168.20.113"}
+{"level":"info","time":"2019-05-14T18:50:55.647+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:167","msg":"register:/test"}
+{"level":"info","time":"2019-05-14T18:50:59.782+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:167","msg":"register:/test2"}

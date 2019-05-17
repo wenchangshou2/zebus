@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/wenchangshou2/zebus/src/pkg/logging"
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/wenchangshou2/zebus/src/pkg/logging"
 )
 
 type Hub struct {
@@ -73,14 +74,11 @@ func (h *Hub) isIp(str string) bool {
 	return matched
 }
 func (h *Hub) checkIp(source, target string) bool {
-	fmt.Println("checkIp")
 	arr1 := strings.Split(source, "/")
 	arr2 := strings.Split(target, "/")
-	fmt.Println("arr", len(arr1), len(arr2))
 	if len(arr1) > 2 && len(arr2) > 2 {
 		ip1Str := arr1[2]
 		ip2Str := arr2[2]
-		fmt.Println("ip1111", ip1Str, ip2Str)
 		if h.isIp(ip1Str) && h.isIp(ip2Str) {
 			if strings.Compare(ip1Str, ip2Str) != 0 {
 				return false
@@ -96,6 +94,7 @@ func (h *Hub) trimPrefix(topic string) (newTopic string) {
 	return
 
 }
+
 //获取当前topic的ip
 func (h *Hub) getIp(topic string) (bool, string) {
 	var (
@@ -105,7 +104,7 @@ func (h *Hub) getIp(topic string) (bool, string) {
 	isIp := h.isIp(arr[0])
 	return isIp, arr[0]
 }
-func (h *Hub) forwareClientMessage(client *Client,message[] byte){
+func (h *Hub) forwareClientMessage(client *Client, message []byte) {
 	select {
 	case client.send <- message:
 	default:
@@ -114,15 +113,13 @@ func (h *Hub) forwareClientMessage(client *Client,message[] byte){
 	}
 }
 func (h *Hub) forwardProcess(data []byte) {
-	fmt.Println("forwareProcess")
 	var (
 		ReceiverNmae string
 		ok           bool
-		err error
+		err          error
 	)
 	cmdBody := make(map[string]interface{})
 	if err := json.Unmarshal(data, &cmdBody); err != nil {
-		fmt.Println("err",err)
 		return
 	}
 	if ReceiverNmae, ok = cmdBody["receiverName"].(string); !ok {
@@ -135,17 +132,18 @@ func (h *Hub) forwardProcess(data []byte) {
 			continue
 		}
 		ReceiverNmae = h.trimPrefix(ReceiverNmae)
-		fmt.Println("rece11",ReceiverNmae,client.SocketName)
-		if strings.Compare(ReceiverNmae, client.SocketName) == 0 {//指定 发送第三方服务
-			h.forwareClientMessage(client,data)
+		if strings.Compare(ReceiverNmae, client.SocketName) == 0 { //指定 发送第三方服务
+			fmt.Println("匹配服务", client.SocketName)
+			h.forwareClientMessage(client, data)
 			return
 		}
 		isIp, ip := h.getIp(ReceiverNmae)
-		if isIp && strings.Compare(ip, client.Ip) == 0 {   //转发给daemon
-			cmdBody["receiverName"]=ReceiverNmae
-			data,err=json.Marshal(cmdBody)
-			if err==nil{
-				h.forwareClientMessage(client,data)
+		if isIp && strings.Compare(client.SocketType, "Daemon") == 0 && strings.Compare(ip, client.Ip) == 0 { //转发给daemon
+			cmdBody["receiverName"] = ReceiverNmae
+			data, err = json.Marshal(cmdBody)
+			if err == nil {
+				fmt.Println("匹配Daemon", ip)
+				h.forwareClientMessage(client, data)
 			}
 		}
 
@@ -164,7 +162,7 @@ func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
-				logging.G_Logger.Info(fmt.Sprintf("register:%s", client.SocketName))
+			logging.G_Logger.Info(fmt.Sprintf("register:%s", client.SocketName))
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
 		case client := <-h.unregister:

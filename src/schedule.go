@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/wenchangshou2/zebus/_vendor-20190426135752/github.com/pkg/errors"
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
 	"net/http"
+
+	"github.com/pkg/errors"
+	"github.com/wenchangshou2/zebus/src/pkg/setting"
 )
 
 type ServerList struct {
@@ -16,11 +17,11 @@ func InitSchedume(addr string) (err error) {
 		serveWs(hub, w, r)
 	})
 
-	if setting.EtcdSetting.Enable{
-		if err=InitWorkerMgr(hub);err!=nil{
+	if setting.EtcdSetting.Enable {
+		if err = InitWorkerMgr(hub); err != nil {
 			return errors.New("创建etcd workerear失败")
 		}
-		if err=InitScheduleMgr(hub);err!=nil{
+		if err = InitScheduleMgr(hub); err != nil {
 			return errors.New("创建etcd 同步服务失败")
 		}
 	}

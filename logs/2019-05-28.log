@@ -1,0 +1,10 @@
+{"level":"info","time":"2019-05-28T15:47:43.850+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-28T15:47:59.209+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-05-28T15:47:59.484+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/WorkerMgr.go:88","msg":"111111111111 putserverinfo/server/192.168.20.27"}
+{"level":"info","time":"2019-05-28T15:47:59.488+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:165","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-05-28T15:48:16.302+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/client.go:236","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.27:5703: use of closed network connection","stacktrace":"main.(*Client).readPump\n\tC:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/client.go:236"}
+{"level":"info","time":"2019-05-28T15:48:16.302+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:169","msg":"unregister "}
+{"level":"info","time":"2019-05-28T15:48:36.200+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:165","msg":"register:test"}
+{"level":"error","time":"2019-05-28T16:21:20.483+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/client.go:236","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.27:5696: wsarecv: An existing connection was forcibly closed by the remote host.","stacktrace":"main.(*Client).readPump\n\tC:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/client.go:236"}
+{"level":"info","time":"2019-05-28T16:21:20.484+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:169","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-05-28T17:41:21.051+0800","caller":"C:/Users/zoolon/go/src/github.com/wenchangshou2/zebus/src/hub.go:169","msg":"unregister test"}

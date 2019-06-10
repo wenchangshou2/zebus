@@ -132,8 +132,10 @@ func (h *Hub) forwardProcess(data []byte) {
 			continue
 		}
 		ReceiverNmae = h.trimPrefix(ReceiverNmae)
+		if strings.Compare(ReceiverNmae, "/dm") == 0 || strings.Compare(ReceiverNmae, "dm") == 0 {
+			logging.G_Logger.Debug("receiver message:" + string(data))
+		}
 		if strings.Compare(ReceiverNmae, client.SocketName) == 0 { //指定 发送第三方服务
-			fmt.Println("匹配服务", client.SocketName)
 			h.forwareClientMessage(client, data)
 			return
 		}
@@ -142,7 +144,6 @@ func (h *Hub) forwardProcess(data []byte) {
 			cmdBody["receiverName"] = ReceiverNmae
 			data, err = json.Marshal(cmdBody)
 			if err == nil {
-				fmt.Println("匹配Daemon", ip)
 				h.forwareClientMessage(client, data)
 			}
 		}

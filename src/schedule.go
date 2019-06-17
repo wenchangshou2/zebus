@@ -1,11 +1,17 @@
 package main
 
 import (
+<<<<<<< HEAD
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/wenchangshou2/zebus/src/pkg/logging"
+=======
+	"net/http"
+
+	"github.com/pkg/errors"
+>>>>>>> v2
 	"github.com/wenchangshou2/zebus/src/pkg/setting"
 )
 

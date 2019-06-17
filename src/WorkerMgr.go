@@ -72,6 +72,7 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 			}
 			workerArr = append(workerArr, serverInfo)
 		} else {
+			fmt.Println("kv", string(kv.Key))
 			workerIp, serverName := utils2.ExtractServerName(string(kv.Key))
 			for idx, server := range workerArr {
 				if strings.Compare(server.Ip, workerIp) == 0 {

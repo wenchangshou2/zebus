@@ -2,6 +2,7 @@ package test
 
 import (
 	"github.com/wenchangshou2/zebus/src/pkg/utils"
+	"strings"
 	"testing"
 )
 
@@ -19,4 +20,10 @@ func TestEqualDaemonType(t *testing.T){
 	if b{
 		t.Error("判断错误")
 	}
+}
+func TestGetip(t *testing.T){
+	topic:="192.168.10.27/test"
+	strArr:=strings.Split(topic,"/")
+	t.Log(strArr[0])
+
 }

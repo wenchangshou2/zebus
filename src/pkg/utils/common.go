@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"github.com/wenchangshou2/zebus/src/pkg/e"
 	"regexp"
 	"strings"
@@ -21,7 +20,6 @@ func IsDaemon(regKey string)bool{
 		arr [] string
 	)
 	arr=strings.Split(regKey,"/")
-	fmt.Println(arr,len(arr))
 	if strings.Compare(arr[1],"zebus")!=0{
 		return false
 	}

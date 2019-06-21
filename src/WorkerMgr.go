@@ -3,16 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"strings"
-	"time"
-
-	"github.com/wenchangshou2/zebus/src/pkg/logging"
-
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"github.com/wenchangshou2/zebus/src/pkg/e"
+	"github.com/wenchangshou2/zebus/src/pkg/logging"
 	"github.com/wenchangshou2/zebus/src/pkg/setting"
 	utils2 "github.com/wenchangshou2/zebus/src/pkg/utils"
 	"go.etcd.io/etcd/clientv3"
+	"strings"
+	"time"
 )
 
 var (
@@ -30,7 +28,7 @@ type WorkerMgr struct {
 var (
 	G_workerMgr *WorkerMgr
 )
-
+// 初始经状态同步
 func InitWorkerMgr(hub *Hub) (err error) {
 	var (
 		config clientv3.Config
@@ -48,7 +46,9 @@ func InitWorkerMgr(hub *Hub) (err error) {
 		client: client,
 		kv:     kv,
 		lease:  lease,
+		hub:hub,
 	}
+
 	logging.G_Logger.Info("info workermgr success")
 	return
 }
@@ -63,7 +63,6 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 		return
 	}
 	for _, kv = range getResp.Kvs {
-
 		if utils2.IsDaemon(string(kv.Key)) {
 			workerIp = utils2.ExtractWorkerIP(string(kv.Key))
 			serverInfo := e.WorkerInfo{
@@ -72,7 +71,6 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 			}
 			workerArr = append(workerArr, serverInfo)
 		} else {
-			fmt.Println("kv", string(kv.Key))
 			workerIp, serverName := utils2.ExtractServerName(string(kv.Key))
 			for idx, server := range workerArr {
 				if strings.Compare(server.Ip, workerIp) == 0 {
@@ -81,27 +79,37 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 			}
 		}
 	}
-	fmt.Println("server info", workerArr)
 	return
 }
-func (WorkerMgr *WorkerMgr) PutServerInfo(ip string) (err error) {
-	logging.G_Logger.Info("111111111111 putserverinfo" + e.JOG_SERVER_DIR + ip)
+//Daemon上线时调用，表示展期机器的上线
+func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string,serverType string) (err error) {
+	var (
+		topic string
+	)
+	logging.G_Logger.Info("new daemon client up,up topic:"+e.JOB_WORKER_DIR+serverName)
+	if len(serverType)>0{
+		topic=e.JOB_SERVER_DIR+serverName+"/"+serverType
+	}else{
+		topic=e.JOB_SERVER_DIR+serverName
+	}
+	fmt.Println("topic",topic)
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	_, err = WorkerMgr.client.Put(ctx, e.JOG_SERVER_DIR+ip, "")
-	//cancel()
+	_, err = WorkerMgr.client.Put(ctx, topic, serverType)
 	if err != nil {
-		fmt.Println("err", err)
+		logging.G_Logger.Warn("put  Host info fail:"+err.Error())
 		return
 	}
 	return
 }
+
+//获取所有的客户端
 func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 	var (
 		resp *clientv3.GetResponse
 	)
 	clients = make([]string, 0)
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	resp, err = WorkerMgr.client.Get(ctx, e.JOG_SERVER_DIR, clientv3.WithPrefix())
+	resp, err = WorkerMgr.client.Get(ctx, e.JOB_SERVER_DIR, clientv3.WithPrefix())
 	if err != nil {
 		logging.G_Logger.Warn("get cleitns error:" + err.Error())
 		return clients, err

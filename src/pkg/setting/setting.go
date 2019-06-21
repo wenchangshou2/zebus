@@ -2,6 +2,7 @@ package setting
 
 import (
 	"log"
+	"time"
 
 	"github.com/go-ini/ini"
 )
@@ -19,12 +20,20 @@ type Etcd struct {
 	ConnStr string
 	Enable bool
 }
+type Http struct{
+	Port int
+	Enable bool
+	RunMode string
+	ReadTimeout time.Duration
+	WriteTimeout time.Duration
+}
 
 var (
 	cfg           *ini.File
 	AppSetting    = &App{}
 	ServerSetting = &Server{}
 	EtcdSetting   = &Etcd{}
+	HttpSetting=&Http{}
 )
 
 func InitSetting(path string) (err error) {
@@ -34,6 +43,7 @@ func InitSetting(path string) (err error) {
 	mapTo("app", AppSetting)
 	mapTo("server", ServerSetting)
 	mapTo("etcd", EtcdSetting)
+	mapTo("http", HttpSetting)
 	return
 }
 func mapTo(section string, v interface{}) {

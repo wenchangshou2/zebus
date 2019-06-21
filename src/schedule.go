@@ -1,17 +1,11 @@
 package main
 
 import (
-<<<<<<< HEAD
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/wenchangshou2/zebus/src/pkg/logging"
-=======
-	"net/http"
-
-	"github.com/pkg/errors"
->>>>>>> v2
 	"github.com/wenchangshou2/zebus/src/pkg/setting"
 )
 
@@ -38,6 +32,7 @@ func InitSchedume(addr string) (err error) {
 				goto exit
 			}
 			if err = InitScheduleMgr(hub); err != nil {
+				logging.G_Logger.Error("init scheduleMgr 失败")
 				goto exit
 			}
 			logging.G_Logger.Info("启动etcd WorkerMgr 成功")
@@ -51,6 +46,7 @@ func InitSchedume(addr string) (err error) {
 			time.Sleep(10 * time.Second)
 		}
 	}
+	logging.G_Logger.Info("启动 websocket server:"+addr)
 	go http.ListenAndServe(addr, nil)
 	return
 }

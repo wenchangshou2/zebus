@@ -12,6 +12,9 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type logging struct{
+	logging *zap.Logger
+}
 var (
 	G_Logger *zap.Logger
 )

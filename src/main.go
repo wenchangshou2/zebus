@@ -20,10 +20,10 @@ type Service struct {
 
 func (*Service) Start(_ service.Service) error {
 	var (
-		err error
+		err               error
 		AuthorizationDone chan bool
 	)
-	AuthorizationDone=make(chan bool)
+	AuthorizationDone = make(chan bool)
 	// time.Sleep(60 * time.Second)
 
 	confPath, _ := utils.GetFullPath("conf/app.ini")
@@ -36,11 +36,11 @@ func (*Service) Start(_ service.Service) error {
 	if err = logging.InitLogging(logPath, setting.AppSetting.LogLevel); err != nil {
 		return errors.New("创建日志失败")
 	}
-	if err=InitHttpServer("0.0.0.0",9191);err!=nil{
+	if err = InitHttpServer("0.0.0.0", 9191); err != nil {
 		return errors.New("创建http server失败")
 	}
-	fmt.Println("setting.AuthorizationSetting.Enable",setting.AuthorizationSetting.Enable)
-	if setting.AuthorizationSetting.Enable{
+	fmt.Println("setting.AuthorizationSetting.Enable", setting.AuthorizationSetting.Enable)
+	if setting.AuthorizationSetting.Enable {
 		fmt.Println("正在等待授权")
 		go InitAuthorization(AuthorizationDone)
 		<-AuthorizationDone
@@ -51,7 +51,7 @@ func (*Service) Start(_ service.Service) error {
 		logging.G_Logger.Error("创建调度失败")
 		return fmt.Errorf("创建调度失败")
 	}
-	if err=InitHttpServer(setting.HttpSetting.Port);err!=nil{
+	if err = InitHttpServer("0.0.0.0", setting.HttpSetting.Port); err != nil {
 		return fmt.Errorf("创建httpServer失败")
 	}
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {

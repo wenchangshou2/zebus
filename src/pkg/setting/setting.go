@@ -18,24 +18,27 @@ type Server struct {
 }
 type Etcd struct {
 	ConnStr string
-	Enable bool
+	Enable  bool
 }
-type Http struct{
-	Port int
-	Enable bool
-	RunMode string
-	ReadTimeout time.Duration
+type Http struct {
+	Port         int
+	Enable       bool
+	RunMode      string
+	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
+}
+type Authorization struct {
+	Enable bool
 }
 
 var (
-	cfg           *ini.File
-	AppSetting    = &App{}
-	ServerSetting = &Server{}
-	EtcdSetting   = &Etcd{}
-	AuthorizationSetting=&Authorization{}
+	cfg                  *ini.File
+	AppSetting           = &App{}
+	ServerSetting        = &Server{}
+	EtcdSetting          = &Etcd{}
+	HttpSetting          = &Http{}
+	AuthorizationSetting = &Authorization{}
 )
-
 
 func InitSetting(path string) (err error) {
 	if cfg, err = ini.Load(path); err != nil {
@@ -45,7 +48,8 @@ func InitSetting(path string) (err error) {
 	mapTo("app", AppSetting)
 	mapTo("server", ServerSetting)
 	mapTo("etcd", EtcdSetting)
-	mapTo("authorization",AuthorizationSetting)
+	mapTo("http", HttpSetting)
+	mapTo("authorization", AuthorizationSetting)
 	return
 }
 func mapTo(section string, v interface{}) {

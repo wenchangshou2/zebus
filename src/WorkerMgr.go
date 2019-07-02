@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"github.com/wenchangshou2/zebus/src/pkg/logging"
+
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"github.com/wenchangshou2/zebus/src/pkg/e"
 	"github.com/wenchangshou2/zebus/src/pkg/logging"
 	"github.com/wenchangshou2/zebus/src/pkg/setting"
 	utils2 "github.com/wenchangshou2/zebus/src/pkg/utils"
 	"go.etcd.io/etcd/clientv3"
-	"strings"
-	"time"
 )
 
 var (
@@ -31,6 +29,7 @@ type WorkerMgr struct {
 var (
 	G_workerMgr *WorkerMgr
 )
+
 // 初始经状态同步
 func InitWorkerMgr(hub *Hub) (err error) {
 	var (
@@ -49,7 +48,7 @@ func InitWorkerMgr(hub *Hub) (err error) {
 		client: client,
 		kv:     kv,
 		lease:  lease,
-		hub:hub,
+		hub:    hub,
 	}
 
 	logging.G_Logger.Info("info workermgr success")
@@ -84,31 +83,23 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 	}
 	return
 }
-<<<<<<< HEAD
-func (WorkerMgr *WorkerMgr) PutServerInfo(ip string) (err error) {
-	logging.G_Logger.Info("new daemon client up,up topic:"+e.JOB_WORKER_DIR+ip)
-=======
+
 //Daemon上线时调用，表示展期机器的上线
-func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string,serverType string) (err error) {
+func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) (err error) {
 	var (
 		topic string
 	)
-	logging.G_Logger.Info("new daemon client up,up topic:"+e.JOB_WORKER_DIR+serverName)
-	if len(serverType)>0{
-		topic=e.JOB_SERVER_DIR+serverName+"/"+serverType
-	}else{
-		topic=e.JOB_SERVER_DIR+serverName
+	logging.G_Logger.Info("new daemon client up,up topic:" + e.JOB_WORKER_DIR + serverName)
+	if len(serverType) > 0 {
+		topic = e.JOB_SERVER_DIR + serverName + "/" + serverType
+	} else {
+		topic = e.JOB_SERVER_DIR + serverName
 	}
-	fmt.Println("topic",topic)
->>>>>>> 205a939d8db813b8c9056932f2fa731f683c0ae4
+	fmt.Println("topic", topic)
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
 	_, err = WorkerMgr.client.Put(ctx, topic, serverType)
 	if err != nil {
-<<<<<<< HEAD
-		logging.G_Logger.Warn("put etcd server info fail:"+err.Error())
-=======
-		logging.G_Logger.Warn("put  Host info fail:"+err.Error())
->>>>>>> 205a939d8db813b8c9056932f2fa731f683c0ae4
+		logging.G_Logger.Warn("put  Host info fail:" + err.Error())
 		return
 	}
 	return

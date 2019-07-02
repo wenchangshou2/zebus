@@ -114,6 +114,10 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
 		c.SocketName = strings.TrimPrefix(data.SocketName, "/")
+		if setting.EtcdSetting.Enable{
+			G_workerMgr.PutServerInfo(data.SocketName,"Server")
+		}
+
 	} else {
 		c.SocketType = "Daemon"
 		nameAry := strings.Split(data.SocketName, "/")
@@ -121,9 +125,10 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 			remoteIp := strings.Split(c.conn.RemoteAddr().String(), ":")[0]
 			c.SocketName = fmt.Sprintf("/zebus/%s", remoteIp)
 			if setting.EtcdSetting.Enable {
-				G_workerMgr.PutServerInfo(remoteIp)
+				G_workerMgr.PutServerInfo(remoteIp,"Daemon")
 			}
 		} else {
+			fmt.Println("register server")
 			c.SocketName = strings.TrimPrefix(data.SocketName, "/")
 		}
 	}
@@ -244,7 +249,12 @@ func (c *Client) readPump() {
 		}
 		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
 			c.registerToDaemon(data)
-		} else if strings.Compare(data.ReceiverName, "/zebus") == 0 {
+			continue
+		}
+		if c.IsRegister{ //如果当前没有初始不接受任何指令
+			continue
+		}
+		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
 			c.execute(message)
 		} else {
 			c.hub.forward <- message

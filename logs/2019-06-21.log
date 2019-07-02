@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {"level":"info","time":"2019-06-21T02:50:17.853+0800","caller":"F:/go/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
 {"level":"info","time":"2019-06-21T02:50:17.854+0800","caller":"F:/go/zebus/src/schedule.go:19","msg":"开始启动调度"}
 {"level":"info","time":"2019-06-21T02:50:17.854+0800","caller":"F:/go/zebus/src/schedule.go:27","msg":"正在配置etcd"}
@@ -26,3 +27,337 @@
 {"level":"info","time":"2019-06-21T02:53:19.562+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
 {"level":"info","time":"2019-06-21T02:53:19.612+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
 {"level":"info","time":"2019-06-21T02:53:19.801+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+=======
+{"level":"info","time":"2019-06-21T14:35:39.840+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:35:39.840+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:35:39.840+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:35:39.860+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:35:39.879+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:35:39.879+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:35:51.412+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:35:51.412+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:35:51.527+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:37:51.661+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:37:51.661+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:37:51.661+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:37:51.671+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:37:51.681+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:37:51.681+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:37:55.825+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:37:55.826+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:37:55.829+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:38:35.360+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:38:35.360+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:38:35.360+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:38:35.364+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:38:35.371+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:38:35.371+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:38:35.779+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:38:35.779+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:38:35.782+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:40:53.478+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:40:53.478+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:40:53.478+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:40:53.483+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:40:53.487+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:40:53.487+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:40:54.792+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:40:54.792+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:40:54.795+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:41:47.925+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:41:47.936+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:41:47.936+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:41:47.941+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:41:47.945+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:41:47.946+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:41:48.698+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:41:48.698+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:41:48.701+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:43:29.395+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:43:29.395+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:43:29.395+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:43:29.400+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:43:29.406+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:43:29.406+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:43:31.452+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:43:31.452+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:43:31.455+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:45:40.638+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:45:40.638+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:45:40.638+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:45:40.645+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:45:40.655+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:45:40.655+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:45:47.297+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:45:47.298+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:45:47.301+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:48:13.402+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:48:13.468+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:48:13.468+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:48:13.477+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:48:13.485+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:48:13.486+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:48:25.166+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:48:25.166+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:48:25.169+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:49:32.724+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:49:32.724+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:49:32.724+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:49:32.728+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:49:32.731+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:49:32.731+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:49:34.865+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:49:34.866+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:49:34.869+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:50:20.461+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:50:20.461+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:50:20.461+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:50:20.465+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:50:20.469+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:50:20.469+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:50:23.285+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:50:23.286+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:50:23.290+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:53:19.033+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:53:19.040+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:53:19.040+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:53:19.047+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:53:19.051+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:53:19.052+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:53:21.469+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:53:21.470+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:53:21.473+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:54:14.251+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:54:14.251+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:54:14.251+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:54:14.255+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:54:14.259+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:54:14.259+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:54:14.955+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:54:14.956+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:54:14.960+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:54:50.358+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:54:50.358+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:54:50.358+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:54:50.363+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:54:50.368+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:54:50.369+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:54:51.281+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:54:51.281+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:54:51.284+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-21T14:54:55.989+0800","caller":"/works/git/zebus/src/client.go:235","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:63241: i/o timeout","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:235"}
+{"level":"info","time":"2019-06-21T14:54:55.989+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-21T14:54:58.370+0800","caller":"/works/git/zebus/src/client.go:235","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:235"}
+{"level":"info","time":"2019-06-21T14:54:58.370+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister "}
+{"level":"info","time":"2019-06-21T14:55:00.612+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:55:00.612+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:55:00.615+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:57:02.280+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:57:02.280+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:57:02.280+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"error","time":"2019-06-21T14:57:07.280+0800","caller":"/works/git/zebus/src/schedule.go:31","msg":"创建 etcd workerear 失败","stacktrace":"main.InitSchedume\n\t/works/git/zebus/src/schedule.go:31\nmain.(*Service).Start\n\t/works/git/zebus/src/main.go:38\ngithub.com/kardianos/service.(*systemd).Run\n\t/home/wcs/go/pkg/mod/github.com/kardianos/service@v1.0.0/service_systemd_linux.go:184\nmain.main\n\t/works/git/zebus/src/main.go:89\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:200"}
+{"level":"info","time":"2019-06-21T14:57:07.281+0800","caller":"/works/git/zebus/src/schedule.go:45","msg":"etcd 服务启动失败,当前为第9次尝试"}
+{"level":"info","time":"2019-06-21T14:58:17.266+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T14:58:17.266+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T14:58:17.266+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T14:58:17.273+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T14:58:17.277+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T14:58:17.277+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T14:58:43.597+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T14:58:43.597+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T14:58:43.599+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T15:01:46.636+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T15:01:46.636+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T15:01:46.636+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T15:01:46.641+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T15:01:46.649+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T15:01:46.649+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T15:01:49.887+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T15:01:49.887+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T15:01:49.937+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T15:07:58.089+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T15:07:58.089+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T15:07:58.089+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T15:07:58.095+0800","caller":"/works/git/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T15:07:58.102+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T15:07:58.102+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T15:08:18.328+0800","caller":"/works/git/zebus/src/client.go:238","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T15:08:18.329+0800","caller":"/works/git/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T15:08:18.334+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:43:44.479+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T17:43:44.506+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T17:43:44.506+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T17:43:44.511+0800","caller":"/works/git/zebus/src/WorkerMgr.go:51","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T17:43:44.516+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T17:43:44.516+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T17:43:48.634+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T17:43:48.634+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T17:43:48.634+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T17:43:48.646+0800","caller":"/works/git/zebus/src/WorkerMgr.go:51","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T17:43:48.653+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T17:43:48.654+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T17:44:17.600+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T17:44:17.600+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T17:44:17.600+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T17:44:17.605+0800","caller":"/works/git/zebus/src/WorkerMgr.go:51","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T17:44:17.610+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T17:44:17.610+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T17:44:18.763+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:44:18.763+0800","caller":"/works/git/zebus/src/WorkerMgr.go:88","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:44:18.788+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:44:55.578+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:44:55.578+0800","caller":"/works/git/zebus/src/WorkerMgr.go:88","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T17:44:55.581+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T17:46:52.027+0800","caller":"/works/git/zebus/src/client.go:236","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:55557: i/o timeout","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:236"}
+{"level":"info","time":"2019-06-21T17:46:52.027+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:46:52.737+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:46:52.737+0800","caller":"/works/git/zebus/src/WorkerMgr.go:88","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:46:52.740+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:46:58.381+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T17:46:58.381+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T17:46:58.381+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T17:46:58.385+0800","caller":"/works/git/zebus/src/WorkerMgr.go:51","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T17:46:58.390+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T17:46:58.390+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T17:46:59.132+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:46:59.132+0800","caller":"/works/git/zebus/src/WorkerMgr.go:88","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T17:46:59.137+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T17:47:03.461+0800","caller":"/works/git/zebus/src/client.go:236","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:236"}
+{"level":"info","time":"2019-06-21T17:47:03.461+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister "}
+{"level":"info","time":"2019-06-21T17:47:07.336+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:47:07.337+0800","caller":"/works/git/zebus/src/WorkerMgr.go:88","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:47:07.339+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:48:26.437+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T17:48:26.437+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T17:48:26.437+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T17:48:26.441+0800","caller":"/works/git/zebus/src/WorkerMgr.go:52","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T17:48:26.445+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T17:48:26.445+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T17:48:27.081+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:48:27.081+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:48:27.086+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:48:33.066+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:48:33.066+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T17:48:33.069+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T17:48:58.547+0800","caller":"/works/git/zebus/src/client.go:236","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:236"}
+{"level":"info","time":"2019-06-21T17:48:58.547+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T17:50:49.825+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\n    \"messageType\": \"RegisterToDaemon\",\n    \"SocketName\": \"/test\",\n    \"SocketType\": \"Controller\"\n}","type":"message"}
+{"level":"info","time":"2019-06-21T17:50:49.825+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:test"}
+{"level":"info","time":"2019-06-21T17:53:16.189+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T17:53:16.189+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T17:53:16.189+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T17:53:16.194+0800","caller":"/works/git/zebus/src/WorkerMgr.go:52","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T17:53:16.199+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T17:53:16.199+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T17:53:16.743+0800","caller":"/works/git/zebus/src/client.go:239","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:53:16.743+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:53:16.747+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:53:25.235+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T17:53:25.236+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T17:53:25.236+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T17:53:25.241+0800","caller":"/works/git/zebus/src/WorkerMgr.go:52","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T17:53:25.245+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T17:53:25.245+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T17:53:25.539+0800","caller":"/works/git/zebus/src/client.go:240","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:53:25.539+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:53:25.543+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:53:31.005+0800","caller":"/works/git/zebus/src/client.go:240","msg":"{\n    \"messageType\": \"RegisterToDaemon\",\n    \"SocketName\": \"/test\",\n    \"SocketType\": \"Controller\"\n}","type":"message"}
+{"level":"info","time":"2019-06-21T17:53:31.006+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:test"}
+{"level":"info","time":"2019-06-21T17:54:24.341+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-21T17:54:24.341+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-21T17:54:24.341+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-06-21T17:54:24.345+0800","caller":"/works/git/zebus/src/WorkerMgr.go:52","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-21T17:54:24.349+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-21T17:54:24.349+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-21T17:54:25.880+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:54:25.881+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:54:25.885+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T17:54:32.662+0800","caller":"/works/git/zebus/src/client.go:243","msg":"G_workerMgr.PutServerInfo(data.SocketName,\"Server\")","type":"message"}
+{"level":"error","time":"2019-06-21T17:54:32.662+0800","caller":"/works/git/zebus/src/client.go:247","msg":"解析json错误:G_workerMgr.PutServerInfo(data.SocketName,\"Server\"),错误原因:invalid character 'G' looking for beginning of value","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:247"}
+{"level":"info","time":"2019-06-21T17:54:36.102+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\n    \"messageType\": \"RegisterToDaemon\",\n    \"SocketName\": \"/test\",\n    \"SocketType\": \"Controller\"\n}","type":"message"}
+{"level":"info","time":"2019-06-21T17:54:36.102+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus//test"}
+{"level":"info","time":"2019-06-21T17:54:36.105+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:test"}
+{"level":"info","time":"2019-06-21T17:55:10.756+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T17:55:10.757+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T17:55:10.760+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:01:22.963+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:01:22.963+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:10:02.365+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:56295: i/o timeout","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:10:02.366+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T18:10:03.746+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:10:03.746+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T18:10:03.750+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-21T18:18:50.747+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:57319: i/o timeout","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:18:50.748+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-21T18:29:49.306+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:29:49.306+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:29:49.308+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:29:58.194+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:29:58.194+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:29:58.807+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:29:58.808+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:29:58.810+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:30:08.158+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:30:08.159+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:30:11.896+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:30:11.896+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:30:11.899+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:30:12.948+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.27:57262: read: connection reset by peer","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:30:12.948+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:31:10.472+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:31:10.472+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:31:10.475+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:31:13.972+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:31:13.972+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:31:15.415+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:31:15.415+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:31:15.416+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:31:24.276+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:31:24.276+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:32:59.803+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:32:59.803+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:32:59.804+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:33:05.121+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:33:05.122+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:33:20.686+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:33:20.686+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:33:20.688+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:33:29.434+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:33:29.434+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:33:56.510+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:33:56.510+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:33:56.512+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:34:00.277+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:34:00.277+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:34:20.351+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:34:20.351+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:34:20.353+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:34:24.402+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:34:24.402+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:34:26.447+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:34:26.447+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:34:26.449+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:35:07.746+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\n    \"messageType\": \"RegisterToDaemon\",\n    \"SocketName\": \"/test\",\n    \"SocketType\": \"Controller\"\n}","type":"message"}
+{"level":"info","time":"2019-06-21T18:35:07.746+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus//test"}
+{"level":"info","time":"2019-06-21T18:35:07.748+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:test"}
+{"level":"info","time":"2019-06-21T18:36:04.632+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\n    \"messageType\": \"RegisterToDaemon\",\n    \"SocketName\": \"/zebus/192.168.20.111\",\n    \"SocketType\": \"s\"\n}","type":"message"}
+{"level":"info","time":"2019-06-21T18:36:04.633+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus//zebus/192.168.20.111"}
+{"level":"info","time":"2019-06-21T18:36:04.635+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:zebus/192.168.20.111"}
+{"level":"error","time":"2019-06-21T18:36:14.423+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:36:14.424+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:36:23.944+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:36:23.944+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:36:23.946+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:36:29.604+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:36:29.604+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:38:59.268+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:38:59.268+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:38:59.270+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:39:50.501+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:39:50.502+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:40:19.754+0800","caller":"/works/git/zebus/src/client.go:243","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-21T18:40:19.754+0800","caller":"/works/git/zebus/src/WorkerMgr.go:89","msg":"new daemon client up,up topic:/zebus/192.168.20.27"}
+{"level":"info","time":"2019-06-21T18:40:19.757+0800","caller":"/works/git/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.27"}
+{"level":"error","time":"2019-06-21T18:47:11.531+0800","caller":"/works/git/zebus/src/client.go:240","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\t/works/git/zebus/src/client.go:240"}
+{"level":"info","time":"2019-06-21T18:47:11.544+0800","caller":"/works/git/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.27"}
+>>>>>>> 205a939d8db813b8c9056932f2fa731f683c0ae4

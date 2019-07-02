@@ -51,10 +51,13 @@ func (*Service) Start(_ service.Service) error {
 		logging.G_Logger.Error("创建调度失败")
 		return fmt.Errorf("创建调度失败")
 	}
-
+	if err=InitHttpServer(setting.HttpSetting.Port);err!=nil{
+		return fmt.Errorf("创建httpServer失败")
+	}
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
 		return fmt.Errorf("创建pnp失败")
 	}
+
 	//fmt.Println("server", serverAddr)
 	return nil
 }

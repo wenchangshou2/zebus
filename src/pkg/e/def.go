@@ -21,10 +21,12 @@ type WorkerInfo struct {
 }
 
 var (
-	JOB_WORKER_DIR    = "/zebus/"
-	CONFIG_WORKER_DIR = "/config/"
-	JOG_SERVER_DIR = "/server/"
-	MSG_DIR           = "/zebus/"
+	JOB_WORKER_DIR         = "/zebus/"
+	CONFIG_WORKER_DIR      = "/config/"
+	JOB_SERVER_DIR         = "/server/"
+	MSG_DIR                = "/zebus/"
+	JOB_ONLINE_SERVER_DIR  = "/onlineServer/"
+	JOB_HISTORY_SERVER_DIR = "/historyServer/"
 )
 
 const(

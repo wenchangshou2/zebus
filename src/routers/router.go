@@ -6,7 +6,8 @@ import (
 	"github.com/wenchangshou2/zebus/src/routers/api"
 )
 
-func InitRouter( r *gin.Engine){
+func InitRouter(r *gin.Engine){
+
 	r.Use(static.Serve("/",static.LocalFile("./view",true)))
-	r.GET("/ping",api.Ping)
+	r.GET("/ping", api.Ping)
 }

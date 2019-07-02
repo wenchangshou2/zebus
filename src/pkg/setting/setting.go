@@ -2,6 +2,7 @@ package setting
 
 import (
 	"log"
+	"time"
 
 	"github.com/go-ini/ini"
 )
@@ -19,10 +20,12 @@ type Etcd struct {
 	ConnStr string
 	Enable bool
 }
-type Authorization struct {
+type Http struct{
+	Port int
 	Enable bool
-	Server string
-	Port string
+	RunMode string
+	ReadTimeout time.Duration
+	WriteTimeout time.Duration
 }
 
 var (

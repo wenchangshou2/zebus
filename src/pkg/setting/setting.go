@@ -19,21 +19,30 @@ type Etcd struct {
 	ConnStr string
 	Enable bool
 }
+type Authorization struct {
+	Enable bool
+	Server string
+	Port string
+}
 
 var (
 	cfg           *ini.File
 	AppSetting    = &App{}
 	ServerSetting = &Server{}
 	EtcdSetting   = &Etcd{}
+	AuthorizationSetting=&Authorization{}
 )
+
 
 func InitSetting(path string) (err error) {
 	if cfg, err = ini.Load(path); err != nil {
 		return
 	}
+
 	mapTo("app", AppSetting)
 	mapTo("server", ServerSetting)
 	mapTo("etcd", EtcdSetting)
+	mapTo("authorization",AuthorizationSetting)
 	return
 }
 func mapTo(section string, v interface{}) {

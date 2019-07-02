@@ -1,0 +1,52 @@
+{"level":"info","time":"2019-06-19T01:50:52.076+0800","caller":"F:/go/zebus/src/pkg/logging/logging.go:75","msg":"log 初始化成功"}
+{"level":"info","time":"2019-06-19T01:50:52.077+0800","caller":"F:/go/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-06-19T01:50:52.077+0800","caller":"F:/go/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"error","time":"2019-06-19T01:50:57.081+0800","caller":"F:/go/zebus/src/schedule.go:31","msg":"创建 etcd workerear 失败","stacktrace":"main.InitSchedume\n\tF:/go/zebus/src/schedule.go:31\nmain.(*Service).Start\n\tF:/go/zebus/src/main.go:38\ngithub.com/kardianos/service.(*windowsService).Execute\n\tC:/Users/zoolon/go/pkg/mod/github.com/kardianos/service@v1.0.0/service_windows.go:167\ngolang.org/x/sys/windows/svc.(*service).run.func1\n\tC:/Users/zoolon/go/pkg/mod/golang.org/x/sys@v0.0.0-20190215142949-d0b11bdaac8a/windows/svc/service.go:237"}
+{"level":"info","time":"2019-06-19T01:50:57.126+0800","caller":"F:/go/zebus/src/schedule.go:45","msg":"etcd 服务启动失败,当前为第9次尝试"}
+{"level":"info","time":"2019-06-19T01:51:07.239+0800","caller":"F:/go/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-06-19T01:51:07.244+0800","caller":"F:/go/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-06-19T01:51:07.244+0800","caller":"F:/go/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-06-19T01:51:08.402+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-19T01:51:08.402+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T01:51:08.437+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T02:02:10.869+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:51442: i/o timeout","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T02:02:10.895+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T02:02:11.041+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-19T02:02:11.041+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T02:02:11.161+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T02:05:56.630+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:52234: i/o timeout","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T02:05:56.720+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T02:06:06.742+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T02:06:06.742+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister "}
+{"level":"info","time":"2019-06-19T02:06:09.907+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-19T02:06:09.907+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T02:06:09.949+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T02:06:14.572+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:52475: i/o timeout","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T02:06:14.572+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T02:06:38.250+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-19T02:06:38.250+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T02:06:38.253+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T02:07:22.857+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:52507: i/o timeout","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T02:07:22.857+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T02:07:27.315+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-19T02:07:27.315+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T02:07:27.318+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T10:10:54.273+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:52562: wsarecv: An established connection was aborted by the software in your host machine.","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T10:10:54.273+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T10:13:19.082+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:websocket: close 1006 (abnormal closure): unexpected EOF","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T10:13:19.082+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister "}
+{"level":"info","time":"2019-06-19T10:13:22.123+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-19T10:13:22.123+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"warn","time":"2019-06-19T10:13:25.123+0800","caller":"F:/go/zebus/src/WorkerMgr.go:89","msg":"put etcd server info fail:context deadline exceeded","stacktrace":"main.(*WorkerMgr).PutServerInfo\n\tF:/go/zebus/src/WorkerMgr.go:89\nmain.(*Client).registerToDaemon\n\tF:/go/zebus/src/client.go:124\nmain.(*Client).readPump\n\tF:/go/zebus/src/client.go:245"}
+{"level":"info","time":"2019-06-19T10:13:25.123+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T10:15:55.312+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:52939: i/o timeout","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T10:15:55.312+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T10:15:57.490+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-19T10:15:57.490+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T10:15:57.495+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}
+{"level":"error","time":"2019-06-19T10:16:42.453+0800","caller":"F:/go/zebus/src/client.go:234","msg":"接收失败:read tcp 192.168.20.27:8181->192.168.20.156:53103: i/o timeout","stacktrace":"main.(*Client).readPump\n\tF:/go/zebus/src/client.go:234"}
+{"level":"info","time":"2019-06-19T10:16:42.453+0800","caller":"F:/go/zebus/src/hub.go:170","msg":"unregister /zebus/192.168.20.156"}
+{"level":"info","time":"2019-06-19T10:18:52.521+0800","caller":"F:/go/zebus/src/client.go:237","msg":"{\"SocketName\":\"/Daemon\",\"SocketType\":\"Daemon\",\"messageType\":\"RegisterToDaemon\"}\n","type":"message"}
+{"level":"info","time":"2019-06-19T10:18:52.521+0800","caller":"F:/go/zebus/src/WorkerMgr.go:84","msg":"new daemon client up,up topic:/zebus/192.168.20.156"}
+{"level":"warn","time":"2019-06-19T10:18:55.522+0800","caller":"F:/go/zebus/src/WorkerMgr.go:89","msg":"put etcd server info fail:context deadline exceeded","stacktrace":"main.(*WorkerMgr).PutServerInfo\n\tF:/go/zebus/src/WorkerMgr.go:89\nmain.(*Client).registerToDaemon\n\tF:/go/zebus/src/client.go:124\nmain.(*Client).readPump\n\tF:/go/zebus/src/client.go:245"}
+{"level":"info","time":"2019-06-19T10:18:55.522+0800","caller":"F:/go/zebus/src/hub.go:166","msg":"register:/zebus/192.168.20.156"}

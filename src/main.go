@@ -21,10 +21,13 @@ type Service struct {
 func (*Service) Start(_ service.Service) error {
 	var (
 		err error
+		AuthorizationDone chan bool
 	)
+	AuthorizationDone=make(chan bool)
 	// time.Sleep(60 * time.Second)
 
 	confPath, _ := utils.GetFullPath("conf/app.ini")
+
 	if err = setting.InitSetting(confPath); err != nil {
 		fmt.Println("读取配置文件失败")
 		return errors.New("读取配置文件失败")
@@ -33,7 +36,16 @@ func (*Service) Start(_ service.Service) error {
 	if err = logging.InitLogging(logPath, setting.AppSetting.LogLevel); err != nil {
 		return errors.New("创建日志失败")
 	}
-
+	if err=InitHttpServer("0.0.0.0",9191);err!=nil{
+		return errors.New("创建http server失败")
+	}
+	fmt.Println("setting.AuthorizationSetting.Enable",setting.AuthorizationSetting.Enable)
+	if setting.AuthorizationSetting.Enable{
+		fmt.Println("正在等待授权")
+		go InitAuthorization(AuthorizationDone)
+		<-AuthorizationDone
+		fmt.Println("授权完成 ")
+	}
 	serverAddr := fmt.Sprintf("%s:%d", setting.ServerSetting.ServerIp, setting.ServerSetting.ServerPort)
 	if err = InitSchedume(serverAddr); err != nil {
 		logging.G_Logger.Error("创建调度失败")
@@ -41,8 +53,7 @@ func (*Service) Start(_ service.Service) error {
 	}
 
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
-		fmt.Println("创建pnp失败")
-		return errors.New("创建pnp失败")
+		return fmt.Errorf("创建pnp失败")
 	}
 	//fmt.Println("server", serverAddr)
 	return nil

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"strings"
@@ -71,7 +72,6 @@ func (c *Client) writePump() {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
@@ -122,7 +122,6 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 			c.SocketName = fmt.Sprintf("/zebus/%s", remoteIp)
 			if setting.EtcdSetting.Enable {
 				G_workerMgr.PutServerInfo(remoteIp)
-
 			}
 		} else {
 			c.SocketName = strings.TrimPrefix(data.SocketName, "/")
@@ -169,6 +168,7 @@ func (c *Client) execute(data []byte) {
 	}
 	switch cmd.Action {
 	case "getClients":
+		logging.G_Logger.Info("获取当前客户端列表")
 		if setting.EtcdSetting.Enable {
 			tmpOnlineList, err := G_workerMgr.ListWorkers()
 			tmpOfflineList := make([]string, 0)
@@ -230,13 +230,12 @@ func (c *Client) readPump() {
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
-
 				break
 			}
 			logging.G_Logger.Error("接收失败:" + err.Error())
 			break
 		}
-
+		logging.G_Logger.Info(string(message),zap.String("type","message"))
 		data := e.RequestCmd{}
 		if err = json.Unmarshal(message, &data); err != nil {
 			tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message), err.Error())

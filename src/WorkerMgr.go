@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
 	"github.com/wenchangshou2/zebus/src/pkg/logging"
-
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"github.com/wenchangshou2/zebus/src/pkg/e"
 	"github.com/wenchangshou2/zebus/src/pkg/setting"
@@ -63,7 +61,6 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 		return
 	}
 	for _, kv = range getResp.Kvs {
-
 		if utils2.IsDaemon(string(kv.Key)) {
 			workerIp = utils2.ExtractWorkerIP(string(kv.Key))
 			serverInfo := e.WorkerInfo{
@@ -72,7 +69,6 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 			}
 			workerArr = append(workerArr, serverInfo)
 		} else {
-			fmt.Println("kv", string(kv.Key))
 			workerIp, serverName := utils2.ExtractServerName(string(kv.Key))
 			for idx, server := range workerArr {
 				if strings.Compare(server.Ip, workerIp) == 0 {
@@ -85,12 +81,12 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 	return
 }
 func (WorkerMgr *WorkerMgr) PutServerInfo(ip string) (err error) {
-	logging.G_Logger.Info("111111111111 putserverinfo" + e.JOG_SERVER_DIR + ip)
+	logging.G_Logger.Info("new daemon client up,up topic:"+e.JOB_WORKER_DIR+ip)
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
 	_, err = WorkerMgr.client.Put(ctx, e.JOG_SERVER_DIR+ip, "")
 	//cancel()
 	if err != nil {
-		fmt.Println("err", err)
+		logging.G_Logger.Warn("put etcd server info fail:"+err.Error())
 		return
 	}
 	return

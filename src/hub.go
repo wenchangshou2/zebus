@@ -123,7 +123,7 @@ func (h *Hub) forwardProcess(data []byte) {
 		return
 	}
 	if ReceiverNmae, ok = cmdBody["receiverName"].(string); !ok {
-		fmt.Println("没有receiverName")
+		logging.G_Logger.Info(fmt.Sprintf("当前的消息没有接收者,直接抛弃:%s",string(data)))
 		return
 	}
 

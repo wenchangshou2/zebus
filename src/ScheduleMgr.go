@@ -28,7 +28,6 @@ func (scheduleMgr *ConfigMgr) Process(){
 				return
 			}
 			msg:=e.RequestCmd{}
-
 			json.Unmarshal(message,&msg)
 			if utils.IsDaemon(msg.ReceiverName){
 				ip:=utils.ExtractWorkerIP(msg.ReceiverName)

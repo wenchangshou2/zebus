@@ -1,0 +1,14 @@
+{"level":"info","time":"2019-07-02T09:33:22.845+0800","caller":"F:/go/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-07-02T09:33:22.861+0800","caller":"F:/go/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-07-02T09:33:22.861+0800","caller":"F:/go/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"error","time":"2019-07-02T09:33:27.867+0800","caller":"F:/go/zebus/src/schedule.go:31","msg":"创建 etcd workerear 失败","stacktrace":"main.InitSchedume\n\tF:/go/zebus/src/schedule.go:31\nmain.(*Service).Start\n\tF:/go/zebus/src/main.go:47\ngithub.com/kardianos/service.(*windowsService).Execute\n\tC:/Users/zoolon/go/pkg/mod/github.com/kardianos/service@v1.0.0/service_windows.go:167\ngolang.org/x/sys/windows/svc.(*service).run.func1\n\tC:/Users/zoolon/go/pkg/mod/golang.org/x/sys@v0.0.0-20190215142949-d0b11bdaac8a/windows/svc/service.go:237"}
+{"level":"info","time":"2019-07-02T09:33:27.898+0800","caller":"F:/go/zebus/src/schedule.go:45","msg":"etcd 服务启动失败,当前为第9次尝试"}
+{"level":"info","time":"2019-07-02T09:33:38.078+0800","caller":"F:/go/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-07-02T09:33:38.090+0800","caller":"F:/go/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-07-02T09:33:38.090+0800","caller":"F:/go/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-07-02T12:02:58.749+0800","caller":"F:/go/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-07-02T12:02:58.798+0800","caller":"F:/go/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-07-02T12:02:58.798+0800","caller":"F:/go/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-07-02T12:03:03.161+0800","caller":"F:/go/zebus/src/WorkerMgr.go:50","msg":"info workermgr success"}
+{"level":"info","time":"2019-07-02T12:03:03.172+0800","caller":"F:/go/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-07-02T12:03:03.172+0800","caller":"F:/go/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}

@@ -14,7 +14,7 @@ import (
 type SystemMachineCode struct{
 	Date int64
 	Uuid string
-	Serivce string
+	Service string
 }
 func GetSystemMachineCode(c *gin.Context){
 	var (
@@ -35,7 +35,7 @@ func GetSystemMachineCode(c *gin.Context){
 	systemInfo:=SystemMachineCode{
 		Uuid:uuid,
 		Date:msec,
-		Serivce:"Zebus",
+		Service:"Zebus",
 	}
 	out,err:=json.Marshal(systemInfo)
 	newStr,err=safey.EncryptWithSha1Base64(string(out))

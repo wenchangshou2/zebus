@@ -24,7 +24,6 @@ func (*Service) Start(_ service.Service) error {
 		AuthorizationDone chan bool
 	)
 	AuthorizationDone = make(chan bool)
-	// time.Sleep(60 * time.Second)
 
 	confPath, _ := utils.GetFullPath("conf/app.ini")
 

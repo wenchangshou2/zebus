@@ -30,7 +30,10 @@ type Http struct {
 type Authorization struct {
 	Enable bool
 }
-
+type Running struct{
+	IsAuthorization bool
+	AuthorizationCode string
+}
 var (
 	cfg                  *ini.File
 	AppSetting           = &App{}
@@ -38,6 +41,9 @@ var (
 	EtcdSetting          = &Etcd{}
 	HttpSetting          = &Http{}
 	AuthorizationSetting = &Authorization{}
+	RunningSetting = &Running{
+		IsAuthorization:false,
+	}
 )
 
 func InitSetting(path string) (err error) {

@@ -1,0 +1,24 @@
+{"level":"info","time":"2019-07-03T10:09:18.369+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-07-03T10:09:18.370+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-07-03T10:09:18.370+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-07-03T10:09:18.376+0800","caller":"/works/git/zebus/src/WorkerMgr.go:54","msg":"info workermgr success"}
+{"level":"info","time":"2019-07-03T10:09:18.393+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-07-03T10:09:18.393+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-07-03T10:13:12.352+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-07-03T10:13:12.352+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-07-03T10:13:12.352+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-07-03T10:13:12.361+0800","caller":"/works/git/zebus/src/WorkerMgr.go:54","msg":"info workermgr success"}
+{"level":"info","time":"2019-07-03T10:13:12.366+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-07-03T10:13:12.366+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-07-03T10:20:57.958+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-07-03T10:20:57.987+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-07-03T10:20:57.987+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-07-03T10:20:57.992+0800","caller":"/works/git/zebus/src/WorkerMgr.go:54","msg":"info workermgr success"}
+{"level":"info","time":"2019-07-03T10:20:57.996+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-07-03T10:20:57.996+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}
+{"level":"info","time":"2019-07-03T11:04:56.642+0800","caller":"/works/git/zebus/src/pkg/logging/logging.go:78","msg":"log 初始化成功"}
+{"level":"info","time":"2019-07-03T11:04:56.740+0800","caller":"/works/git/zebus/src/schedule.go:19","msg":"开始启动调度"}
+{"level":"info","time":"2019-07-03T11:04:56.740+0800","caller":"/works/git/zebus/src/schedule.go:27","msg":"正在配置etcd"}
+{"level":"info","time":"2019-07-03T11:04:56.824+0800","caller":"/works/git/zebus/src/WorkerMgr.go:54","msg":"info workermgr success"}
+{"level":"info","time":"2019-07-03T11:04:56.830+0800","caller":"/works/git/zebus/src/schedule.go:38","msg":"启动etcd WorkerMgr 成功"}
+{"level":"info","time":"2019-07-03T11:04:56.830+0800","caller":"/works/git/zebus/src/schedule.go:49","msg":"启动 websocket server:192.168.20.27:8181"}

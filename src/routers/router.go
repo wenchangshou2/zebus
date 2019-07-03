@@ -10,4 +10,6 @@ func InitRouter(r *gin.Engine){
 
 	r.Use(static.Serve("/",static.LocalFile("./view",true)))
 	r.GET("/ping", api.Ping)
+	r.POST("/getSystemMachineCode",api.GetSystemMachineCode)
+	r.POST("/getAuthorizationStatus",api.GetAuthorizationStatus)
 }

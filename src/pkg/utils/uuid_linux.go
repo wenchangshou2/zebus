@@ -1,59 +1,40 @@
 package utils
 
 import (
+	"crypto/hmac"
 	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
-	"io"
-	"io/ioutil"
-	"os/exec"
-	"strings"
+	"fmt"
 
-	"github.com/pkg/errors"
-	"github.com/prometheus/common/log"
+	"github.com/denisbrodbeck/machineid"
+
 )
 
 func getCpuId() (string, error) {
-	var (
-		stdout io.ReadCloser
-		err    error
-	)
-	cmd := exec.Command("cmd", "/C", "wmic", "cpu", "get", "processorid")
-	if stdout, err = cmd.StdoutPipe(); err != nil {
-		log.Fatal(err)
-		return "", err
-	}
-	defer stdout.Close()
-	if err = cmd.Start(); err != nil {
-		return "", err
-	}
-	if opBytes, err := ioutil.ReadAll(stdout); err != nil {
-		return "", err
-	} else {
-		str := string(opBytes)
-		strArr := strings.Split(str, "\n")
-		return strArr[1], nil
-	}
+	return "",nil
 }
 func getMachineUUID() (string, error) {
 	return "", nil
 }
+const appKey = "zoolonlAPP"
+func protect(appID, id string) string {
+	mac := hmac.New(sha256.New, []byte(id))
+	mac.Write([]byte(appID))
+	return fmt.Sprintf("%x", mac.Sum(nil))
+}
 func GetSystemUUID() (string, error) {
 	var (
-		cpuId     string
-		machineId string
-		str       string
 		err       error
+		id string
+
 	)
-	cpuId, err = getCpuId()
-	if err != nil {
-		return "", errors.New("获取cpuid失败")
+	id,err=machineid.ID()
+	if err!=nil{
+		return "",fmt.Errorf("获取id失败:%v",err)
 	}
-	machineId, err = getMachineUUID()
-	if err != nil {
-		return "", errors.New("获取machine id制造")
-	}
-	str = cpuId + machineId
+	id=protect(appKey,id)
 	hasher := md5.New()
-	hasher.Write([]byte(str))
+	hasher.Write([]byte(id))
 	return hex.EncodeToString(hasher.Sum(nil)), nil
 }

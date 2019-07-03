@@ -7,6 +7,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/astaxie/beego v1.11.1
 	github.com/coreos/etcd v3.3.13+incompatible
+	github.com/denisbrodbeck/machineid v1.0.1
 	github.com/gin-gonic/contrib v0.0.0-20190526021735-7fb7810ed2a0
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ini/ini v1.42.0

@@ -115,7 +115,8 @@ func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 		return clients, err
 	}
 	for _, ev := range resp.Kvs {
-		tmp := strings.Split(string(ev.Key), "/")
+		key:=strings.ReplaceAll(string(ev.Key),"//","/")
+		tmp := strings.Split(key, "/")
 		clients = append(clients, tmp[2])
 	}
 	return

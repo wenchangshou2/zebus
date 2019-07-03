@@ -163,6 +163,7 @@ func (c *Client) execute(data []byte) {
 		Action       string `json:"action"`
 		ReceiverName string `json:"receiverName"`
 		SenderName   string `json:"sendername"`
+		Result interface{} `json:"result"`
 	}
 	d := make(map[string]interface{})
 	cmd := zeBusCmd{}
@@ -171,9 +172,10 @@ func (c *Client) execute(data []byte) {
 		logging.G_Logger.Error("解析json错误:" + err.Error())
 		return
 	}
+	logging.G_Logger.Debug(fmt.Sprintf("action:%s",cmd.Action))
 	switch cmd.Action {
 	case "getClients":
-		logging.G_Logger.Info("获取当前客户端列表")
+		logging.G_Logger.Debug("获取当前客户端列表")
 		if setting.EtcdSetting.Enable {
 			tmpOnlineList, err := G_workerMgr.ListWorkers()
 			tmpOfflineList := make([]string, 0)
@@ -208,7 +210,10 @@ func (c *Client) execute(data []byte) {
 		rtu["state"] = 400
 		rtu["message"] = err.Error()
 	}
-	rtu["receiverName"] = cmd.SenderName
+	if cmd.Result!=nil{
+		rtu["result"]=cmd.Result
+	}
+		rtu["receiverName"] = cmd.SenderName
 	rtu["Action"] = cmd.Action
 	rtu["senderName"] = "/zebus"
 	if len(d) > 0 {
@@ -251,7 +256,8 @@ func (c *Client) readPump() {
 			c.registerToDaemon(data)
 			continue
 		}
-		if c.IsRegister{ //如果当前没有初始不接受任何指令
+		logging.G_Logger.Info(fmt.Sprintf("is register:%b",c.IsRegister))
+		if !c.IsRegister{ //如果当前没有初始不接受任何指令
 			continue
 		}
 		if strings.Compare(data.ReceiverName, "/zebus") == 0 {

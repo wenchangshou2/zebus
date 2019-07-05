@@ -38,12 +38,8 @@ func (*Service) Start(_ service.Service) error {
 	if err = InitHttpServer("0.0.0.0", 9191); err != nil {
 		return errors.New("创建http server失败")
 	}
-	fmt.Println("setting.AuthorizationSetting.Enable", setting.AuthorizationSetting.Enable)
 	if setting.AuthorizationSetting.Enable {
-		fmt.Println("正在等待授权")
-		go InitAuthorization(AuthorizationDone)
-		<-AuthorizationDone
-		fmt.Println("授权完成 ")
+		InitAuthorization(AuthorizationDone)
 	}
 	serverAddr := fmt.Sprintf("%s:%d", setting.ServerSetting.ServerIp, setting.ServerSetting.ServerPort)
 	if err = InitSchedume(serverAddr); err != nil {
@@ -56,8 +52,6 @@ func (*Service) Start(_ service.Service) error {
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
 		return fmt.Errorf("创建pnp失败")
 	}
-
-	//fmt.Println("server", serverAddr)
 	return nil
 }
 func (*Service) Stop(_ service.Service) error {

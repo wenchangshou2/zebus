@@ -196,6 +196,8 @@ func (c *Client) execute(data []byte) {
 		} else {
 			d = c.hub.GetAllClientInfo()
 		}
+					case "getAuthoricationStatus":
+		d["status"]=G_Authorization.Status
 		//d=G_workerMgr.ListWorkers()
 	}
 	if len(cmd.SenderName) == 0 {
@@ -222,6 +224,19 @@ func (c *Client) execute(data []byte) {
 	}
 	c.hub.forward <- b
 }
+func (c *Client) unAuthorization(recv string){
+	var (
+		rtu map[string]interface{}
+	)
+	rtu=make(map[string]interface{})
+	if len(recv)>0{
+		rtu["Action"]="UnAuthorization"
+		rtu["receiverName"]=recv
+		rtu["senderName"]="/zebus"
+		byte,_:=json.Marshal(rtu)
+		c.hub.forward<-byte
+	}
+}
 func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
@@ -247,14 +262,20 @@ func (c *Client) readPump() {
 			logging.G_Logger.Error(tmp)
 			continue
 		}
+
 		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
 			c.registerToDaemon(data)
 			continue
 		}
-		if c.IsRegister{ //如果当前没有初始不接受任何指令
+		if !c.IsRegister{ //如果当前没有初始不接受任何指令
+			continue
+		}
+		if !G_Authorization.QueryAuthorization(){
+			c.unAuthorization(data.SenderName)
 			continue
 		}
 		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
+			fmt.Println("execute")
 			c.execute(message)
 		} else {
 			c.hub.forward <- message

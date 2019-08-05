@@ -31,12 +31,9 @@ func (scheduleMgr *ConfigMgr) Process(){
 			json.Unmarshal(message,&msg)
 			if utils.IsDaemon(msg.ReceiverName){
 				ip:=utils.ExtractWorkerIP(msg.ReceiverName)
-
 				fmt.Println("ip",ip,msg.Action)
 			}
-
 			fmt.Println("message",string(message))
-
 		}
 	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -84,11 +85,26 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 	return
 }
 
+func (WorkerMgr *WorkerMgr) isAllowPut(serverName string) bool{
+	if len(setting.RunningSetting.IgnoreTopic)>0{//判断当前是否有忽略入库的topic
+		for _,v :=range setting.RunningSetting.IgnoreTopic{
+			if m,_:=regexp.MatchString(v,serverName);m{
+				return false
+			}
+		}
+	}
+	return true
+}
 //Daemon上线时调用，表示展期机器的上线
 func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) (err error) {
 	var (
 		topic string
 	)
+	if !WorkerMgr.isAllowPut(serverName){
+		logging.G_Logger.Warn(fmt.Sprintf("当前推送的topic:"+serverName+",在忽略名单当中"))
+		return
+	}
+
 	logging.G_Logger.Info("new daemon client up,up topic:" + e.JOB_WORKER_DIR + serverName)
 	if len(serverType) > 0 {
 		topic = e.JOB_SERVER_DIR + serverName + "/" + serverType

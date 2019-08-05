@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/wenchangshou2/zebus/src/pkg/certification"
 	"log"
 	"os"
 
@@ -34,6 +35,9 @@ func (*Service) Start(_ service.Service) error {
 	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
 	if err = logging.InitLogging(logPath, setting.AppSetting.LogLevel); err != nil {
 		return errors.New("创建日志失败")
+	}
+	if err=certification.InitCertification();err!=nil{ //初始化认证
+
 	}
 	if err = InitHttpServer("0.0.0.0", 9191); err != nil {
 		return errors.New("创建http server失败")

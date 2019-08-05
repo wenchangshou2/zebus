@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/wenchangshou2/zebus/src/pkg/e"
 	"github.com/wenchangshou2/zebus/src/pkg/logging"
 	"github.com/wenchangshou2/zebus/src/pkg/safety"
 	"github.com/wenchangshou2/zebus/src/pkg/utils"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"time"
 )
 
 type AuthorizationInfo struct {
@@ -22,7 +23,7 @@ type AuthorizationInfo struct {
 	IsVerify       bool   `json:"isVerify"`      //是否定时检验有效性
 	Service        string `json:"service"`       //服务名称
 	VerifyAddress  string `json:"verifyAddress"` //校验api地址
-	VerifyCycle    int    `json:"verifyCycle"` //检验周期
+	VerifyCycle    int    `json:"verifyCycle"`   //检验周期
 	LastVerifyTime int64  `json:"lastVerifyTime"`
 	ErrorCount     int    `json:"errorCount"` //错误次数
 }
@@ -55,9 +56,10 @@ func (a *AuthorizationProcess) readLincenseFile() (string, error) {
 func (a *AuthorizationProcess) RequestBind(id int, uuid string) {
 
 }
-func (a *AuthorizationProcess) QueryAuthorization()bool{
+func (a *AuthorizationProcess) QueryAuthorization() bool {
 	return a.Status
 }
+
 //请求远程检验
 func (a *AuthorizationProcess) RequestVerify(info *AuthorizationInfo) (bool, error) {
 	str, err := json.Marshal(info)
@@ -65,7 +67,7 @@ func (a *AuthorizationProcess) RequestVerify(info *AuthorizationInfo) (bool, err
 	if err != nil {
 		return false, err
 	}
-	req, err := http.NewRequest("POST", "http://192.168.20.66:9090/api/v1/verify", bytes.NewBuffer([]byte(content)))
+	req, err := http.NewRequest("POST", "http://39.98.68.4:9091/api/v1/verify", bytes.NewBuffer([]byte(content)))
 	req.Header.Set("Content-Type", "application/plan")
 
 	client := &http.Client{}
@@ -104,7 +106,7 @@ func (A *AuthorizationProcess) writeLicense(info *AuthorizationInfo) error {
 	return err
 
 }
-func (a *AuthorizationProcess) verify(info *AuthorizationInfo){
+func (a *AuthorizationProcess) verify(info *AuthorizationInfo) {
 	isSuccess, err := a.RequestVerify(info)
 	if err != nil {
 		a.Status = false
@@ -116,7 +118,7 @@ func (a *AuthorizationProcess) verify(info *AuthorizationInfo){
 		a.Status = true
 	} else {
 		info.ErrorCount++
-		a.Status=false
+		a.Status = false
 	}
 	a.writeLicense(info)
 }
@@ -137,7 +139,7 @@ func (a *AuthorizationProcess) Loop() {
 		}
 		c, _ = a.readLincenseFile()
 		content, err = a.s.DecryptWithSha1Base64(c)
-		fmt.Println("content",content)
+		fmt.Println("content", content)
 		if err != nil {
 			a.Status = false
 			goto next
@@ -155,15 +157,15 @@ func (a *AuthorizationProcess) Loop() {
 			a.Status = false
 			continue
 		}
-		fmt.Println("info",info)
+		fmt.Println("info", info)
 		if info.LastVerifyTime == 0 {
 			a.verify(info)
 			goto next
 		}
-		if info.IsVerify{
-			nextQueryTime:=(int(info.LastVerifyTime)+info.VerifyCycle)
-			fmt.Println("333333",now,nextQueryTime,now-nextQueryTime)
-			if now>nextQueryTime{
+		if info.IsVerify {
+			nextQueryTime := (int(info.LastVerifyTime) + info.VerifyCycle)
+			fmt.Println("333333", now, nextQueryTime, now-nextQueryTime)
+			if now > nextQueryTime {
 				fmt.Println("2222222222")
 				a.verify(info)
 				goto next

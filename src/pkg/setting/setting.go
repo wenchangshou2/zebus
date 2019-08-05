@@ -2,6 +2,7 @@ package setting
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"github.com/go-ini/ini"
@@ -15,6 +16,10 @@ type App struct {
 type Server struct {
 	ServerIp   string
 	ServerPort int
+	Auth bool
+	AuthUsername string
+	AuthPassword string
+	AuthModel string
 }
 type Etcd struct {
 	ConnStr string
@@ -33,6 +38,7 @@ type Authorization struct {
 type Running struct{
 	IsAuthorization bool
 	AuthorizationCode string
+	IgnoreTopic []string
 }
 var (
 	cfg                  *ini.File
@@ -56,6 +62,8 @@ func InitSetting(path string) (err error) {
 	mapTo("etcd", EtcdSetting)
 	mapTo("http", HttpSetting)
 	mapTo("authorization", AuthorizationSetting)
+	IgnoreTopic:=cfg.Section("app").Key("IgnoreTopic").String()
+	RunningSetting.IgnoreTopic=strings.Split(IgnoreTopic,",")
 	return
 }
 func mapTo(section string, v interface{}) {

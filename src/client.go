@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/wenchangshou2/zebus/src/pkg/certification"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -19,13 +20,10 @@ import (
 const (
 	// Time allowed to write a message to the peer.
 	writeWait = 10 * time.Second
-
 	// Time allowed to read the next pong message from the peer.
 	pongWait = 5 * time.Second
-
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
-
 	// Maximum message size allowed from peer.
 	maxMessageSize = 500 * 1024
 )
@@ -43,8 +41,6 @@ var upgrader = websocket.Upgrader{
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
 	hub *Hub
-
-	// The websocket connection.
 	conn        *websocket.Conn
 	Ip          string
 	Mac         string
@@ -53,8 +49,8 @@ type Client struct {
 	MessageType int
 	IsRegister  bool
 	SocketType  string
-	// Buffered channel of outbound messages.
 	send chan []byte
+	AuthStatus bool
 }
 
 func (c *Client) writePump() {
@@ -68,7 +64,6 @@ func (c *Client) writePump() {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				// The hub closed the channel.
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
@@ -77,13 +72,11 @@ func (c *Client) writePump() {
 				return
 			}
 			w.Write(message)
-
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
 				w.Write(<-c.send)
 			}
-
 			if err := w.Close(); err != nil {
 				return
 			}
@@ -93,9 +86,31 @@ func (c *Client) writePump() {
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
-			// }
 		}
 	}
+}
+
+func (c *Client) login (params map[string]interface{})bool{
+		isOk,err:=certification.G_Certification.Login(params)
+		if err!=nil{
+			d:=make(map[string]interface{})
+			d["state"]=400
+			d["message"]=err.Error()
+			msg,_:=c.generateResponse(&d)
+			c.send<-msg
+			return false
+		}
+		if !isOk{
+			d:=make(map[string]interface{})
+			d["state"]=400
+			d["message"]="登录失败"
+			 msg,_:=c.generateResponse(&d)
+			 c.send<-msg
+			c.AuthStatus=false
+			return false
+		}
+		c.AuthStatus=true
+		return true
 }
 
 //注册到Daemon的事件
@@ -109,15 +124,14 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	}
 	if topic, ok := arguments["topic"]; ok {
 		c.Topic = topic.(string)
-
 	}
+
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
 		c.SocketName = strings.TrimPrefix(data.SocketName, "/")
 		if setting.EtcdSetting.Enable{
-			G_workerMgr.PutServerInfo(data.SocketName,"Server")
+			G_workerMgr.PutServerInfo(c.SocketName,"Server")
 		}
-
 	} else {
 		c.SocketType = "Daemon"
 		nameAry := strings.Split(data.SocketName, "/")
@@ -128,7 +142,6 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 				G_workerMgr.PutServerInfo(remoteIp,"Daemon")
 			}
 		} else {
-			fmt.Println("register server")
 			c.SocketName = strings.TrimPrefix(data.SocketName, "/")
 		}
 	}
@@ -144,7 +157,6 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 			c.send <- b
 		}
 	}
-
 	c.hub.register <- c
 }
 func (c *Client) generateResponse(data *map[string]interface{}) ([]byte, error) {
@@ -196,8 +208,8 @@ func (c *Client) execute(data []byte) {
 		} else {
 			d = c.hub.GetAllClientInfo()
 		}
-					case "getAuthoricationStatus":
-		d["status"]=G_Authorization.Status
+		case "getAuthoricationStatus":
+			d["status"]=G_Authorization.Status
 		//d=G_workerMgr.ListWorkers()
 	}
 	if len(cmd.SenderName) == 0 {
@@ -217,13 +229,13 @@ func (c *Client) execute(data []byte) {
 		rtu["data"] = d
 	}
 	b, err := json.Marshal(rtu)
-
 	if err != nil {
 		logging.G_Logger.Error(fmt.Sprintf("send data 错误:%v", err))
 		return
 	}
 	c.hub.forward <- b
 }
+// 未授权消息
 func (c *Client) unAuthorization(recv string){
 	var (
 		rtu map[string]interface{}
@@ -262,20 +274,24 @@ func (c *Client) readPump() {
 			logging.G_Logger.Error(tmp)
 			continue
 		}
-
 		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
+			if setting.ServerSetting.Auth{
+				 if !c.login(data.Auth){
+						continue
+				 }
+			}
 			c.registerToDaemon(data)
 			continue
 		}
 		if !c.IsRegister{ //如果当前没有初始不接受任何指令
 			continue
 		}
-		if !G_Authorization.QueryAuthorization(){
-			c.unAuthorization(data.SenderName)
-			continue
-		}
+		// if !G_Authorization.QueryAuthorization(){
+		// 	c.unAuthorization(data.SenderName)
+		// 	continue
+		// }
 		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
-			fmt.Println("execute")
+				fmt.Println("execute")
 			c.execute(message)
 		} else {
 			c.hub.forward <- message
@@ -291,7 +307,6 @@ func (c *Client) process(data []byte) {
 	}
 
 }
-
 // serveWs handles websocket requests from  the peer.
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }

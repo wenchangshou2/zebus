@@ -1,2 +1,0 @@
-{"level":"info","time":"2019-03-31T14:06:59.288+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:73","msg":"log 初始化成功"}
-{"level":"info","time":"2019-03-31T14:07:54.935+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:73","msg":"log 初始化成功"}

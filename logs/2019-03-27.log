@@ -1,5 +1,0 @@
-{"level":"info","time":"2019-03-27T23:28:41.507+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:66","msg":"log 初始化成功"}
-{"level":"info","time":"2019-03-27T23:31:45.682+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:66","msg":"log 初始化成功"}
-{"level":"info","time":"2019-03-27T23:33:26.906+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:66","msg":"log 初始化成功"}
-{"level":"error","time":"2019-03-27T23:40:04.120+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/client.go:114","msg":"解析json错误:z.hub.forward<-message","stacktrace":"main.(*Client).readPump\n\tC:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/client.go:114"}
-{"level":"info","time":"2019-03-27T23:41:09.433+0800","caller":"C:/Users/wench/go/src/github.com/wenchangshou2/zebus/src/pkg/logging/logging.go:66","msg":"log 初始化成功"}

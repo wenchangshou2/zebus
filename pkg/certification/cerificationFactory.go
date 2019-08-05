@@ -1,6 +1,6 @@
 package certification
 
-import "github.com/wenchangshou2/zebus/src/pkg/setting"
+import "github.com/wenchangshou2/zebus/pkg/setting"
 
 var (
 	G_Certification Certification

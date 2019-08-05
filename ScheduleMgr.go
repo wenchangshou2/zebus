@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"go.etcd.io/etcd/clientv3"
-	"github.com/wenchangshou2/zebus/src/pkg/e"
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
-	"github.com/wenchangshou2/zebus/src/pkg/utils"
+	"github.com/wenchangshou2/zebus/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/setting"
+	"github.com/wenchangshou2/zebus/pkg/utils"
 	"time"
 )
 

@@ -3,11 +3,11 @@ package api
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/wenchangshou2/zebus/src/pkg/app"
-	"github.com/wenchangshou2/zebus/src/pkg/e"
-	"github.com/wenchangshou2/zebus/src/pkg/safety"
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
-	"github.com/wenchangshou2/zebus/src/pkg/utils"
+	"github.com/wenchangshou2/zebus/pkg/app"
+	"github.com/wenchangshou2/zebus/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/safety"
+	"github.com/wenchangshou2/zebus/pkg/setting"
+	"github.com/wenchangshou2/zebus/pkg/utils"
 	"net/http"
 	"time"
 )

@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/coreos/etcd/mvcc/mvccpb"
-	"github.com/wenchangshou2/zebus/src/pkg/e"
-	"github.com/wenchangshou2/zebus/src/pkg/logging"
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
-	utils2 "github.com/wenchangshou2/zebus/src/pkg/utils"
+	"github.com/wenchangshou2/zebus/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/logging"
+	"github.com/wenchangshou2/zebus/pkg/setting"
+	utils2 "github.com/wenchangshou2/zebus/pkg/utils"
 	"go.etcd.io/etcd/clientv3"
 )
 
@@ -85,23 +85,24 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 	return
 }
 
-func (WorkerMgr *WorkerMgr) isAllowPut(serverName string) bool{
-	if len(setting.RunningSetting.IgnoreTopic)>0{//判断当前是否有忽略入库的topic
-		for _,v :=range setting.RunningSetting.IgnoreTopic{
-			if m,_:=regexp.MatchString(v,serverName);m{
+func (WorkerMgr *WorkerMgr) isAllowPut(serverName string) bool {
+	if len(setting.RunningSetting.IgnoreTopic) > 0 { //判断当前是否有忽略入库的topic
+		for _, v := range setting.RunningSetting.IgnoreTopic {
+			if m, _ := regexp.MatchString(v, serverName); m {
 				return false
 			}
 		}
 	}
 	return true
 }
-//Daemon上线时调用，表示展期机器的上线
+
+// Daemon上线时调用，表示展期机器的上线
 func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) (err error) {
 	var (
 		topic string
 	)
-	if !WorkerMgr.isAllowPut(serverName){
-		logging.G_Logger.Warn(fmt.Sprintf("当前推送的topic:"+serverName+",在忽略名单当中"))
+	if !WorkerMgr.isAllowPut(serverName) {
+		logging.G_Logger.Warn(fmt.Sprintf("当前推送的topic:" + serverName + ",在忽略名单当中"))
 		return
 	}
 
@@ -111,7 +112,6 @@ func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) 
 	} else {
 		topic = e.JOB_SERVER_DIR + serverName
 	}
-	fmt.Println("topic", topic)
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
 	_, err = WorkerMgr.client.Put(ctx, topic, serverType)
 	if err != nil {

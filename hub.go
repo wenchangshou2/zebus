@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/wenchangshou2/zebus/src/pkg/logging"
+	"github.com/wenchangshou2/zebus/pkg/logging"
 )
 
 type Hub struct {
@@ -123,7 +123,7 @@ func (h *Hub) forwardProcess(data []byte) {
 		return
 	}
 	if ReceiverNmae, ok = cmdBody["receiverName"].(string); !ok {
-		logging.G_Logger.Info(fmt.Sprintf("当前的消息没有接收者,直接抛弃:%s",string(data)))
+		logging.G_Logger.Info(fmt.Sprintf("当前的消息没有接收者,直接抛弃:%s", string(data)))
 		return
 	}
 

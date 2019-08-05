@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/wenchangshou2/zebus/src/pkg/logging"
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
+	"github.com/wenchangshou2/zebus/pkg/logging"
+	"github.com/wenchangshou2/zebus/pkg/setting"
 )
 
 type ServerList struct {
@@ -14,7 +14,7 @@ type ServerList struct {
 
 func InitSchedume(addr string) (err error) {
 	var (
-		retriesCount      = 10
+		retriesCount = 10
 	)
 	logging.G_Logger.Info("开始启动调度")
 	hub := newHub()
@@ -42,11 +42,11 @@ func InitSchedume(addr string) (err error) {
 			if retriesCount == 0 {
 				return fmt.Errorf("启动 etcd 服务失败")
 			}
-			logging.G_Logger.Info(fmt.Sprintf("etcd 服务启动失败,当前为第%d次尝试",retriesCount))
+			logging.G_Logger.Info(fmt.Sprintf("etcd 服务启动失败,当前为第%d次尝试", retriesCount))
 			time.Sleep(10 * time.Second)
 		}
 	}
-	logging.G_Logger.Info("启动 websocket server:"+addr)
+	logging.G_Logger.Info("启动 websocket server:" + addr)
 	go http.ListenAndServe(addr, nil)
 	return
 }

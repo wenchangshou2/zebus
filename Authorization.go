@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/wenchangshou2/zebus/src/pkg/e"
-	"github.com/wenchangshou2/zebus/src/pkg/logging"
-	"github.com/wenchangshou2/zebus/src/pkg/safety"
-	"github.com/wenchangshou2/zebus/src/pkg/utils"
+	"github.com/wenchangshou2/zebus/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/logging"
+	"github.com/wenchangshou2/zebus/pkg/safety"
+	"github.com/wenchangshou2/zebus/pkg/utils"
 )
 
 type AuthorizationInfo struct {
@@ -164,9 +164,7 @@ func (a *AuthorizationProcess) Loop() {
 		}
 		if info.IsVerify {
 			nextQueryTime := (int(info.LastVerifyTime) + info.VerifyCycle)
-			fmt.Println("333333", now, nextQueryTime, now-nextQueryTime)
 			if now > nextQueryTime {
-				fmt.Println("2222222222")
 				a.verify(info)
 				goto next
 			}

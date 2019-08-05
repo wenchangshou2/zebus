@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
-	"github.com/wenchangshou2/zebus/src/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/e"
 )
 
 type Gin struct {

@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/wenchangshou2/zebus/src/pkg/utils"
+	"github.com/wenchangshou2/zebus/pkg/utils"
 	"strings"
 	"testing"
 )

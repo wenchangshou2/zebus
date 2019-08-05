@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/wenchangshou2/zebus/src/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/e"
 	"regexp"
 	"strings"
 )

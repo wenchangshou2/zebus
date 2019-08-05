@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/coreos/etcd/mvcc/mvccpb"
-	"github.com/wenchangshou2/zebus/src/pkg/e"
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
-	utils2 "github.com/wenchangshou2/zebus/src/pkg/utils"
+	"github.com/wenchangshou2/zebus/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/setting"
+	utils2 "github.com/wenchangshou2/zebus/pkg/utils"
 	"go.etcd.io/etcd/clientv3"
 	"time"
 )

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net"
 
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
+	"github.com/wenchangshou2/zebus/pkg/setting"
 )
 
 const maxBufferSize = 1024

@@ -3,18 +3,19 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/wenchangshou2/zebus/src/pkg/certification"
+	"github.com/wenchangshou2/zebus/pkg/certification"
+	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/wenchangshou2/zebus/src/pkg/setting"
+	"github.com/wenchangshou2/zebus/pkg/setting"
 
 	"github.com/gorilla/websocket"
-	"github.com/wenchangshou2/zebus/src/pkg/e"
-	"github.com/wenchangshou2/zebus/src/pkg/logging"
+	"github.com/wenchangshou2/zebus/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/logging"
 )
 
 const (
@@ -40,17 +41,28 @@ var upgrader = websocket.Upgrader{
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	hub *Hub
-	conn        *websocket.Conn
-	Ip          string
-	Mac         string
-	Topic       string
-	SocketName  string
-	MessageType int
-	IsRegister  bool
-	SocketType  string
-	send chan []byte
-	AuthStatus bool
+	hub           *Hub
+	conn          *websocket.Conn
+	Ip            string
+	Mac           string
+	Topic         string
+	SocketName    string
+	MessageType   int
+	IsRegister    bool
+	SocketType    string
+	send          chan []byte
+	AuthStatus    bool
+	client        *clientv3.Client
+	kv            clientv3.KV
+	lease         clientv3.Lease
+	serverType    string
+	CancelChannel chan interface{}
+	register      *Register
+	//keepAliveChan <-chan *clientv3.LeaseKeepAliveResponse
+	//keepAliveResp *clientv3.LeaseKeepAliveResponse
+	//cancelCtx context.Context
+	//cancelFunc context.CancelFunc
+	//cancelKeepOnlineCtx context.Context
 }
 
 func (c *Client) writePump() {
@@ -90,27 +102,55 @@ func (c *Client) writePump() {
 	}
 }
 
-func (c *Client) login (params map[string]interface{})bool{
-		isOk,err:=certification.G_Certification.Login(params)
-		if err!=nil{
-			d:=make(map[string]interface{})
-			d["state"]=400
-			d["message"]=err.Error()
-			msg,_:=c.generateResponse(&d)
-			c.send<-msg
-			return false
-		}
-		if !isOk{
-			d:=make(map[string]interface{})
-			d["state"]=400
-			d["message"]="登录失败"
-			 msg,_:=c.generateResponse(&d)
-			 c.send<-msg
-			c.AuthStatus=false
-			return false
-		}
-		c.AuthStatus=true
-		return true
+func (c *Client) login(params map[string]interface{}) bool {
+	isOk, err := certification.G_Certification.Login(params)
+	if err != nil {
+		d := make(map[string]interface{})
+		d["state"] = 400
+		d["message"] = err.Error()
+		msg, _ := c.generateResponse(&d)
+		c.send <- msg
+		return false
+	}
+	if !isOk {
+		d := make(map[string]interface{})
+		d["state"] = 400
+		d["message"] = "登录失败"
+		msg, _ := c.generateResponse(&d)
+		c.send <- msg
+		c.AuthStatus = false
+		return false
+	}
+	c.AuthStatus = true
+	return true
+}
+func (c *Client) initRegister(socketName string) {
+	var (
+		config clientv3.Config
+		client *clientv3.Client
+		kv     clientv3.KV
+		lease  clientv3.Lease
+		err    error
+	)
+	config = clientv3.Config{
+		Endpoints:   []string{setting.EtcdSetting.ConnStr},
+		DialTimeout: 5 * time.Second,
+	}
+	if client, err = clientv3.New(config); err != nil {
+		return
+	}
+	kv = clientv3.NewKV(client)
+	lease = clientv3.NewLease(client)
+	c.register = &Register{
+		client:     client,
+		kv:         kv,
+		lease:      lease,
+		serverType: "Server",
+		serverName: socketName,
+	}
+
+	go c.register.keepOnline()
+	return
 }
 
 //注册到Daemon的事件
@@ -129,8 +169,9 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
 		c.SocketName = strings.TrimPrefix(data.SocketName, "/")
-		if setting.EtcdSetting.Enable{
-			G_workerMgr.PutServerInfo(c.SocketName,"Server")
+		if setting.EtcdSetting.Enable {
+			G_workerMgr.PutServerInfo(c.SocketName, "Server")
+			c.initRegister(c.SocketName)
 		}
 	} else {
 		c.SocketType = "Daemon"
@@ -139,7 +180,7 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 			remoteIp := strings.Split(c.conn.RemoteAddr().String(), ":")[0]
 			c.SocketName = fmt.Sprintf("/zebus/%s", remoteIp)
 			if setting.EtcdSetting.Enable {
-				G_workerMgr.PutServerInfo(remoteIp,"Daemon")
+				G_workerMgr.PutServerInfo(remoteIp, "Daemon")
 			}
 		} else {
 			c.SocketName = strings.TrimPrefix(data.SocketName, "/")
@@ -208,8 +249,8 @@ func (c *Client) execute(data []byte) {
 		} else {
 			d = c.hub.GetAllClientInfo()
 		}
-		case "getAuthoricationStatus":
-			d["status"]=G_Authorization.Status
+	case "getAuthoricationStatus":
+		d["status"] = G_Authorization.Status
 		//d=G_workerMgr.ListWorkers()
 	}
 	if len(cmd.SenderName) == 0 {
@@ -235,24 +276,30 @@ func (c *Client) execute(data []byte) {
 	}
 	c.hub.forward <- b
 }
+
 // 未授权消息
-func (c *Client) unAuthorization(recv string){
+func (c *Client) unAuthorization(recv string) {
 	var (
 		rtu map[string]interface{}
 	)
-	rtu=make(map[string]interface{})
-	if len(recv)>0{
-		rtu["Action"]="UnAuthorization"
-		rtu["receiverName"]=recv
-		rtu["senderName"]="/zebus"
-		byte,_:=json.Marshal(rtu)
-		c.hub.forward<-byte
+	rtu = make(map[string]interface{})
+	if len(recv) > 0 {
+		rtu["Action"] = "UnAuthorization"
+		rtu["receiverName"] = recv
+		rtu["senderName"] = "/zebus"
+		byte, _ := json.Marshal(rtu)
+		c.hub.forward <- byte
 	}
 }
 func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
+		if setting.EtcdSetting.Enable{
+			if c.register!=nil{
+				c.register.CancelChannel<-true
+			}
+		}
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -267,7 +314,7 @@ func (c *Client) readPump() {
 			logging.G_Logger.Error("接收失败:" + err.Error())
 			break
 		}
-		logging.G_Logger.Info(string(message),zap.String("type","message"))
+		logging.G_Logger.Info(string(message), zap.String("type", "message"))
 		data := e.RequestCmd{}
 		if err = json.Unmarshal(message, &data); err != nil {
 			tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message), err.Error())
@@ -275,23 +322,19 @@ func (c *Client) readPump() {
 			continue
 		}
 		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
-			if setting.ServerSetting.Auth{
-				 if !c.login(data.Auth){
-						continue
-				 }
+			if setting.ServerSetting.Auth {
+				if !c.login(data.Auth) {
+					continue
+				}
 			}
 			c.registerToDaemon(data)
 			continue
 		}
-		if !c.IsRegister{ //如果当前没有初始不接受任何指令
+		if !c.IsRegister { //如果当前没有初始不接受任何指令
 			continue
 		}
-		// if !G_Authorization.QueryAuthorization(){
-		// 	c.unAuthorization(data.SenderName)
-		// 	continue
-		// }
+
 		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
-				fmt.Println("execute")
 			c.execute(message)
 		} else {
 			c.hub.forward <- message
@@ -307,6 +350,7 @@ func (c *Client) process(data []byte) {
 	}
 
 }
+
 // serveWs handles websocket requests from  the peer.
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }

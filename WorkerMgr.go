@@ -66,7 +66,7 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 		return
 	}
 	for _, kv = range getResp.Kvs {
-		if utils2.IsDaemon(string(kv.Key)) {
+		if utils2.IsDaemon(string(kv.Key))||strings.Compare(string(kv.Value),"Daemon")==0 {
 			workerIp = utils2.ExtractWorkerIP(string(kv.Key))
 			serverInfo := e.WorkerInfo{
 				Ip:     workerIp,

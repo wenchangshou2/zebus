@@ -225,7 +225,7 @@ func (c *Client) execute(data []byte) {
 		return
 	}
 	switch cmd.Action {
-	case "getClients":
+	case " getClients":
 		logging.G_Logger.Info("获取当前客户端列表")
 		if setting.EtcdSetting.Enable {
 			tmpOnlineList, err := G_workerMgr.ListWorkers()

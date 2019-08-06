@@ -13,8 +13,6 @@ require (
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/denisbrodbeck/machineid v1.0.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/gin-gonic/contrib v0.0.0-20190526021735-7fb7810ed2a0
-	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ini/ini v1.42.0
 	github.com/google/btree v1.0.0 // indirect
 	github.com/gorilla/websocket v1.4.0
@@ -22,6 +20,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.9.5 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
+	github.com/julienschmidt/httprouter v1.2.0
 	github.com/kardianos/service v1.0.0
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/common v0.6.0

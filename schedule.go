@@ -12,12 +12,11 @@ import (
 type ServerList struct {
 }
 
-func InitSchedume(addr string) (err error) {
+func InitSchedume(addr string,hub *Hub) (err error) {
 	var (
 		retriesCount = 10
 	)
 	logging.G_Logger.Info("开始启动调度")
-	hub := newHub()
 	go hub.run()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)

@@ -7,8 +7,11 @@ import (
 	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/wenchangshou2/zebus/pkg/setting"
@@ -41,7 +44,8 @@ var upgrader = websocket.Upgrader{
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	hub           *Hub
+	sync.RWMutex
+	hub           *ZEBUSD
 	conn          *websocket.Conn
 	Ip            string
 	Mac           string
@@ -51,6 +55,7 @@ type Client struct {
 	IsRegister    bool
 	SocketType    string
 	send          chan []byte
+	sendMessage   chan *Message
 	AuthStatus    bool
 	client        *clientv3.Client
 	kv            clientv3.KV
@@ -58,11 +63,10 @@ type Client struct {
 	serverType    string
 	CancelChannel chan interface{}
 	register      *Register
-	//keepAliveChan <-chan *clientv3.LeaseKeepAliveResponse
-	//keepAliveResp *clientv3.LeaseKeepAliveResponse
-	//cancelCtx context.Context
-	//cancelFunc context.CancelFunc
-	//cancelKeepOnlineCtx context.Context
+	messageCount  uint64
+	messageBytes  uint64
+	memoryMsgChan chan *Message
+	idFactory     *guidFactory
 }
 
 func (c *Client) writePump() {
@@ -92,8 +96,16 @@ func (c *Client) writePump() {
 			if err := w.Close(); err != nil {
 				return
 			}
+		case msg, ok := <-c.memoryMsgChan:
+			fmt.Println("msg111111", msg, ok)
+			//c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			//if !ok{
+			//	c.conn.WriteMessage(websocket.CloseMessage,[]byte{})
+			//	return
+			//}
+			//w,_:=c.conn.NextWriter(websocket.BinaryMessage)
+			//w.Write(msg.Body)
 		case <-ticker.C:
-			// if strings.Compare(c.SocketName, "Daemon") == 0 {
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
@@ -226,7 +238,6 @@ func (c *Client) execute(data []byte) {
 	}
 	switch cmd.Action {
 	case " getClients":
-		logging.G_Logger.Info("获取当前客户端列表")
 		if setting.EtcdSetting.Enable {
 			tmpOnlineList, err := G_workerMgr.ListWorkers()
 			tmpOfflineList := make([]string, 0)
@@ -295,9 +306,9 @@ func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
-		if setting.EtcdSetting.Enable{
-			if c.register!=nil{
-				c.register.CancelChannel<-true
+		if setting.EtcdSetting.Enable {
+			if c.register != nil {
+				c.register.CancelChannel <- true
 			}
 		}
 	}()
@@ -333,13 +344,11 @@ func (c *Client) readPump() {
 		if !c.IsRegister { //如果当前没有初始不接受任何指令
 			continue
 		}
-
 		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
 			c.execute(message)
 		} else {
 			c.hub.forward <- message
 		}
-		//time.Sleep(100*time.Millisecond)
 	}
 }
 func (c *Client) process(data []byte) {
@@ -348,11 +357,39 @@ func (c *Client) process(data []byte) {
 	} else {
 		c.hub.forward <- data
 	}
-
+}
+func (c *Client) GenerateID() MessageID {
+retry:
+	id, err := c.idFactory.NewGUID()
+	if err != nil {
+		time.Sleep(time.Millisecond)
+		goto retry
+	}
+	return id.Hex()
+}
+func (c *Client) PutMessage(m *Message) error {
+	c.RLock()
+	defer c.RUnlock()
+	err := c.put(m)
+	if err != nil {
+		return err
+	}
+	atomic.AddUint64(&c.messageCount, 1)
+	atomic.AddUint64(&c.messageBytes, uint64(len(m.Body)))
+	return nil
+}
+func (c *Client) put(m *Message) error {
+	fmt.Println("put")
+	select {
+	case c.memoryMsgChan <- m:
+	default:
+		//b:=bufferPoolGet()
+	}
+	return nil
 }
 
 // serveWs handles websocket requests from  the peer.
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(w, r, nil)
 	// defer conn.Close()
@@ -360,7 +397,15 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	rand.Seed(time.Now().UnixNano())
+	client := &Client{
+		hub:           hub,
+		conn:          conn,
+		send:          make(chan []byte, 256),
+		idFactory:     NewGUIDFactory(int64(rand.Intn(10000))),
+		memoryMsgChan: make(chan *Message, setting.AppSetting.MemQueueSize),
+		sendMessage:   make(chan *Message, 0),
+	}
 	tmp := map[string]interface{}{}
 	tmp["ip"] = strings.Split(conn.RemoteAddr().String(), ":")[0]
 	tmp["Service"] = "registerCall"

@@ -3,31 +3,34 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
+	"github.com/wenchangshou2/zebus/pkg/utils"
+	"go.uber.org/zap"
 	"strings"
 	"sync"
 
 	"github.com/wenchangshou2/zebus/pkg/logging"
 )
 
-type Hub struct {
+type ZEBUSD struct {
+	sync.RWMutex
 	// Registered clients.
 	clients map[*Client]bool
+	clientMap map[string] *Client
 	online  map[string]bool
 	offline map[string]bool
 	// Inbound messages from the clients.
 	broadcast chan []byte
-
 	// Register requests from the clients.
 	register chan *Client
 	forward  chan []byte
 	// Unregister requests from clients.
 	unregister chan *Client
 	mux        sync.RWMutex
+	logf *zap.Logger
 }
 
-func newHub() *Hub {
-	return &Hub{
+func newHub(logf *zap.Logger) *ZEBUSD {
+	return &ZEBUSD{
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
@@ -35,10 +38,12 @@ func newHub() *Hub {
 		forward:    make(chan []byte),
 		online:     make(map[string]bool),
 		offline:    make(map[string]bool),
+		clientMap:make(map[string]*Client,0),
 		mux:        sync.RWMutex{},
+		logf: logf,
 	}
 }
-func (h *Hub) GetAllClientInfo() map[string]interface{} {
+func (h *ZEBUSD) GetAllClientInfo() map[string]interface{} {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 	rtu := make(map[string]interface{})
@@ -58,7 +63,7 @@ func (h *Hub) GetAllClientInfo() map[string]interface{} {
 	rtu["offline"] = offlineClient
 	return rtu
 }
-func (h *Hub) SetClientInfo(ip string, isRegister bool) {
+func (h *ZEBUSD) SetClientInfo(ip string, isRegister bool) {
 	h.mux.Lock()
 	defer h.mux.Unlock()
 	if isRegister {
@@ -69,42 +74,14 @@ func (h *Hub) SetClientInfo(ip string, isRegister bool) {
 		h.offline[ip] = true
 	}
 }
-func (h *Hub) isIp(str string) bool {
-	matched, _ := regexp.MatchString("(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3}", str)
-	return matched
-}
-func (h *Hub) checkIp(source, target string) bool {
-	arr1 := strings.Split(source, "/")
-	arr2 := strings.Split(target, "/")
-	if len(arr1) > 2 && len(arr2) > 2 {
-		ip1Str := arr1[2]
-		ip2Str := arr2[2]
-		if h.isIp(ip1Str) && h.isIp(ip2Str) {
-			if strings.Compare(ip1Str, ip2Str) != 0 {
-				return false
-			}
-
-		}
-	}
-	return true
-}
-func (h *Hub) trimPrefix(topic string) (newTopic string) {
+func (h *ZEBUSD) trimPrefix(topic string) (newTopic string) {
 	newTopic = strings.TrimPrefix(topic, "/zebus")
 	newTopic = strings.TrimPrefix(newTopic, "/")
 	return
 
 }
 
-//获取当前topic的ip
-func (h *Hub) getIp(topic string) (bool, string) {
-	var (
-		arr []string
-	)
-	arr = strings.Split(topic, "/")
-	isIp := h.isIp(arr[0])
-	return isIp, arr[0]
-}
-func (h *Hub) forwareClientMessage(client *Client, message []byte) {
+func (h *ZEBUSD) forwareClientMessage(client *Client, message []byte) {
 	select {
 	case client.send <- message:
 	default:
@@ -112,7 +89,7 @@ func (h *Hub) forwareClientMessage(client *Client, message []byte) {
 		delete(h.clients, client)
 	}
 }
-func (h *Hub) forwardProcess(data []byte) {
+func (h *ZEBUSD) forwardProcess(data []byte) {
 	var (
 		ReceiverNmae string
 		ok           bool
@@ -139,7 +116,7 @@ func (h *Hub) forwardProcess(data []byte) {
 			h.forwareClientMessage(client, data)
 			return
 		}
-		isIp, ip := h.getIp(ReceiverNmae)
+		isIp, ip := utils.GetIp(ReceiverNmae)
 		if isIp && strings.Compare(client.SocketType, "Daemon") == 0 && strings.Compare(ip, client.Ip) == 0 { //转发给daemon
 			cmdBody["receiverName"] = ReceiverNmae
 			data, err = json.Marshal(cmdBody)
@@ -147,30 +124,34 @@ func (h *Hub) forwardProcess(data []byte) {
 				h.forwareClientMessage(client, data)
 			}
 		}
-
-		//if strings.Compare(client.SocketName, cmdBody.ReceiverName) == 0 || strings.HasPrefix(cmdBody.ReceiverName, client.SocketName) && h.checkIp(client.SocketName, cmdBody.ReceiverName) {
-		//	select {
-		//	case client.send <- data:
-		//	default:
-		//		close(client.send)
-		//		delete(h.clients, client)
-		//	}
-		//}
 	}
 
 }
-func (h *Hub) run() {
+func (h *ZEBUSD) getClients(topicName string)*Client{
+	h.RLock()
+	fmt.Println("clientmap",h.clientMap)
+	t,ok:=h.clientMap[topicName]
+	h.RUnlock()
+	if ok{
+		return  t
+	}
+	return nil
+}
+func (h *ZEBUSD) run() {
 	for {
 		select {
 		case client := <-h.register:
 			logging.G_Logger.Info(fmt.Sprintf("register:%s", client.SocketName))
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
+			h.clientMap[client.SocketName]=client
+			//client.SocketName
 		case client := <-h.unregister:
 			logging.G_Logger.Info("unregister " + client.SocketName)
 			if _, ok := h.clients[client]; ok {
 				fmt.Println("ok", client.send)
 				delete(h.clients, client)
+				delete(h.clientMap,client.SocketName)
 				close(client.send)
 			}
 			h.SetClientInfo(client.Ip, false)

@@ -24,7 +24,7 @@ type WorkerMgr struct {
 	client *clientv3.Client
 	kv     clientv3.KV
 	lease  clientv3.Lease
-	hub    *Hub
+	hub    *ZEBUSD
 }
 
 var (
@@ -32,7 +32,7 @@ var (
 )
 
 // 初始经状态同步
-func InitWorkerMgr(hub *Hub) (err error) {
+func InitWorkerMgr(hub *ZEBUSD) (err error) {
 	var (
 		config clientv3.Config
 		client *clientv3.Client

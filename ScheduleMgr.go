@@ -15,7 +15,7 @@ type ConfigMgr struct{
 	kv clientv3.KV
 	lease clientv3.Lease
 	ProcessData chan []byte
-	hub *Hub
+	hub *ZEBUSD
 }
 var (
 	G_ScheduleMgr *ConfigMgr
@@ -37,7 +37,7 @@ func (scheduleMgr *ConfigMgr) Process(){
 		}
 	}
 }
-func InitScheduleMgr(hub *Hub)(err error){
+func InitScheduleMgr(hub *ZEBUSD)(err error){
 	var (
 		config clientv3.Config
 		client *clientv3.Client

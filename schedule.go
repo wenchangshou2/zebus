@@ -12,7 +12,7 @@ import (
 type ServerList struct {
 }
 
-func InitSchedume(addr string,hub *Hub) (err error) {
+func InitSchedume(addr string,hub *ZEBUSD) (err error) {
 	var (
 		retriesCount = 10
 	)

@@ -12,6 +12,8 @@ type App struct {
 	LogSavePath string
 	LogSaveName string
 	LogLevel    string
+	MaxMsgSize int64
+	MemQueueSize int64
 }
 type Server struct {
 	ServerIp   string

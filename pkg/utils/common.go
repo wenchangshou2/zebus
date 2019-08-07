@@ -2,19 +2,18 @@ package utils
 
 import (
 	"github.com/wenchangshou2/zebus/pkg/e"
-	"regexp"
 	"strings"
 )
 
 func ExtractWorkerIP(regKey string)(string){
 	return strings.TrimPrefix(regKey,e.JOB_WORKER_DIR)
 }
-func IsIP(ip string) (b bool) {
-	if m, _ := regexp.MatchString("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", ip); !m {
-		return false
-	}
-	return true
-}
+//func IsIP(ip string) (b bool) {
+//	if m, _ := regexp.MatchString("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", ip); !m {
+//		return false
+//	}
+//	return true
+//}
 func IsDaemon(regKey string)bool{
 	var (
 		arr [] string
@@ -26,7 +25,7 @@ func IsDaemon(regKey string)bool{
 	if len(arr)>3{
 		return false
 	}
-	if !IsIP(arr[2]){
+	if !IsIp(arr[2]){
 		return false
 	}
 	return true

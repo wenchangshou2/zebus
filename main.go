@@ -28,10 +28,8 @@ func (*Service) Start(_ service.Service) error {
 		AuthorizationDone chan bool
 	)
 	AuthorizationDone = make(chan bool)
-	hub := newHub()
 	confPath, _ := utils.GetFullPath("conf/app.ini")
 	if err = setting.InitSetting(confPath); err != nil {
-		fmt.Println("读取配置文件失败")
 		return errors.New("读取配置文件失败")
 	}
 	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
@@ -41,7 +39,7 @@ func (*Service) Start(_ service.Service) error {
 	if err = certification.InitCertification(); err != nil { //初始化认证
 		return errors.New("初始化授权失败")
 	}
-
+	hub := newHub(logging.G_Logger)
 	httpServer:=newHTTPServer(hub,false,false)
 	httpListener, err := net.Listen("tcp", "0.0.0.0:9191")
 	go http_api.Serve(httpListener, httpServer, "HTTP", *logging.G_Logger)

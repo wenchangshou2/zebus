@@ -10,13 +10,17 @@ import (
 	"github.com/wenchangshou2/zebus/pkg/safety"
 	"github.com/wenchangshou2/zebus/pkg/setting"
 	"github.com/wenchangshou2/zebus/pkg/utils"
+	"io"
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
 
 type httpServer struct {
-	hub         *Hub
+	ctx         *ZEBUSD
 	tlsEnabled  bool
 	tlsRequired bool
 	router      http.Handler
@@ -90,13 +94,43 @@ func (s *httpServer) getClients(w http.ResponseWriter,req *http.Request,ps httpr
 			Offline []string `json:"offline"`
 		}{tmpOnlineList,tmpOfflineList},nil
 	}else {
-		return s.hub.GetAllClientInfo(),nil
+		return s.ctx.GetAllClientInfo(),nil
 	}
 }
-func (s *httpServer)put(w http.ResponseWriter,req *http.Request,ps httprouter.Params)(interface{},error){
-
+func (s *httpServer)doPUB(w http.ResponseWriter,req *http.Request,ps httprouter.Params)(interface{},error){
+	readMax:=setting.AppSetting.MaxMsgSize+1
+	body,err:=ioutil.ReadAll(io.LimitReader(req.Body,readMax))
+	if err!=nil{
+		return nil,http_api.Err{500,"INTERNAL_ERROR"}
+	}
+	if int64(len(body))==readMax{
+		return nil,http_api.Err{413,"MSG_TOO_BIG"}
+	}
+	if len(body)==0{
+		return nil,http_api.Err{400,"MSG_EMPTY"}
+	}
+	reqParams,client,err:=s.getTopicFromQuery(req)
+	if err!=nil{
+		return nil,err
+	}
+	var deferred time.Duration
+	if ds,ok:=reqParams["defer"];ok{
+		var di int64
+		di,err=strconv.ParseInt(ds[0],10,64)
+		if err!=nil{
+			return nil,http_api.Err{400,"INVLID_DEFER"}
+		}
+		deferred=time.Duration(di)*time.Millisecond
+	}
+	msg:=NewMessage(client.GenerateID(),body)
+	msg.deferred=deferred
+	err=client.PutMessage(msg)
+	if err!=nil{
+		return nil,http_api.Err{503,"EXITING"}
+	}
+	return "OK",nil
 }
-func newHTTPServer(hub *Hub, tlsEnabled bool, tlsRequired bool) *httpServer {
+func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServer {
 	log := http_api.Log(logging.G_Logger)
 	router := httprouter.New()
 	router.HandleMethodNotAllowed = true
@@ -104,7 +138,7 @@ func newHTTPServer(hub *Hub, tlsEnabled bool, tlsRequired bool) *httpServer {
 	router.NotFound = http_api.LogNotFoundHandler(logging.G_Logger)
 	router.MethodNotAllowed = http_api.LogMethodNotAllowedHandler(logging.G_Logger)
 	s := &httpServer{
-		hub:         hub,
+		ctx:         zebusd,
 		tlsEnabled:  tlsEnabled,
 		tlsRequired: tlsRequired,
 		router:      router,
@@ -113,6 +147,7 @@ func newHTTPServer(hub *Hub, tlsEnabled bool, tlsRequired bool) *httpServer {
 	router.Handle("POST", "/getSystemMachineCode", http_api.Decorate(s.getSystemMachineCode, log, http_api.V1))
 	router.Handle("POST","/getAuthorizationStatus",http_api.Decorate(s.getAuthorizationStatus,log,http_api.V1))
 	router.Handle("POST","/getClients",http_api.Decorate(s.getClients,log,http_api.V1))
+	router.Handle("POST","/pub",http_api.Decorate(s.doPUB,http_api.V1))
 	return s
 }
 func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -125,7 +160,23 @@ func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	//	io.WriteString(w, resp)
 	//	return
 	//}
-	fmt.Println("serverhttp", w, req)
-
 	s.router.ServeHTTP(w, req)
+}
+func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values,*Client,error){
+	reqParams,err:=url.ParseQuery(req.URL.RawQuery)
+	if err!=nil{
+		s.ctx.logf.Error(fmt.Sprintf("failed to parse request params - %s",err))
+		return nil,nil,http_api.Err{400,"INVALID REQUEST"}
+	}
+	topicNames,ok:=reqParams["topic"]
+	if !ok{
+		return nil,nil,http_api.Err{400,"MISSING_APG_TOPIC"}
+	}
+	topicName:=topicNames[0]
+	client:=s.ctx.getClients(topicName)
+	if client==nil{
+		return nil,nil,http_api.Err{400,"DRIVER NOT ONLINE"}
+	}
+	return reqParams,client,nil
+
 }

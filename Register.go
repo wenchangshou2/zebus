@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"go.etcd.io/etcd/clientv3"
 	"github.com/wenchangshou2/zebus/pkg/e"
+	"go.etcd.io/etcd/clientv3"
 )
 
 type Register struct {
@@ -18,8 +18,6 @@ type Register struct {
 	serverName    string
 	CancelChannel chan interface{}
 }
-
-
 
 func (register *Register) keepOnline() {
 	var (
@@ -37,7 +35,7 @@ func (register *Register) keepOnline() {
 	for {
 
 		if strings.Compare(register.serverType, "Server") == 0 {
-			regKey = e.SERVER_DIR+register.serverName
+			regKey = e.SERVER_DIR + register.serverName
 		}
 		cancelFunc = nil
 

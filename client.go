@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/wenchangshou2/zebus/pkg/certification"
@@ -97,7 +98,32 @@ func (c *Client) writePump() {
 				return
 			}
 		case msg, ok := <-c.memoryMsgChan:
-			fmt.Println("msg111111", msg, ok)
+			fmt.Println("topic 333", msg.Topic)
+			var buf = &bytes.Buffer{}
+			_, err := msg.WriteTo(buf)
+			if err != nil {
+				logging.G_Logger.Error(fmt.Sprintf("解析memoryMsgChan错误:%v", err))
+				continue
+			}
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if !ok {
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+			w, err := c.conn.NextWriter(websocket.BinaryMessage)
+			if err != nil {
+				return
+			}
+			w.Write(buf.Bytes())
+			w.Write(newline)
+			if err := w.Close(); err != nil {
+				return
+			}
+			//n:=len(c.memoryMsgChan)
+			//for i:=0;i<n;i++{
+			//	w.Write(newline)
+			//}
+
 			//c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			//if !ok{
 			//	c.conn.WriteMessage(websocket.CloseMessage,[]byte{})
@@ -177,7 +203,6 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	if topic, ok := arguments["topic"]; ok {
 		c.Topic = topic.(string)
 	}
-
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
 		c.SocketName = strings.TrimPrefix(data.SocketName, "/")
@@ -237,7 +262,7 @@ func (c *Client) execute(data []byte) {
 		return
 	}
 	switch cmd.Action {
-	case " getClients":
+	case "getClients":
 		if setting.EtcdSetting.Enable {
 			tmpOnlineList, err := G_workerMgr.ListWorkers()
 			tmpOfflineList := make([]string, 0)
@@ -253,9 +278,9 @@ func (c *Client) execute(data []byte) {
 					if isOffline {
 						tmpOfflineList = append(tmpOfflineList, v)
 					}
-					d["online"] = tmpOnlineList
-					d["offline"] = tmpOfflineList
 				}
+				d["online"] = tmpOnlineList
+				d["offline"] = tmpOfflineList
 			}
 		} else {
 			d = c.hub.GetAllClientInfo()
@@ -345,6 +370,7 @@ func (c *Client) readPump() {
 			continue
 		}
 		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
+			fmt.Println("execute")
 			c.execute(message)
 		} else {
 			c.hub.forward <- message

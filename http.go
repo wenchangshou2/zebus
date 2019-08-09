@@ -58,6 +58,7 @@ func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Reque
 		Msg string `json:"msg"`
 	}{newStr}, nil
 }
+
 func (s *httpServer) getAuthorizationStatus(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 
 	if setting.RunningSetting.IsAuthorization {
@@ -71,64 +72,73 @@ func (s *httpServer) getAuthorizationStatus(w http.ResponseWriter, req *http.Req
 		}{false}, nil
 	}
 }
-func (s *httpServer) getClients(w http.ResponseWriter,req *http.Request,ps httprouter.Params)(interface{},error){
-	if setting.EtcdSetting.Enable{
-		tmpOnlineList,err:=G_workerMgr.ListWorkers()
-		tmpOfflineList:=make([]string,0)
-		allServer,err:=G_workerMgr.GetAllClient()
-		if err==nil{
-			for _,v:=range allServer{
-				isOffline:=true
-				for _,onlineClient:=range tmpOnlineList{
-					if strings.Compare(v,onlineClient.Ip)==0{
-						isOffline=false
+func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	if setting.EtcdSetting.Enable {
+		tmpOnlineList, err := G_workerMgr.ListWorkers()
+		tmpOfflineList := make([]string, 0)
+		allServer, err := G_workerMgr.GetAllClient()
+		if err == nil {
+			for _, v := range allServer {
+				isOffline := true
+				for _, onlineClient := range tmpOnlineList {
+					if strings.Compare(v, onlineClient.Ip) == 0 {
+						isOffline = false
 					}
 				}
-				if isOffline{
-					tmpOfflineList=append(tmpOfflineList,v)
+				if isOffline {
+					tmpOfflineList = append(tmpOfflineList, v)
 				}
 			}
 		}
+		clientsConfigInfo := G_workerMgr.GetClientConfigInfo()
+		for k, onlineClient := range tmpOnlineList {
+			fmt.Println("info000",clientsConfigInfo)
+			if info, ok := clientsConfigInfo[onlineClient.Ip]; ok {
+				//onlineClient.Config = *info
+				tmpOnlineList[k].Config=*info
+				fmt.Println("onlineClient",onlineClient)
+			}
+		}
 		return struct {
-			Online []e.WorkerInfo `json:"online"`
-			Offline []string `json:"offline"`
-		}{tmpOnlineList,tmpOfflineList},nil
-	}else {
-		return s.ctx.GetAllClientInfo(),nil
+			Online  []e.WorkerInfo `json:"online"`
+			Offline []string       `json:"offline"`
+		}{tmpOnlineList, tmpOfflineList}, nil
+	} else {
+		return s.ctx.GetAllClientInfo(), nil
 	}
 }
-func (s *httpServer)doPUB(w http.ResponseWriter,req *http.Request,ps httprouter.Params)(interface{},error){
-	readMax:=setting.AppSetting.MaxMsgSize+1
-	body,err:=ioutil.ReadAll(io.LimitReader(req.Body,readMax))
-	if err!=nil{
-		return nil,http_api.Err{500,"INTERNAL_ERROR"}
+func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	readMax := setting.AppSetting.MaxMsgSize + 1
+	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
+	if err != nil {
+		return nil, http_api.Err{500, "INTERNAL_ERROR"}
 	}
-	if int64(len(body))==readMax{
-		return nil,http_api.Err{413,"MSG_TOO_BIG"}
+	if int64(len(body)) == readMax {
+		return nil, http_api.Err{413, "MSG_TOO_BIG"}
 	}
-	if len(body)==0{
-		return nil,http_api.Err{400,"MSG_EMPTY"}
+	if len(body) == 0 {
+		return nil, http_api.Err{400, "MSG_EMPTY"}
 	}
-	reqParams,client,err:=s.getTopicFromQuery(req)
-	if err!=nil{
-		return nil,err
+	reqParams, client, topic, err := s.getTopicFromQuery(req)
+	if err != nil {
+		return nil, err
 	}
 	var deferred time.Duration
-	if ds,ok:=reqParams["defer"];ok{
+	if ds, ok := reqParams["defer"]; ok {
 		var di int64
-		di,err=strconv.ParseInt(ds[0],10,64)
-		if err!=nil{
-			return nil,http_api.Err{400,"INVLID_DEFER"}
+		di, err = strconv.ParseInt(ds[0], 10, 64)
+		if err != nil {
+			return nil, http_api.Err{400, "INVLID_DEFER"}
 		}
-		deferred=time.Duration(di)*time.Millisecond
+		deferred = time.Duration(di) * time.Millisecond
 	}
-	msg:=NewMessage(client.GenerateID(),body)
-	msg.deferred=deferred
-	err=client.PutMessage(msg)
-	if err!=nil{
-		return nil,http_api.Err{503,"EXITING"}
+	msg := NewMessage(client.GenerateID(), body, []byte(topic))
+	msg.deferred = deferred
+	err = client.PutMessage(msg)
+	if err != nil {
+		return nil, http_api.Err{503, "EXITING"}
 	}
-	return "OK",nil
+	return "OK", nil
 }
 func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServer {
 	log := http_api.Log(logging.G_Logger)
@@ -145,38 +155,29 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServe
 	}
 	router.Handle("GET", "/ping", http_api.Decorate(s.pingHandler, log, http_api.PlainText))
 	router.Handle("POST", "/getSystemMachineCode", http_api.Decorate(s.getSystemMachineCode, log, http_api.V1))
-	router.Handle("POST","/getAuthorizationStatus",http_api.Decorate(s.getAuthorizationStatus,log,http_api.V1))
-	router.Handle("POST","/getClients",http_api.Decorate(s.getClients,log,http_api.V1))
-	router.Handle("POST","/pub",http_api.Decorate(s.doPUB,http_api.V1))
+	router.Handle("POST", "/getAuthorizationStatus", http_api.Decorate(s.getAuthorizationStatus, log, http_api.V1))
+	router.Handle("POST", "/getClients", http_api.Decorate(s.getClients, log, http_api.V1))
+	router.Handle("POST", "/pub", http_api.Decorate(s.doPUB, http_api.V1))
 	return s
 }
 func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	//if !s.tlsEnabled && s.tlsRequired {
-	//	resp := fmt.Sprintf(`{"message": "TLS_REQUIRED", "https_port": %d}`,
-	//		s.ctx.nsqd.RealHTTPSAddr().Port)
-	//	w.Header().Set("X-NSQ-Content-Type", "nsq; version=1.0")
-	//	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	//	w.WriteHeader(403)
-	//	io.WriteString(w, resp)
-	//	return
-	//}
 	s.router.ServeHTTP(w, req)
 }
-func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values,*Client,error){
-	reqParams,err:=url.ParseQuery(req.URL.RawQuery)
-	if err!=nil{
-		s.ctx.logf.Error(fmt.Sprintf("failed to parse request params - %s",err))
-		return nil,nil,http_api.Err{400,"INVALID REQUEST"}
+func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, string, error) {
+	reqParams, err := url.ParseQuery(req.URL.RawQuery)
+	if err != nil {
+		s.ctx.logf.Error(fmt.Sprintf("failed to parse request params - %s", err))
+		return nil, nil, "", http_api.Err{400, "INVALID REQUEST"}
 	}
-	topicNames,ok:=reqParams["topic"]
-	if !ok{
-		return nil,nil,http_api.Err{400,"MISSING_APG_TOPIC"}
+	topicNames, ok := reqParams["topic"]
+	if !ok {
+		return nil, nil, "", http_api.Err{400, "MISSING_APG_TOPIC"}
 	}
-	topicName:=topicNames[0]
-	client:=s.ctx.getClients(topicName)
-	if client==nil{
-		return nil,nil,http_api.Err{400,"DRIVER NOT ONLINE"}
+	topicName := topicNames[0]
+	client := s.ctx.getClients(topicName)
+	if client == nil {
+		return nil, nil, "", http_api.Err{400, "DRIVER NOT ONLINE"}
 	}
-	return reqParams,client,nil
+	return reqParams, client, topicName, nil
 
 }

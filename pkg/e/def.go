@@ -7,8 +7,8 @@ type RequestCmd struct {
 	ReceiverName string                 `json:"receiverName"`
 	Action       string                 `json:"Action"`
 	Arguments    map[string]interface{} `json:"Arguments"`
-	Auth map[string]interface{} `json:"Auth"`
-	SenderName string `json:"senderName"`
+	Auth         map[string]interface{} `json:"Auth"`
+	SenderName   string                 `json:"senderName"`
 }
 type ForwardCmd struct {
 	Service      string `json:"Service"`
@@ -17,16 +17,23 @@ type ForwardCmd struct {
 	SenderName   string `json:"senderName"`
 	Type         int    `json:"type"`
 }
+
+// 客户端配置信息
+type ConfigInfo struct {
+	Volume int
+}
+
 type WorkerInfo struct {
 	Ip     string
 	Server []string
+	Config ConfigInfo
 }
 
 var (
 	JOB_WORKER_DIR         = "/zebus/"
 	CONFIG_WORKER_DIR      = "/config/"
 	JOB_SERVER_DIR         = "/all/"
-	SERVER_DIR = "/servers/"
+	SERVER_DIR             = "/servers/"
 	MSG_DIR                = "/zebus/"
 	JOB_ONLINE_SERVER_DIR  = "/onlineServer/"
 	JOB_HISTORY_SERVER_DIR = "/historyServer/"

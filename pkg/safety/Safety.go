@@ -15,11 +15,12 @@ type Safety struct {
 	privateKey string
 	publicKey  string
 }
-var (
-	G_Safety *Safety=&Safety{}
 
+var (
+	G_Safety *Safety = &Safety{}
 )
-func init(){
+
+func init() {
 	G_Safety.DefaultKey()
 }
 

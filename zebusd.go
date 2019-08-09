@@ -14,10 +14,10 @@ import (
 type ZEBUSD struct {
 	sync.RWMutex
 	// Registered clients.
-	clients map[*Client]bool
-	clientMap map[string] *Client
-	online  map[string]bool
-	offline map[string]bool
+	clients   map[*Client]bool
+	clientMap map[string]*Client
+	online    map[string]bool
+	offline   map[string]bool
 	// Inbound messages from the clients.
 	broadcast chan []byte
 	// Register requests from the clients.
@@ -26,7 +26,7 @@ type ZEBUSD struct {
 	// Unregister requests from clients.
 	unregister chan *Client
 	mux        sync.RWMutex
-	logf *zap.Logger
+	logf       *zap.Logger
 }
 
 func newHub(logf *zap.Logger) *ZEBUSD {
@@ -38,9 +38,9 @@ func newHub(logf *zap.Logger) *ZEBUSD {
 		forward:    make(chan []byte),
 		online:     make(map[string]bool),
 		offline:    make(map[string]bool),
-		clientMap:make(map[string]*Client,0),
+		clientMap:  make(map[string]*Client, 0),
 		mux:        sync.RWMutex{},
-		logf: logf,
+		logf:       logf,
 	}
 }
 func (h *ZEBUSD) GetAllClientInfo() map[string]interface{} {
@@ -127,13 +127,13 @@ func (h *ZEBUSD) forwardProcess(data []byte) {
 	}
 
 }
-func (h *ZEBUSD) getClients(topicName string)*Client{
+func (h *ZEBUSD) getClients(topicName string) *Client {
 	h.RLock()
-	fmt.Println("clientmap",h.clientMap)
-	t,ok:=h.clientMap[topicName]
+	fmt.Println("clientmap", h.clientMap)
+	t, ok := h.clientMap[topicName]
 	h.RUnlock()
-	if ok{
-		return  t
+	if ok {
+		return t
 	}
 	return nil
 }
@@ -144,14 +144,14 @@ func (h *ZEBUSD) run() {
 			logging.G_Logger.Info(fmt.Sprintf("register:%s", client.SocketName))
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
-			h.clientMap[client.SocketName]=client
+			h.clientMap[client.SocketName] = client
 			//client.SocketName
 		case client := <-h.unregister:
 			logging.G_Logger.Info("unregister " + client.SocketName)
 			if _, ok := h.clients[client]; ok {
 				fmt.Println("ok", client.send)
 				delete(h.clients, client)
-				delete(h.clientMap,client.SocketName)
+				delete(h.clientMap, client.SocketName)
 				close(client.send)
 			}
 			h.SetClientInfo(client.Ip, false)

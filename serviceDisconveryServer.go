@@ -16,6 +16,7 @@ func GetServerInfo() (data []byte, err error) {
 	tmp["port"] = setting.ServerSetting.ServerPort
 	return json.Marshal(tmp)
 }
+
 // 处理服务发现的事件
 func upnpServer(conn net.PacketConn) {
 	buffer := make([]byte, maxBufferSize)

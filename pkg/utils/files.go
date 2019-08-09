@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 )
 
-func IsExist(path string)bool{
-	_,err:=os.Stat(path)
-	return err==nil||os.IsExist(err)
+func IsExist(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil || os.IsExist(err)
 }
 func GetFullPath(path string) (string, error) {
 	fullexecpath, err := os.Executable()

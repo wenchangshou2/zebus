@@ -9,19 +9,19 @@ import (
 )
 
 type App struct {
-	LogSavePath string
-	LogSaveName string
-	LogLevel    string
-	MaxMsgSize int64
+	LogSavePath  string
+	LogSaveName  string
+	LogLevel     string
+	MaxMsgSize   int64
 	MemQueueSize int64
 }
 type Server struct {
-	ServerIp   string
-	ServerPort int
-	Auth bool
+	ServerIp     string
+	ServerPort   int
+	Auth         bool
 	AuthUsername string
 	AuthPassword string
-	AuthModel string
+	AuthModel    string
 }
 type Etcd struct {
 	ConnStr string
@@ -37,11 +37,12 @@ type Http struct {
 type Authorization struct {
 	Enable bool
 }
-type Running struct{
-	IsAuthorization bool
+type Running struct {
+	IsAuthorization   bool
 	AuthorizationCode string
-	IgnoreTopic []string
+	IgnoreTopic       []string
 }
+
 var (
 	cfg                  *ini.File
 	AppSetting           = &App{}
@@ -49,8 +50,8 @@ var (
 	EtcdSetting          = &Etcd{}
 	HttpSetting          = &Http{}
 	AuthorizationSetting = &Authorization{}
-	RunningSetting = &Running{
-		IsAuthorization:false,
+	RunningSetting       = &Running{
+		IsAuthorization: false,
 	}
 )
 
@@ -64,8 +65,8 @@ func InitSetting(path string) (err error) {
 	mapTo("etcd", EtcdSetting)
 	mapTo("http", HttpSetting)
 	mapTo("authorization", AuthorizationSetting)
-	IgnoreTopic:=cfg.Section("app").Key("IgnoreTopic").String()
-	RunningSetting.IgnoreTopic=strings.Split(IgnoreTopic,",")
+	IgnoreTopic := cfg.Section("app").Key("IgnoreTopic").String()
+	RunningSetting.IgnoreTopic = strings.Split(IgnoreTopic, ",")
 	return
 }
 func mapTo(section string, v interface{}) {

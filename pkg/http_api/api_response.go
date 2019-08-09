@@ -80,36 +80,36 @@ func RespondV1(w http.ResponseWriter, code int, data interface{}) {
 	w.WriteHeader(code)
 	w.Write(response)
 }
-func PlainText(f APIHandler)APIHandler{
+func PlainText(f APIHandler) APIHandler {
 	return func(w http.ResponseWriter, r *http.Request, param httprouter.Params) (i interface{}, e error) {
-		code:=200
-		data,err:=f(w,r,param)
-		if err!=nil{
-			code=err.(Err).Code
-			data=err.Error()
+		code := 200
+		data, err := f(w, r, param)
+		if err != nil {
+			code = err.(Err).Code
+			data = err.Error()
 		}
-		switch d:=data.(type){
+		switch d := data.(type) {
 		case string:
 			w.WriteHeader(code)
-			io.WriteString(w,d)
+			io.WriteString(w, d)
 		case []byte:
 			w.WriteHeader(code)
 			w.Write(d)
 		default:
-			panic(fmt.Sprintf("unknown response type %T",data))
+			panic(fmt.Sprintf("unknown response type %T", data))
 		}
-		return nil,nil
+		return nil, nil
 	}
 }
 func V1(f APIHandler) APIHandler {
 	return func(w http.ResponseWriter, r *http.Request, param httprouter.Params) (i interface{}, e error) {
 		data, err := f(w, r, param)
 		if err != nil {
-			RespondV1(w,err.(Err).Code,err)
-			return nil,nil
+			RespondV1(w, err.(Err).Code, err)
+			return nil, nil
 		}
-		RespondV1(w,200,data)
-		return nil,nil
+		RespondV1(w, 200, data)
+		return nil, nil
 	}
 }
 func LogPanicHandler(logf *zap.Logger) func(w http.ResponseWriter, req *http.Request, p interface{}) {
@@ -117,7 +117,7 @@ func LogPanicHandler(logf *zap.Logger) func(w http.ResponseWriter, req *http.Req
 		logf.Error(fmt.Sprintf("panic in HTTP handler - %s", p))
 		Decorate(func(w http.ResponseWriter, r *http.Request, param httprouter.Params) (i interface{}, e error) {
 			return nil, Err{500, "INTERNAL ERROR"}
-		}, Log(logf),V1)(w,req,nil)
+		}, Log(logf), V1)(w, req, nil)
 	}
 }
 func LogNotFoundHandler(logf *zap.Logger) http.Handler {
@@ -127,10 +127,10 @@ func LogNotFoundHandler(logf *zap.Logger) http.Handler {
 		}, Log(logf), V1)(w, req, nil)
 	})
 }
-func LogMethodNotAllowedHandler(logf *zap.Logger)http.Handler{
+func LogMethodNotAllowedHandler(logf *zap.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		Decorate(func(w http.ResponseWriter,req *http.Request,ps httprouter.Params)(interface{},error){
-			return nil,Err{405,"METHOD_NOT_ALLOWED"}
-		},Log(logf),V1)(w,req,nil)
+		Decorate(func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+			return nil, Err{405, "METHOD_NOT_ALLOWED"}
+		}, Log(logf), V1)(w, req, nil)
 	})
 }

@@ -12,57 +12,57 @@ import (
 	"strings"
 )
 
-func getCpuId()(string,error){
+func getCpuId() (string, error) {
 	var (
 		stdout io.ReadCloser
-		err error
+		err    error
 	)
-	cmd:=exec.Command("cmd","/C","wmic","cpu","get","processorid")
-	if stdout,err=cmd.StdoutPipe();err!=nil{
+	cmd := exec.Command("cmd", "/C", "wmic", "cpu", "get", "processorid")
+	if stdout, err = cmd.StdoutPipe(); err != nil {
 		log.Fatal(err)
-		return "",err
+		return "", err
 	}
 	defer stdout.Close()
-	if err=cmd.Start();err!=nil{
-		return "",err
+	if err = cmd.Start(); err != nil {
+		return "", err
 	}
-	if opBytes,err:=ioutil.ReadAll(stdout);err!=nil{
-		return "",err
-	}else {
-		str:=string(opBytes)
-		strArr:=strings.Split(str,"\n")
-		return strArr[1],nil
+	if opBytes, err := ioutil.ReadAll(stdout); err != nil {
+		return "", err
+	} else {
+		str := string(opBytes)
+		strArr := strings.Split(str, "\n")
+		return strArr[1], nil
 	}
 }
-func getMachineUUID()(string,error){
-	k,err:=registry.OpenKey(registry.LOCAL_MACHINE,`SOFTWARE\Microsoft\Cryptography`,registry.ALL_ACCESS)
-	if err!=nil{
-		return "",err
+func getMachineUUID() (string, error) {
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Cryptography`, registry.ALL_ACCESS)
+	if err != nil {
+		return "", err
 	}
 	defer k.Close()
-	s,_,err:=k.GetStringValue("MachineGuid")
-	if err!=nil{
-		return "",err
+	s, _, err := k.GetStringValue("MachineGuid")
+	if err != nil {
+		return "", err
 	}
-	return s,nil
+	return s, nil
 }
-func GetSystemUUID()(string,error){
+func GetSystemUUID() (string, error) {
 	var (
-		cpuId string
+		cpuId     string
 		machineId string
-		str string
-		err error
+		str       string
+		err       error
 	)
-	cpuId,err=getCpuId()
-	if err!=nil{
-		return "",errors.New("获取cpuid失败")
+	cpuId, err = getCpuId()
+	if err != nil {
+		return "", errors.New("获取cpuid失败")
 	}
-	machineId,err=getMachineUUID()
-	if err!=nil{
-		return "",errors.New("获取machine id制造")
+	machineId, err = getMachineUUID()
+	if err != nil {
+		return "", errors.New("获取machine id制造")
 	}
-	str=cpuId+machineId
-	hasher:=md5.New()
+	str = cpuId + machineId
+	hasher := md5.New()
 	hasher.Write([]byte(str))
-	return hex.EncodeToString(hasher.Sum(nil)),nil
+	return hex.EncodeToString(hasher.Sum(nil)), nil
 }

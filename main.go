@@ -40,7 +40,7 @@ func (*Service) Start(_ service.Service) error {
 		return errors.New("初始化授权失败")
 	}
 	hub := newHub(logging.G_Logger)
-	httpServer:=newHTTPServer(hub,false,false)
+	httpServer := newHTTPServer(hub, false, false)
 	httpListener, err := net.Listen("tcp", "0.0.0.0:9191")
 	go http_api.Serve(httpListener, httpServer, "HTTP", *logging.G_Logger)
 	if setting.AuthorizationSetting.Enable {

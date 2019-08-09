@@ -3,16 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
-	"regexp"
-	"strings"
-	"time"
-
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"github.com/wenchangshou2/zebus/pkg/e"
 	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/setting"
 	utils2 "github.com/wenchangshou2/zebus/pkg/utils"
 	"go.etcd.io/etcd/clientv3"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var (
@@ -21,11 +21,13 @@ var (
 )
 
 type WorkerMgr struct {
-	client *clientv3.Client
-	kv     clientv3.KV
-	lease  clientv3.Lease
-	hub    *ZEBUSD
+	client      *clientv3.Client
+	kv          clientv3.KV
+	lease       clientv3.Lease
+	hub         *ZEBUSD
+	clientsInfo map[string]*e.ConfigInfo
 }
+
 
 var (
 	G_workerMgr *WorkerMgr
@@ -46,14 +48,62 @@ func InitWorkerMgr(hub *ZEBUSD) (err error) {
 	kv = clientv3.NewKV(client)
 	lease = clientv3.NewLease(client)
 	G_workerMgr = &WorkerMgr{
-		client: client,
-		kv:     kv,
-		lease:  lease,
-		hub:    hub,
+		client:      client,
+		kv:          kv,
+		lease:       lease,
+		hub:         hub,
+		clientsInfo: make(map[string]*e.ConfigInfo),
 	}
-
+	go G_workerMgr.deployUpdateNotify()
 	logging.G_Logger.Info("info workermgr success")
 	return
+}
+func (workerMgr *WorkerMgr) updateConfig(addr, item, val string) {
+	var (
+		client *e.ConfigInfo
+		ok     bool
+	)
+	if client, ok = workerMgr.clientsInfo[addr]; ok {
+		client = workerMgr.clientsInfo[addr]
+	} else {
+		client = &e.ConfigInfo{}
+		workerMgr.clientsInfo[addr]=client
+	}
+
+	if strings.Compare(item, "volume") == 0 {
+		client.Volume, _ = strconv.Atoi(val)
+	}
+
+}
+func (workerMgr *WorkerMgr) deployUpdateNotify() {
+	var (
+		getResp            *clientv3.GetResponse
+		watchStartRevision int64
+		watcher            clientv3.Watcher
+		err                error
+	)
+	if getResp, err = workerMgr.kv.Get(context.TODO(), "/config/pc", clientv3.WithPrefix()); err != nil {
+		logging.G_Logger.Warn("同步配置失败")
+	}
+	for _, ev := range getResp.Kvs {
+		fmt.Println("ev.key", string(ev.Key), string(ev.Value))
+		keys := strings.Split(string(ev.Key), "/")
+		workerMgr.updateConfig(keys[3], keys[4], string(ev.Value))
+	}
+	watchStartRevision = getResp.Header.Revision + 1
+	watcher = clientv3.NewWatcher(workerMgr.client)
+	for {
+		rch := watcher.Watch(context.Background(), "/config/pc", clientv3.WithPrefix(), clientv3.WithRev(watchStartRevision))
+		for wresp := range rch {
+			for _, ev := range wresp.Events {
+				switch ev.Type {
+				case mvccpb.PUT:
+					keys := strings.Split(string(ev.Kv.Key), "/")
+					workerMgr.updateConfig(keys[3], keys[4], string(ev.Kv.Value))
+				}
+			}
+		}
+	}
 }
 func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) {
 	var (
@@ -66,7 +116,7 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 		return
 	}
 	for _, kv = range getResp.Kvs {
-		if utils2.IsDaemon(string(kv.Key))||strings.Compare(string(kv.Value),"Daemon")==0 {
+		if utils2.IsDaemon(string(kv.Key)) || strings.Compare(string(kv.Value), "Daemon") == 0 {
 			workerIp = utils2.ExtractWorkerIP(string(kv.Key))
 			serverInfo := e.WorkerInfo{
 				Ip:     workerIp,
@@ -138,4 +188,7 @@ func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 		clients = append(clients, tmp[2])
 	}
 	return
+}
+func (workerMgr *WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
+	return workerMgr.clientsInfo
 }

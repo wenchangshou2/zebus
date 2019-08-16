@@ -59,25 +59,18 @@ func (f *guidFactory) NewGUID() (guid, error) {
 	} else {
 		f.sequence = 0
 	}
-
 	f.lastTimestamp = ts
-
 	id := guid(((ts - twepoch) << timestampShift) |
 		(f.nodeID << nodeIDShift) |
 		f.sequence)
-
 	if id <= f.lastID {
 		f.Unlock()
 		return 0, ErrIDBackwards
 	}
-
 	f.lastID = id
-
 	f.Unlock()
-
 	return id, nil
 }
-
 func (g guid) Hex() MessageID {
 	var h MessageID
 	var b [8]byte
@@ -90,7 +83,6 @@ func (g guid) Hex() MessageID {
 	b[5] = byte(g >> 16)
 	b[6] = byte(g >> 8)
 	b[7] = byte(g)
-
 	hex.Encode(h[:], b[:])
 	return h
 }

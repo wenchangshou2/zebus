@@ -98,7 +98,6 @@ func (c *Client) writePump() {
 				return
 			}
 		case msg, ok := <-c.memoryMsgChan:
-			fmt.Println("topic 333", msg.Topic)
 			var buf = &bytes.Buffer{}
 			_, err := msg.WriteTo(buf)
 			if err != nil {

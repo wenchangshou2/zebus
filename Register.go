@@ -33,12 +33,10 @@ func (register *Register) keepOnline() {
 	)
 	register.CancelChannel = make(chan interface{})
 	for {
-
 		if strings.Compare(register.serverType, "Server") == 0 {
 			regKey = e.SERVER_DIR + register.serverName
 		}
 		cancelFunc = nil
-
 		if leaseGrantResp, err = register.lease.Grant(context.TODO(), 10); err != nil {
 			goto RETRY
 		}

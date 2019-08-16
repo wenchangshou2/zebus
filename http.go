@@ -91,12 +91,16 @@ func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps htt
 			}
 		}
 		clientsConfigInfo := G_workerMgr.GetClientConfigInfo()
+		resourcesInfo:=G_workerMgr.GetResourceInfo()
+		fmt.Println("resourcesInfo",resourcesInfo)
 		for k, onlineClient := range tmpOnlineList {
-			fmt.Println("info000",clientsConfigInfo)
 			if info, ok := clientsConfigInfo[onlineClient.Ip]; ok {
-				//onlineClient.Config = *info
-				tmpOnlineList[k].Config=*info
-				fmt.Println("onlineClient",onlineClient)
+				tmpOnlineList[k].Config = *info
+			}
+			if resource,ok:=resourcesInfo[onlineClient.Ip];ok{
+				tmpOnlineList[k].Resource=resource
+			}else{
+				tmpOnlineList[k].Resource=make([]string,0)
 			}
 		}
 		return struct {
@@ -179,5 +183,4 @@ func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, 
 		return nil, nil, "", http_api.Err{400, "DRIVER NOT ONLINE"}
 	}
 	return reqParams, client, topicName, nil
-
 }

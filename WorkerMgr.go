@@ -21,13 +21,13 @@ var (
 )
 
 type WorkerMgr struct {
-	client      *clientv3.Client
-	kv          clientv3.KV
-	lease       clientv3.Lease
-	hub         *ZEBUSD
-	clientsInfo map[string]*e.ConfigInfo
+	client       *clientv3.Client
+	kv           clientv3.KV
+	lease        clientv3.Lease
+	hub          *ZEBUSD
+	clientsInfo  map[string]*e.ConfigInfo
+	resourceInfo map[string][]string
 }
-
 
 var (
 	G_workerMgr *WorkerMgr
@@ -48,13 +48,15 @@ func InitWorkerMgr(hub *ZEBUSD) (err error) {
 	kv = clientv3.NewKV(client)
 	lease = clientv3.NewLease(client)
 	G_workerMgr = &WorkerMgr{
-		client:      client,
-		kv:          kv,
-		lease:       lease,
-		hub:         hub,
-		clientsInfo: make(map[string]*e.ConfigInfo),
+		client:       client,
+		kv:           kv,
+		lease:        lease,
+		hub:          hub,
+		clientsInfo:  make(map[string]*e.ConfigInfo),
+		resourceInfo: make(map[string][]string),
 	}
 	go G_workerMgr.deployUpdateNotify()
+	go G_workerMgr.ReousrceUpdateNotify()
 	logging.G_Logger.Info("info workermgr success")
 	return
 }
@@ -67,13 +69,42 @@ func (workerMgr *WorkerMgr) updateConfig(addr, item, val string) {
 		client = workerMgr.clientsInfo[addr]
 	} else {
 		client = &e.ConfigInfo{}
-		workerMgr.clientsInfo[addr]=client
+		workerMgr.clientsInfo[addr] = client
 	}
-
 	if strings.Compare(item, "volume") == 0 {
 		client.Volume, _ = strconv.Atoi(val)
 	}
-
+}
+func (workerMgr *WorkerMgr) updateResourceInfo(addr string, aid string) {
+	fmt.Println("UPdateReosurcesInfo",addr,aid)
+	var (
+		resource []string
+		ok       bool
+	)
+	if resource, ok = workerMgr.resourceInfo[addr]; ok {
+		resource = workerMgr.resourceInfo[addr]
+	} else {
+		resource = make([]string, 0)
+		workerMgr.resourceInfo[addr] = resource
+	}
+	for _, id := range resource {
+		if id == aid {
+			return
+		}
+	}
+	workerMgr.resourceInfo[addr] = append(workerMgr.resourceInfo[addr], aid)
+}
+func (workerMgr *WorkerMgr) deleteResourceInfo(addr string,aid string){
+	for k,v:=range workerMgr.resourceInfo{
+		if strings.Compare(k,addr)==0{
+			for k2,v2:=range v{
+				if strings.Compare(v2,aid)==0{
+					workerMgr.resourceInfo[k]=append(v[:k2],v[k2+1:]...)
+					return
+				}
+			}
+		}
+	}
 }
 func (workerMgr *WorkerMgr) deployUpdateNotify() {
 	var (
@@ -86,7 +117,6 @@ func (workerMgr *WorkerMgr) deployUpdateNotify() {
 		logging.G_Logger.Warn("同步配置失败")
 	}
 	for _, ev := range getResp.Kvs {
-		fmt.Println("ev.key", string(ev.Key), string(ev.Value))
 		keys := strings.Split(string(ev.Key), "/")
 		workerMgr.updateConfig(keys[3], keys[4], string(ev.Value))
 	}
@@ -99,7 +129,40 @@ func (workerMgr *WorkerMgr) deployUpdateNotify() {
 				switch ev.Type {
 				case mvccpb.PUT:
 					keys := strings.Split(string(ev.Kv.Key), "/")
-					workerMgr.updateConfig(keys[3], keys[4], string(ev.Kv.Value))
+					workerMgr.updateConfig(keys[2], keys[3], string(ev.Kv.Value))
+				}
+			}
+		}
+	}
+}
+
+func (workerMgr *WorkerMgr) ReousrceUpdateNotify() {
+	var (
+		getResp            *clientv3.GetResponse
+		watchStartRevision int64
+		watcher            clientv3.Watcher
+		err                error
+	)
+	if getResp, err = workerMgr.kv.Get(context.TODO(), "/resource", clientv3.WithPrefix()); err != nil {
+		logging.G_Logger.Warn("同步配置失败")
+	}
+	for _, ev := range getResp.Kvs {
+		keys := strings.Split(string(ev.Key), "/")
+		workerMgr.updateResourceInfo(keys[2], keys[3])
+	}
+	watchStartRevision = getResp.Header.Revision + 1
+	watcher = clientv3.NewWatcher(workerMgr.client)
+	for {
+		rch := watcher.Watch(context.Background(), "/resource", clientv3.WithPrefix(), clientv3.WithRev(watchStartRevision))
+		for wresp := range rch {
+			for _, ev := range wresp.Events {
+				switch ev.Type {
+				case mvccpb.PUT:
+					keys := strings.Split(string(ev.Kv.Key), "/")
+					workerMgr.updateResourceInfo(keys[2], keys[3])
+				case mvccpb.DELETE:
+					keys := strings.Split(string(ev.Kv.Key), "/")
+					workerMgr.deleteResourceInfo(keys[2],keys[3])
 				}
 			}
 		}
@@ -191,4 +254,7 @@ func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 }
 func (workerMgr *WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
 	return workerMgr.clientsInfo
+}
+func (workerNgr *WorkerMgr) GetResourceInfo()map[string][]string {
+	return workerNgr.resourceInfo
 }

@@ -44,7 +44,7 @@ func (*Service) Start(_ service.Service) error {
 	httpListener, err := net.Listen("tcp", "0.0.0.0:9191")
 	go http_api.Serve(httpListener, httpServer, "HTTP", *logging.G_Logger)
 	if setting.AuthorizationSetting.Enable {
-		InitAuthorization(AuthorizationDone)
+		_ = InitAuthorization(AuthorizationDone)
 	}
 	serverAddr := fmt.Sprintf("%s:%d", setting.ServerSetting.ServerIp, setting.ServerSetting.ServerPort)
 	if err = InitSchedume(serverAddr, hub); err != nil {

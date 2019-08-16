@@ -27,6 +27,7 @@ type WorkerInfo struct {
 	Ip     string
 	Server []string
 	Config ConfigInfo
+	Resource []string
 }
 
 var (

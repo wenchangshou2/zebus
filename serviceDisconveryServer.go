@@ -12,7 +12,7 @@ const maxBufferSize = 1024
 func GetServerInfo() (data []byte, err error) {
 	tmp := map[string]interface{}{}
 	tmp["Service"] = "RegisterInfo"
-	tmp["ip"] = setting.ServerSetting.ServerIp
+	tmp["ip"] = setting.ServerSetting.ServerIP
 	tmp["port"] = setting.ServerSetting.ServerPort
 	return json.Marshal(tmp)
 }

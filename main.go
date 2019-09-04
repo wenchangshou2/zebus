@@ -4,10 +4,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/wenchangshou2/zebus/pkg/http_api"
 	"log"
 	"net"
 	"os"
+
+	"github.com/wenchangshou2/zebus/pkg/http_api"
 
 	"github.com/wenchangshou2/zebus/pkg/certification"
 
@@ -46,7 +47,7 @@ func (*Service) Start(_ service.Service) error {
 	if setting.AuthorizationSetting.Enable {
 		_ = InitAuthorization(AuthorizationDone)
 	}
-	serverAddr := fmt.Sprintf("%s:%d", setting.ServerSetting.ServerIp, setting.ServerSetting.ServerPort)
+	serverAddr := fmt.Sprintf("%s:%d", setting.ServerSetting.BindAddress, setting.ServerSetting.ServerPort)
 	if err = InitSchedume(serverAddr, hub); err != nil {
 		logging.G_Logger.Error("创建调度失败")
 		return fmt.Errorf("创建调度失败")

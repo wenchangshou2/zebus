@@ -15,8 +15,10 @@ type App struct {
 	MaxMsgSize   int64
 	MemQueueSize int64
 }
+
 type Server struct {
-	ServerIp     string
+	BindAddress  string
+	ServerIP     string
 	ServerPort   int
 	Auth         bool
 	AuthUsername string

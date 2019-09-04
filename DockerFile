@@ -11,7 +11,8 @@ ENV MemQueueSize=100
 ENV BindAddress=0.0.0.0
 ENV ServerIp=192.168.20.59
 ENV ServerPort=8181
-ENV ETCDEnable=false
+ENV ETCDEnable=true
+ENV ETCDCONNSTR=etcd:2379
 ENV authorizationEnable=false
 
 WORKDIR /app
@@ -38,7 +39,7 @@ AuthUsername=zoolon\\n\
 AuthPassword=password\\n\
 [etcd]\\n\
 Enable= ${ETCDEnable}\\n\
-ConnStr = 192.168.0.222:2379\\n\
+ConnStr = ${ETCDCONNSTR}\\n\
 [http]\\n\
 Enable = true\\n\
 Port = 9999\\n\

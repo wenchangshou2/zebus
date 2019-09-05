@@ -47,12 +47,11 @@ func (*Service) Start(_ service.Service) error {
 	if setting.AuthorizationSetting.Enable {
 		_ = InitAuthorization(AuthorizationDone)
 	}
-	serverAddr := fmt.Sprintf("%s:%d", setting.ServerSetting.BindAddress, setting.ServerSetting.ServerPort)
+	serverAddr := fmt.Sprintf("%s", setting.ServerSetting.BindAddress)
 	if err = InitSchedume(serverAddr, hub); err != nil {
 		logging.G_Logger.Error("创建调度失败")
 		return fmt.Errorf("创建调度失败")
 	}
-
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
 		return fmt.Errorf("创建pnp失败")
 	}

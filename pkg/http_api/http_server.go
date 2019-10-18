@@ -23,6 +23,7 @@ func Serve(listener net.Listener, handler http.Handler, proto string, logf zap.L
 		Handler:  handler,
 		ErrorLog: log.New(logWriter{&logf}, "", 0),
 	}
+
 	err := server.Serve(listener)
 	if err != nil && !strings.Contains(err.Error(), "use of closed network connection") {
 		return fmt.Errorf("http.Serve() error - %s", err)

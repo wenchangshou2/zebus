@@ -8,7 +8,7 @@ ENV LogLevel=info
 ENV IgnoreTopic=/test,/?test*,/?web_ctrl*;
 ENV MaxMsgSize=10048576
 ENV MemQueueSize=100
-ENV BindAddress=0.0.0.0
+ENV BindAddress=0.0.0.0:8181
 ENV ServerIp=192.168.20.59
 ENV ServerPort=8181
 ENV ETCDEnable=true
@@ -30,7 +30,7 @@ IgnoreTopic=${IgnoreTopic}\\n\
 MaxMsgSize = 1048576\\n\
 MemQueueSize = 100\\n\
 [server]\\n\
-BindAddress=0.0.0.0\\n\
+BindAddress=0.0.0.0:8181\\n\
 ServerIP=${ServerIp}\\n\
 ServerPort=${ServerPort}\\n\
 Auth=false\\n\

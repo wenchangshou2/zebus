@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/log"
 	"golang.org/x/sys/windows/registry"
@@ -35,13 +36,15 @@ func getCpuId() (string, error) {
 	}
 }
 func getMachineUUID() (string, error) {
-	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Cryptography`, registry.ALL_ACCESS)
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\\Microsoft\\Cryptography`, registry.ALL_ACCESS)
 	if err != nil {
+		fmt.Println("err1",err.Error())
 		return "", err
 	}
 	defer k.Close()
 	s, _, err := k.GetStringValue("MachineGuid")
 	if err != nil {
+		fmt.Println("err2",err.Error())
 		return "", err
 	}
 	return s, nil
@@ -59,7 +62,7 @@ func GetSystemUUID() (string, error) {
 	}
 	machineId, err = getMachineUUID()
 	if err != nil {
-		return "", errors.New("获取machine id制造")
+		return "", errors.New("获取machine id失败")
 	}
 	str = cpuId + machineId
 	hasher := md5.New()

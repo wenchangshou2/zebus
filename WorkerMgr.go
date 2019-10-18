@@ -76,7 +76,6 @@ func (workerMgr *WorkerMgr) updateConfig(addr, item, val string) {
 	}
 }
 func (workerMgr *WorkerMgr) updateResourceInfo(addr string, aid string) {
-	fmt.Println("UPdateReosurcesInfo",addr,aid)
 	var (
 		resource []string
 		ok       bool
@@ -215,11 +214,9 @@ func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) 
 		topic string
 	)
 	if !WorkerMgr.isAllowPut(serverName) {
-		logging.G_Logger.Warn(fmt.Sprintf("当前推送的topic:" + serverName + ",在忽略名单当中"))
+		logging.G_Logger.Info(fmt.Sprintf("当前推送的topic:" + serverName + ",在忽略名单当中"))
 		return
 	}
-
-	logging.G_Logger.Info("new daemon client up,up topic:" + e.JOB_WORKER_DIR + serverName)
 	if len(serverType) > 0 {
 		topic = e.JOB_SERVER_DIR + serverName + "/" + serverType
 	} else {
@@ -229,7 +226,6 @@ func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) 
 	_, err = WorkerMgr.client.Put(ctx, topic, serverType)
 	if err != nil {
 		logging.G_Logger.Warn("put  Host info fail:" + err.Error())
-		return
 	}
 	return
 }

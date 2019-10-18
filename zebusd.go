@@ -27,6 +27,7 @@ type ZEBUSD struct {
 	unregister chan *Client
 	mux        sync.RWMutex
 	logf       *zap.Logger
+	onlineServer map[string]bool
 }
 
 func newHub(logf *zap.Logger) *ZEBUSD {
@@ -38,6 +39,7 @@ func newHub(logf *zap.Logger) *ZEBUSD {
 		forward:    make(chan []byte),
 		online:     make(map[string]bool),
 		offline:    make(map[string]bool),
+		onlineServer:make(map[string]bool),
 		clientMap:  make(map[string]*Client, 0),
 		mux:        sync.RWMutex{},
 		logf:       logf,
@@ -78,7 +80,6 @@ func (h *ZEBUSD) trimPrefix(topic string) (newTopic string) {
 	newTopic = strings.TrimPrefix(topic, "/zebus")
 	newTopic = strings.TrimPrefix(newTopic, "/")
 	return
-
 }
 
 func (h *ZEBUSD) forwareClientMessage(client *Client, message []byte) {
@@ -89,47 +90,63 @@ func (h *ZEBUSD) forwareClientMessage(client *Client, message []byte) {
 		delete(h.clients, client)
 	}
 }
+func (h *ZEBUSD) addNewServer(serverName string){
+	fmt.Println("addNewServer1111111")
+	h.Lock()
+	defer h.Unlock()
+	h.onlineServer[serverName]=true
+}
+func (h *ZEBUSD)removeServer(serverName string){
+	h.Lock()
+	defer h.Unlock()
+	if _,ok:=h.onlineServer[serverName];ok{
+		delete(h.onlineServer,serverName)
+	}
+}
+func (h *ZEBUSD) getOnlineServer()[]string{
+	h.RLock()
+	defer h.RUnlock()
+	onlineClient :=make([]string,0)
+	for k,_:=range h.onlineServer{
+		fmt.Println("kkkkkkkk",k)
+		onlineClient=append(onlineClient,k)
+	}
+	return onlineClient
+}
+
+
+// 将消息转发到子节点
 func (h *ZEBUSD) forwardProcess(data []byte) {
 	var (
-		ReceiverNmae string
-		ok           bool
+		ReceiverName string
 		err          error
 	)
 	cmdBody := make(map[string]interface{})
 	if err := json.Unmarshal(data, &cmdBody); err != nil {
 		return
 	}
-	if ReceiverNmae, ok = cmdBody["receiverName"].(string); !ok {
-		logging.G_Logger.Info(fmt.Sprintf("当前的消息没有接收者,直接抛弃:%s", string(data)))
-		return
-	}
-
 	for client := range h.clients { //遍历所有的在线客户端
 		if len(client.SocketName) == 0 { //如果没有注册的名称就 不处理
 			continue
 		}
-		ReceiverNmae = h.trimPrefix(ReceiverNmae)
-		if strings.Compare(ReceiverNmae, "/dm") == 0 || strings.Compare(ReceiverNmae, "dm") == 0 {
-			logging.G_Logger.Debug("receiver message:" + string(data))
-		}
-		if strings.Compare(ReceiverNmae, client.SocketName) == 0 { //指定 发送第三方服务
+		ReceiverName,_= cmdBody["receiverName"].(string)
+		ReceiverName=h.trimPrefix(ReceiverName)
+		if strings.Compare(ReceiverName, client.SocketName) == 0 { //指定 发送第三方服务
 			h.forwareClientMessage(client, data)
 			return
 		}
-		isIp, ip := utils.GetIp(ReceiverNmae)
+		isIp, ip := utils.GetIp(ReceiverName)
 		if isIp && strings.Compare(client.SocketType, "Daemon") == 0 && strings.Compare(ip, client.Ip) == 0 { //转发给daemon
-			cmdBody["receiverName"] = ReceiverNmae
+			cmdBody["receiverName"] = ReceiverName
 			data, err = json.Marshal(cmdBody)
 			if err == nil {
 				h.forwareClientMessage(client, data)
 			}
 		}
 	}
-
 }
 func (h *ZEBUSD) getClients(topicName string) *Client {
 	h.RLock()
-	fmt.Println("clientmap", h.clientMap)
 	t, ok := h.clientMap[topicName]
 	h.RUnlock()
 	if ok {
@@ -141,13 +158,17 @@ func (h *ZEBUSD) run() {
 	for {
 		select {
 		case client := <-h.register:
-			logging.G_Logger.Info(fmt.Sprintf("register:%s", client.SocketName))
+			logging.G_Logger.Info("new client up",zap.String("event","ServerOnline"),
+				zap.String("clientName",client.Ip))
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
 			h.clientMap[client.SocketName] = client
+			if strings.Compare(client.SocketType,"Services")==0{
+				h.addNewServer(client.SocketName)
+			}
 			//client.SocketName
 		case client := <-h.unregister:
-			logging.G_Logger.Info("unregister " + client.SocketName)
+			logging.G_Logger.Info("client down",zap.String("event","ServerDropped"),zap.String("clientName",client.Ip))
 			if _, ok := h.clients[client]; ok {
 				fmt.Println("ok", client.send)
 				delete(h.clients, client)
@@ -155,6 +176,9 @@ func (h *ZEBUSD) run() {
 				close(client.send)
 			}
 			h.SetClientInfo(client.Ip, false)
+			if strings.Compare(client.SocketType,"Services")==0{
+				h.removeServer(client.SocketName)
+			}
 
 		case message := <-h.broadcast:
 			for client := range h.clients {
@@ -165,8 +189,7 @@ func (h *ZEBUSD) run() {
 					delete(h.clients, client)
 				}
 			}
-		case message := <-h.forward: //
-
+		case message := <-h.forward:
 			h.forwardProcess(message)
 		}
 	}

@@ -251,7 +251,7 @@ func (c *Client) execute(data []byte) {
 	type zeBusCmd struct {
 		Action       string `json:"action"`
 		ReceiverName string `json:"receiverName"`
-		SenderName   string `json:"sendername"`
+		SenderName   string `json:"senderName"`
 	}
 	d := make(map[string]interface{})
 	cmd := zeBusCmd{}
@@ -294,13 +294,13 @@ func (c *Client) execute(data []byte) {
 	rtu := make(map[string]interface{})
 	rtu["state"] = 0
 	rtu["message"] = "成功"
+	rtu["receiverName"] = cmd.SenderName
+	rtu["Action"] = cmd.Action
+	rtu["senderName"] = "/zebus"
 	if err != nil {
 		rtu["state"] = 400
 		rtu["message"] = err.Error()
 	}
-	rtu["receiverName"] = cmd.SenderName
-	rtu["Action"] = cmd.Action
-	rtu["senderName"] = "/zebus"
 	if len(d) > 0 {
 		rtu["data"] = d
 	}
@@ -326,6 +326,16 @@ func (c *Client) unAuthorization(recv string) {
 		c.hub.forward <- byte
 	}
 }
+func (c *Client) checkFrontCondition(data e.RequestCmd) bool {
+	// 如果当前的结点没有注册，不
+	if !c.IsRegister {
+		return false
+	}
+	if len(data.ReceiverName) <= 0 {
+		return false
+	}
+	return true
+}
 func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
@@ -349,7 +359,6 @@ func (c *Client) readPump() {
 			logging.G_Logger.Error("接收失败:" + err.Error())
 			break
 		}
-		logging.G_Logger.Info(string(message), zap.String("type", "message"))
 		data := e.RequestCmd{}
 		if err = json.Unmarshal(message, &data); err != nil {
 			tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message), err.Error())
@@ -365,14 +374,22 @@ func (c *Client) readPump() {
 			c.registerToDaemon(data)
 			continue
 		}
-		if !c.IsRegister { //如果当前没有初始不接受任何指令
-			continue
-		}
-		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
-			fmt.Println("execute")
-			c.execute(message)
+		if !c.checkFrontCondition(data) { //未满足条件，直接废弃
+			logging.G_Logger.Info("废弃消息", zap.String("type", "MessageObsolete"),
+				zap.String("msg", string(message)),
+				zap.String("ReceiverName", data.ReceiverName),
+				zap.String("SenderName", data.SenderName),
+			)
 		} else {
-			c.hub.forward <- message
+			logging.G_Logger.Info("消息成功接收", zap.String("type", "MessageReceiver"),
+				zap.String("ReceiverName", data.ReceiverName),
+				zap.String("SenderName", data.SenderName),
+				zap.String("msg", string(message)))
+			if strings.Compare(data.ReceiverName, "/zebus") == 0 {
+				c.execute(message)
+			} else {
+				c.hub.forward <- message
+			}
 		}
 	}
 }

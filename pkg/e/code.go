@@ -10,8 +10,8 @@ const (
 	ERROR_JSON_PARSER_ERROR                  = 40001
 	ERROR_ADD_CLIENT_FAIL                    = 40002
 	ERROR_ADD_TASK_FAIL                      = 40003
-	ERROR_UPDATE_TASK_DOWNLOAD_STATUS_FAIL   = 40004
-	ERROR_UPDATE_TASK_DOWNLOAD_SCHEDULE_FAIL = 40005
+	error_update_task_download_status_fail   = 40004
+	error_update_task_download_schedule_fail = 40005
 	ERROR_ADD_SERVER_FAIL                    = 40006
 	ERROR_GET_SERVER_FAIL                    = 40007
 	ERROR_DELETE_CLIENT_FAIL                 = 40008

@@ -56,7 +56,7 @@ func InitWorkerMgr(hub *ZEBUSD) (err error) {
 		resourceInfo: make(map[string][]string),
 	}
 	go G_workerMgr.deployUpdateNotify()
-	go G_workerMgr.ReousrceUpdateNotify()
+	go G_workerMgr.ResourceUpdateNotify()
 	logging.G_Logger.Info("info workermgr success")
 	return
 }
@@ -128,6 +128,7 @@ func (workerMgr *WorkerMgr) deployUpdateNotify() {
 				switch ev.Type {
 				case mvccpb.PUT:
 					keys := strings.Split(string(ev.Kv.Key), "/")
+					fmt.Println("value:",keys[2],keys[3],string(ev.Kv.Value))
 					workerMgr.updateConfig(keys[2], keys[3], string(ev.Kv.Value))
 				}
 			}
@@ -135,7 +136,7 @@ func (workerMgr *WorkerMgr) deployUpdateNotify() {
 	}
 }
 
-func (workerMgr *WorkerMgr) ReousrceUpdateNotify() {
+func (workerMgr *WorkerMgr) ResourceUpdateNotify() {
 	var (
 		getResp            *clientv3.GetResponse
 		watchStartRevision int64
@@ -180,9 +181,14 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 	for _, kv = range getResp.Kvs {
 		if utils2.IsDaemon(string(kv.Key)) || strings.Compare(string(kv.Value), "Daemon") == 0 {
 			workerIp = utils2.ExtractWorkerIP(string(kv.Key))
+			pcConfig,ok:=WorkerMgr.clientsInfo[workerIp]
+			if !ok{
+				pcConfig=&e.ConfigInfo{}
+			}
 			serverInfo := e.WorkerInfo{
 				Ip:     workerIp,
 				Server: make([]string, 0),
+				Config:*pcConfig,
 			}
 			workerArr = append(workerArr, serverInfo)
 		} else {
@@ -250,6 +256,42 @@ func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 }
 func (workerMgr *WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
 	return workerMgr.clientsInfo
+}
+func (WorkerMgr *WorkerMgr)GetAllClientInfo(onlineServer []string)map[string]interface{}{
+	data:=make(map[string]interface{})
+	tmpOnlineList,err:=WorkerMgr.ListWorkers()
+	tmpOfflineList:=make([]string,0)
+	allServer,err:=G_workerMgr.GetAllClient()
+	if err==nil{
+		for _,v:=range  allServer{
+			isOffline:=true
+			for _,onlineClient:=range tmpOnlineList{
+				if strings.Compare(v,onlineClient.Ip)==0{
+					isOffline=false
+				}
+			}
+			if isOffline{
+				tmpOfflineList=append(tmpOfflineList,v)
+			}
+		}
+	}
+	clientsConfigInfo:=WorkerMgr.GetClientConfigInfo()
+	resourcesInfo:=WorkerMgr.GetResourceInfo()
+	for k,onlineClient:=range tmpOnlineList{
+		if info,ok:=clientsConfigInfo[onlineClient.Ip];ok{
+			tmpOnlineList[k].Config=*info
+		}
+		if resource,ok:=resourcesInfo[onlineClient.Ip];ok{
+			tmpOnlineList[k].Resource=resource
+		}else{
+			tmpOnlineList[k].Resource=make([]string,0)
+		}
+	}
+	data["offline"]=tmpOfflineList
+	data["online"]=tmpOnlineList
+	data["server"]=onlineServer
+	//responseBody:=e.ClientResponseInfo{Offline:tmpOfflineList,Online:tmpOnlineList,Server:onlineServer}
+	return data
 }
 func (workerNgr *WorkerMgr) GetResourceInfo()map[string][]string {
 	return workerNgr.resourceInfo

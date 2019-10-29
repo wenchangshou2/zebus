@@ -17,6 +17,11 @@ type ForwardCmd struct {
 	SenderName   string `json:"senderName"`
 	Type         int    `json:"type"`
 }
+type ClientResponseInfo struct{
+	Online []WorkerInfo `json:"online"`
+	Offline []string `json:"Offline"`
+	Server [] string `json:"server"`
+}
 
 // 客户端配置信息
 type ConfigInfo struct {

@@ -2,12 +2,16 @@ package main
 
 import (
 	"bytes"
+	"container/heap"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/wenchangshou2/zebus/pkg/certification"
+	"github.com/wenchangshou2/zebus/pkg/pqueue"
 	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -68,8 +72,25 @@ type Client struct {
 	messageBytes  uint64
 	memoryMsgChan chan *Message
 	idFactory     *guidFactory
-}
+	WaitRecvMessageMutex sync.Mutex
+	WaitRecvMessage map[MessageID]chan* []byte //回复的队列
+	deferredMessage map[MessageID]*pqueue.Item
+	deferredPQ pqueue.PriorityQueue
+	deferredMutex sync.Mutex
 
+}
+func (c *Client) AddNewWaitMessage(id MessageID)chan* []byte{
+	c.WaitRecvMessageMutex.Lock()
+	chanBody:=make(chan* []byte)
+	c.WaitRecvMessage[id]=chanBody
+	c.WaitRecvMessageMutex.Unlock()
+	return chanBody
+}
+func (c *Client)DeleteWitMessage(id MessageID){
+	c.WaitRecvMessageMutex.Lock()
+	delete(c.WaitRecvMessage,id)
+	c.WaitRecvMessageMutex.Unlock()
+}
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -118,18 +139,6 @@ func (c *Client) writePump() {
 			if err := w.Close(); err != nil {
 				return
 			}
-			//n:=len(c.memoryMsgChan)
-			//for i:=0;i<n;i++{
-			//	w.Write(newline)
-			//}
-
-			//c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			//if !ok{
-			//	c.conn.WriteMessage(websocket.CloseMessage,[]byte{})
-			//	return
-			//}
-			//w,_:=c.conn.NextWriter(websocket.BinaryMessage)
-			//w.Write(msg.Body)
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
@@ -189,7 +198,20 @@ func (c *Client) initRegister(socketName string) {
 	go c.register.keepOnline()
 	return
 }
+// 初始化消息队列
+func (c *Client) InitPQ(){
+	pqSize:=int(math.Max(1,100))
+	// 初始化回复消息
+	c.WaitRecvMessageMutex.Lock()
+	c.WaitRecvMessage=make(map[MessageID]chan *[]byte)
+	c.WaitRecvMessageMutex.Unlock()
 
+	//初始化延迟消息
+	c.deferredMutex.Lock()
+	c.deferredMessage=make(map[MessageID]*pqueue.Item)
+	c.deferredPQ=pqueue.New(pqSize)
+	c.deferredMutex.Unlock()
+}
 //注册到Daemon的事件
 func (c *Client) registerToDaemon(data e.RequestCmd) {
 	arguments := data.Arguments
@@ -246,6 +268,40 @@ func (c *Client) generateResponse(data *map[string]interface{}) ([]byte, error) 
 	}
 	return json.Marshal(result)
 }
+func (c *Client)PutMessageDeferred(msg *Message,timeout time.Duration){
+	atomic.AddUint64(&c.messageCount,1)
+	c.StartDeferredTimeout(msg,timeout)
+}
+func (c *Client) pushDeferredMessage(item *pqueue.Item)error{
+	c.deferredMutex.Lock()
+	id:=item.Value.(*Message).ID
+	_,ok:=c.deferredMessage[id]
+	if ok{
+		c.deferredMutex.Unlock()
+		return errors.New("ID 已经存在")
+	}
+	c.deferredMessage[id]=item
+	c.deferredMutex.Unlock()
+	return nil
+}
+
+func (c *Client) StartDeferredTimeout(msg *Message,timeout time.Duration)error{
+	absTs:=time.Now().Add(timeout).UnixNano()
+	item:=&pqueue.Item{Value:msg,Priority:absTs}
+	err:=c.pushDeferredMessage(item)
+	if err!=nil{
+		return err
+	}
+	c.addToDeferredPQ(item)
+	return nil
+}
+//添加到队列
+func (c *Client) addToDeferredPQ(item *pqueue.Item){
+	c.deferredMutex.Lock()
+	heap.Push(&c.deferredPQ,item)
+	c.deferredMutex.Unlock()
+}
+
 
 func (c *Client) execute(data []byte) {
 	type zeBusCmd struct {
@@ -263,24 +319,7 @@ func (c *Client) execute(data []byte) {
 	switch cmd.Action {
 	case "getClients":
 		if setting.EtcdSetting.Enable {
-			tmpOnlineList, err := G_workerMgr.ListWorkers()
-			tmpOfflineList := make([]string, 0)
-			allServer, err := G_workerMgr.GetAllClient()
-			if err == nil {
-				for _, v := range allServer {
-					isOffline := true
-					for _, onlineClient := range tmpOnlineList {
-						if strings.Compare(v, onlineClient.Ip) == 0 {
-							isOffline = false
-						}
-					}
-					if isOffline {
-						tmpOfflineList = append(tmpOfflineList, v)
-					}
-				}
-				d["online"] = tmpOnlineList
-				d["offline"] = tmpOfflineList
-			}
+			d=G_workerMgr.GetAllClientInfo(c.hub.getOnlineServer())
 		} else {
 			d = c.hub.GetAllClientInfo()
 		}
@@ -329,6 +368,7 @@ func (c *Client) unAuthorization(recv string) {
 func (c *Client) checkFrontCondition(data e.RequestCmd) bool {
 	// 如果当前的结点没有注册，不
 	if !c.IsRegister {
+		fmt.Println("未注册")
 		return false
 	}
 	if len(data.ReceiverName) <= 0 {
@@ -336,6 +376,49 @@ func (c *Client) checkFrontCondition(data e.RequestCmd) bool {
 	}
 	return true
 }
+func (c *Client) TextMessageProcess(message []byte)(err error){
+	data := e.RequestCmd{}
+	if err = json.Unmarshal(message, &data); err != nil {
+		tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message), err.Error())
+		logging.G_Logger.Error(tmp)
+		return
+	}
+	if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
+		if setting.ServerSetting.Auth {
+			if !c.login(data.Auth) {
+				return
+			}
+		}
+		c.registerToDaemon(data)
+		return
+	}
+	if !c.checkFrontCondition(data) { //未满足条件，直接废弃
+		logging.G_Logger.Info("废弃消息", zap.String("type", "MessageObsolete"),
+			zap.String("msg", string(message)),
+			zap.String("ReceiverName", data.ReceiverName),
+			zap.String("SenderName", data.SenderName),
+		)
+	} else {
+		logging.G_Logger.Info("消息成功接收", zap.String("type", "MessageReceiver"),
+			zap.String("ReceiverName", data.ReceiverName),
+			zap.String("SenderName", data.SenderName),
+			zap.String("msg", string(message)))
+		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
+			fmt.Println("execute")
+			c.execute(message)
+		} else {
+			c.hub.forward <- message
+		}
+	}
+	return nil
+}
+func (c *Client)BinaryMessageProcess(message []byte){
+	msg,_:=decodeMessage(message)
+	if c,ok:=c.WaitRecvMessage[msg.ID];ok{
+		c<-&msg.Body
+	}
+}
+
 func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
@@ -350,7 +433,7 @@ func (c *Client) readPump() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		_, message, err := c.conn.ReadMessage()
+		messageType, messageBody, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -359,38 +442,12 @@ func (c *Client) readPump() {
 			logging.G_Logger.Error("接收失败:" + err.Error())
 			break
 		}
-		data := e.RequestCmd{}
-		if err = json.Unmarshal(message, &data); err != nil {
-			tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message), err.Error())
-			logging.G_Logger.Error(tmp)
-			continue
+		if messageType==websocket.BinaryMessage{
+			c.BinaryMessageProcess(messageBody)
+		}else{
+			c.TextMessageProcess(messageBody)
 		}
-		if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
-			if setting.ServerSetting.Auth {
-				if !c.login(data.Auth) {
-					continue
-				}
-			}
-			c.registerToDaemon(data)
-			continue
-		}
-		if !c.checkFrontCondition(data) { //未满足条件，直接废弃
-			logging.G_Logger.Info("废弃消息", zap.String("type", "MessageObsolete"),
-				zap.String("msg", string(message)),
-				zap.String("ReceiverName", data.ReceiverName),
-				zap.String("SenderName", data.SenderName),
-			)
-		} else {
-			logging.G_Logger.Info("消息成功接收", zap.String("type", "MessageReceiver"),
-				zap.String("ReceiverName", data.ReceiverName),
-				zap.String("SenderName", data.SenderName),
-				zap.String("msg", string(message)))
-			if strings.Compare(data.ReceiverName, "/zebus") == 0 {
-				c.execute(message)
-			} else {
-				c.hub.forward <- message
-			}
-		}
+
 	}
 }
 func (c *Client) process(data []byte) {
@@ -421,13 +478,45 @@ func (c *Client) PutMessage(m *Message) error {
 	return nil
 }
 func (c *Client) put(m *Message) error {
-	fmt.Println("put")
 	select {
 	case c.memoryMsgChan <- m:
 	default:
+		fmt.Println("put22")
 		//b:=bufferPoolGet()
 	}
 	return nil
+}
+func (c *Client) popDeferredMessage(id MessageID)(*pqueue.Item,error){
+	c.deferredMutex.Lock()
+	item,ok:=c.deferredMessage[id]
+	if !ok{
+		c.deferredMutex.Unlock()
+		return nil,errors.New("ID 没有迟延")
+	}
+	delete(c.deferredMessage,id)
+	c.deferredMutex.Unlock()
+	return item,nil
+}
+func (c *Client) ProcessDeferredQueue(t int64)bool{
+	dirty:=false
+	for{
+		c.deferredMutex.Lock()
+		item,_:=c.deferredPQ.PeekAndShift(t)
+		c.deferredMutex.Unlock()
+
+		if item==nil{
+			goto exit
+		}
+		dirty=true
+		msg:=item.Value.(*Message)
+		_,err:=c.popDeferredMessage(msg.ID)
+		if err!=nil{
+			goto exit
+		}
+		c.put(msg)
+	}
+	exit:
+		return dirty
 }
 
 // serveWs handles websocket requests from  the peer.
@@ -458,6 +547,7 @@ func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 			client.conn.Close()
 		}
 	})
+	client.InitPQ()
 	go client.writePump()
 	go client.readPump()
 }

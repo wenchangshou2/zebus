@@ -108,7 +108,6 @@ func (h *ZEBUSD) getOnlineServer()[]string{
 	defer h.RUnlock()
 	onlineClient :=make([]string,0)
 	for k,_:=range h.onlineServer{
-		fmt.Println("kkkkkkkk",k)
 		onlineClient=append(onlineClient,k)
 	}
 	return onlineClient

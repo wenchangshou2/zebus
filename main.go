@@ -43,6 +43,10 @@ func (*Service) Start(_ service.Service) error {
 	hub := newHub(logging.G_Logger)
 	httpServer := newHTTPServer(hub, false, false)
 	httpListener, err := net.Listen("tcp", "0.0.0.0:9191")
+	if err!=nil{
+		logging.G_Logger.Error("初始化HTTP失败:"+err.Error())
+		return errors.New("初始化http失败")
+	}
 	go http_api.Serve(httpListener, httpServer, "HTTP", *logging.G_Logger)
 	if setting.AuthorizationSetting.Enable {
 		_ = InitAuthorization(AuthorizationDone)

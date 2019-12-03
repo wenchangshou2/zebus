@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -87,6 +88,7 @@ func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps htt
 }
 
 func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	s.enableCors(&w,req);
 	readMax := setting.AppSetting.MaxMsgSize + 1
 	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
 	if err != nil {
@@ -111,6 +113,7 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 		}
 		deferred = time.Duration(di) * time.Millisecond
 	}
+	topic=strings.TrimPrefix(topic,"/zebus")
 	msg := NewMessage(client.GenerateID(), body, []byte(topic))
 	msg.deferred = deferred
 	err = client.PutMessage(msg)
@@ -120,6 +123,7 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 	return "OK", nil
 }
 func (s *httpServer) doPUBV2(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	s.enableCors(&w,req);
 	readMax := setting.AppSetting.MaxMsgSize + 1
 	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
 	if err != nil {
@@ -190,6 +194,7 @@ func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	s.router.ServeHTTP(w, req)
 }
 func (s *httpServer) enableCors(w *http.ResponseWriter,req *http.Request){
+	fmt.Println("enable cors")
 	(*w).Header().Set("Access-Control-Allow-Origin","*")
 }
 func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, string, int,error) {

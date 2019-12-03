@@ -119,6 +119,12 @@ func (c *Client) writePump() {
 				return
 			}
 		case msg, ok := <-c.memoryMsgChan:
+			//chanMsg:=msg
+			if msg.deferred!=0{
+				fmt.Println("迟延发送")
+				c.PutMessageDeferred(msg,msg.deferred)
+				continue
+			}
 			var buf = &bytes.Buffer{}
 			_, err := msg.WriteTo(buf)
 			if err != nil {
@@ -326,6 +332,8 @@ func (c *Client) execute(data []byte) {
 	case "getAuthoricationStatus":
 		d["status"] = G_Authorization.Status
 		//d=G_workerMgr.ListWorkers()
+	case "syncServiceInfo":
+			c.syncServiceInfo(data)
 	}
 	if len(cmd.SenderName) == 0 {
 		return
@@ -350,7 +358,9 @@ func (c *Client) execute(data []byte) {
 	}
 	c.hub.forward <- b
 }
+func (c *Client)syncServiceInfo(data []byte){
 
+}
 // 未授权消息
 func (c *Client) unAuthorization(recv string) {
 	var (
@@ -513,10 +523,20 @@ func (c *Client) ProcessDeferredQueue(t int64)bool{
 		if err!=nil{
 			goto exit
 		}
-		c.put(msg)
+		msg.deferred=0
+		fmt.Println("延迟",string(msg.Body))
+		c.send<-msg.Body
+		//c.put(msg)
 	}
 	exit:
 		return dirty
+}
+func (c *Client) loop(){
+	for{
+		now := time.Now().UnixNano()
+		c.ProcessDeferredQueue(now)
+		time.Sleep(5*time.Millisecond)
+	}
 }
 
 // serveWs handles websocket requests from  the peer.
@@ -550,4 +570,5 @@ func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 	client.InitPQ()
 	go client.writePump()
 	go client.readPump()
+	go client.loop()
 }

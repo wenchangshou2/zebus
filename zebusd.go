@@ -147,10 +147,20 @@ func (h *ZEBUSD) forwardProcess(data []byte) {
 func (h *ZEBUSD) getClients(topicName string) *Client {
 	h.RLock()
 	t, ok := h.clientMap[topicName]
-	h.RUnlock()
 	if ok {
 		return t
 	}
+	ip:=utils.FindIp(topicName)
+	if len(ip)<=0{
+		return nil
+	}
+	t, ok = h.clientMap["/zebus/"+ip]
+	if ok {
+		return t
+	}
+	fmt.Println("ip",ip,"/zebus/"+ip,h.clientMap)
+	h.RUnlock()
+
 	return nil
 }
 func (h *ZEBUSD) run() {

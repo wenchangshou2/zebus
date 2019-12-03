@@ -74,6 +74,7 @@ func (workerMgr *WorkerMgr) updateConfig(addr, item, val string) {
 	if strings.Compare(item, "volume") == 0 {
 		client.Volume, _ = strconv.Atoi(val)
 	}
+	workerMgr.clientsInfo[addr]=client
 }
 func (workerMgr *WorkerMgr) updateResourceInfo(addr string, aid string) {
 	var (
@@ -128,8 +129,7 @@ func (workerMgr *WorkerMgr) deployUpdateNotify() {
 				switch ev.Type {
 				case mvccpb.PUT:
 					keys := strings.Split(string(ev.Kv.Key), "/")
-					fmt.Println("value:",keys[2],keys[3],string(ev.Kv.Value))
-					workerMgr.updateConfig(keys[2], keys[3], string(ev.Kv.Value))
+					workerMgr.updateConfig(keys[3], keys[4], string(ev.Kv.Value))
 				}
 			}
 		}
@@ -168,20 +168,20 @@ func (workerMgr *WorkerMgr) ResourceUpdateNotify() {
 		}
 	}
 }
-func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) {
+func (workerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) {
 	var (
 		getResp  *clientv3.GetResponse
 		kv       *mvccpb.KeyValue
 		workerIp string
 	)
 	workerArr = make([]e.WorkerInfo, 0)
-	if getResp, err = WorkerMgr.kv.Get(context.TODO(), e.JOB_WORKER_DIR, clientv3.WithPrefix()); err != nil {
+	if getResp, err = workerMgr.kv.Get(context.TODO(), e.JOB_WORKER_DIR, clientv3.WithPrefix()); err != nil {
 		return
 	}
 	for _, kv = range getResp.Kvs {
 		if utils2.IsDaemon(string(kv.Key)) || strings.Compare(string(kv.Value), "Daemon") == 0 {
 			workerIp = utils2.ExtractWorkerIP(string(kv.Key))
-			pcConfig,ok:=WorkerMgr.clientsInfo[workerIp]
+			pcConfig,ok:= workerMgr.clientsInfo[workerIp]
 			if !ok{
 				pcConfig=&e.ConfigInfo{}
 			}
@@ -203,7 +203,7 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 	return
 }
 
-func (WorkerMgr *WorkerMgr) isAllowPut(serverName string) bool {
+func (workerMgr *WorkerMgr) isAllowPut(serverName string) bool {
 	if len(setting.RunningSetting.IgnoreTopic) > 0 { //判断当前是否有忽略入库的topic
 		for _, v := range setting.RunningSetting.IgnoreTopic {
 			if m, _ := regexp.MatchString(v, serverName); m {
@@ -215,11 +215,11 @@ func (WorkerMgr *WorkerMgr) isAllowPut(serverName string) bool {
 }
 
 // Daemon上线时调用，表示展期机器的上线
-func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) (err error) {
+func (workerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) (err error) {
 	var (
 		topic string
 	)
-	if !WorkerMgr.isAllowPut(serverName) {
+	if !workerMgr.isAllowPut(serverName) {
 		logging.G_Logger.Info(fmt.Sprintf("当前推送的topic:" + serverName + ",在忽略名单当中"))
 		return
 	}
@@ -229,7 +229,7 @@ func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) 
 		topic = e.JOB_SERVER_DIR + serverName
 	}
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	_, err = WorkerMgr.client.Put(ctx, topic, serverType)
+	_, err = workerMgr.client.Put(ctx, topic, serverType)
 	if err != nil {
 		logging.G_Logger.Warn("put  Host info fail:" + err.Error())
 	}
@@ -237,13 +237,13 @@ func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) 
 }
 
 //获取所有的客户端
-func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
+func (workerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 	var (
 		resp *clientv3.GetResponse
 	)
 	clients = make([]string, 0)
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
-	resp, err = WorkerMgr.client.Get(ctx, e.JOB_SERVER_DIR, clientv3.WithPrefix())
+	resp, err = workerMgr.client.Get(ctx, e.JOB_SERVER_DIR, clientv3.WithPrefix())
 	if err != nil {
 		logging.G_Logger.Warn("get cleitns error:" + err.Error())
 		return clients, err
@@ -257,9 +257,9 @@ func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 func (workerMgr *WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
 	return workerMgr.clientsInfo
 }
-func (WorkerMgr *WorkerMgr)GetAllClientInfo(onlineServer []string)map[string]interface{}{
+func (workerMgr *WorkerMgr)GetAllClientInfo(onlineServer []string)map[string]interface{}{
 	data:=make(map[string]interface{})
-	tmpOnlineList,err:=WorkerMgr.ListWorkers()
+	tmpOnlineList,err:= workerMgr.ListWorkers()
 	tmpOfflineList:=make([]string,0)
 	allServer,err:=G_workerMgr.GetAllClient()
 	if err==nil{
@@ -275,8 +275,8 @@ func (WorkerMgr *WorkerMgr)GetAllClientInfo(onlineServer []string)map[string]int
 			}
 		}
 	}
-	clientsConfigInfo:=WorkerMgr.GetClientConfigInfo()
-	resourcesInfo:=WorkerMgr.GetResourceInfo()
+	clientsConfigInfo:= workerMgr.GetClientConfigInfo()
+	resourcesInfo:= workerMgr.GetResourceInfo()
 	for k,onlineClient:=range tmpOnlineList{
 		if info,ok:=clientsConfigInfo[onlineClient.Ip];ok{
 			tmpOnlineList[k].Config=*info
@@ -293,6 +293,6 @@ func (WorkerMgr *WorkerMgr)GetAllClientInfo(onlineServer []string)map[string]int
 	//responseBody:=e.ClientResponseInfo{Offline:tmpOfflineList,Online:tmpOnlineList,Server:onlineServer}
 	return data
 }
-func (workerNgr *WorkerMgr) GetResourceInfo()map[string][]string {
-	return workerNgr.resourceInfo
+func (workerMgr *WorkerMgr) GetResourceInfo()map[string][]string {
+	return workerMgr.resourceInfo
 }

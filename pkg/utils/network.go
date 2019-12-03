@@ -32,3 +32,10 @@ func CheckIp(source, target string) bool {
 	}
 	return true
 }
+//提取ip
+func FindIp(input string) string {
+	partIp := "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])"
+	grammer := partIp+"\\."+partIp+"\\."+partIp+"\\."+partIp
+	matchMe := regexp.MustCompile(grammer)
+	return matchMe.FindString(input)
+}

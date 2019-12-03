@@ -18,6 +18,7 @@ func (l logWriter) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 func Serve(listener net.Listener, handler http.Handler, proto string, logf zap.Logger) error {
+	fmt.Println("proto",proto,logf,handler,listener)
 	logf.Info(fmt.Sprintf("%s: listening on %s", proto, listener.Addr()))
 	server := &http.Server{
 		Handler:  handler,

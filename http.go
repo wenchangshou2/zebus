@@ -148,6 +148,7 @@ func (s *httpServer) doPUBV2(w http.ResponseWriter, req *http.Request, ps httpro
 		}
 		deferred = time.Duration(di) * time.Millisecond
 	}
+	topic=strings.TrimPrefix(topic,"/zebus")
 	msg := NewMessage(client.GenerateID(), body, []byte(topic))
 	msg.deferred = deferred
 	err = client.PutMessage(msg)

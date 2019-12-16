@@ -31,7 +31,7 @@ func NewMessage(id MessageID, body []byte, topic []byte) *Message {
 	return &Message{
 		ID:        id,
 		Body:      body,
-		Timestamp: time.Now().UnixNano(),
+		Timestamp: time.Now().UnixNano()/1000000,
 		Topic:     topic,
 	}
 }

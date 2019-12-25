@@ -76,13 +76,11 @@ func (s *httpServer) getAuthorizationStatus(w http.ResponseWriter, req *http.Req
 	}
 }
 func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	fmt.Println("getClients")
 	s.enableCors(&w,req);
 	if setting.EtcdSetting.Enable {
 		d:=G_workerMgr.GetAllClientInfo(s.ctx.getOnlineServer())
 		return d,nil
 	} else {
-		fmt.Println("22222222222")
 		return s.ctx.GetAllClientInfo(), nil
 	}
 }

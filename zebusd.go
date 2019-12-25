@@ -12,7 +12,6 @@ import (
 )
 
 type ZEBUSD struct {
-	sync.RWMutex
 	// Registered clients.
 	clients   map[*Client]bool
 	clientMap map[string]*Client
@@ -92,18 +91,23 @@ func (h *ZEBUSD) forwareClientMessage(client *Client, message []byte) {
 }
 func (h *ZEBUSD) addNewServer(serverName string){
 	fmt.Println("addNewServer1111111")
-	h.Lock()
-	defer h.Unlock()
+	h.mux.Lock()
+	defer h.mux.Unlock()
 	h.onlineServer[serverName]=true
 }
 func (h *ZEBUSD)removeServer(serverName string){
-	h.Lock()
-	defer h.Unlock()
+	fmt.Println("removeServer")
+	h.mux.Lock()
+
 	if _,ok:=h.onlineServer[serverName];ok{
 		delete(h.onlineServer,serverName)
 	}
+	h.mux.Unlock()
+	fmt.Println("removeServer done")
+
 }
 func (h *ZEBUSD) getOnlineServer()[]string{
+	fmt.Println("getOnlineServer")
 	h.RLock()
 	defer h.RUnlock()
 	onlineClient :=make([]string,0)

@@ -258,6 +258,7 @@ func (workerMgr *WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
 	return workerMgr.clientsInfo
 }
 func (workerMgr *WorkerMgr)GetAllClientInfo(onlineServer []string)map[string]interface{}{
+	fmt.Println("GetAllClientInfo")
 	data:=make(map[string]interface{})
 	tmpOnlineList,err:= workerMgr.ListWorkers()
 	tmpOfflineList:=make([]string,0)

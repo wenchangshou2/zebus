@@ -43,8 +43,8 @@ func (*Service) Start(_ service.Service) error {
 	hub := newHub(logging.G_Logger)
 	httpServer := newHTTPServer(hub, false, false)
 	httpListener, err := net.Listen("tcp", "0.0.0.0:9191")
-	if err!=nil{
-		logging.G_Logger.Error("初始化HTTP失败:"+err.Error())
+	if err != nil {
+		logging.G_Logger.Error("初始化HTTP失败:" + err.Error())
 		return errors.New("初始化http失败")
 	}
 	go http_api.Serve(httpListener, httpServer, "HTTP", *logging.G_Logger)
@@ -55,6 +55,10 @@ func (*Service) Start(_ service.Service) error {
 	if err = InitSchedume(serverAddr, hub); err != nil {
 		logging.G_Logger.Error("创建调度失败")
 		return fmt.Errorf("创建调度失败")
+	}
+	if err=InitJobMgr();err!=nil{
+		logging.G_Logger.Error("创建jobMgr失败")
+		return fmt.Errorf("创建jobMgr失败")
 	}
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
 		return fmt.Errorf("创建pnp失败")

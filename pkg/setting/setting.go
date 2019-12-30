@@ -28,6 +28,10 @@ type Server struct {
 type Etcd struct {
 	ConnStr string
 	Enable  bool
+	Timeout int
+	Dispatch bool
+	DispatchTopic string //调度通道
+	Broadcast string  //广播通道
 }
 type Http struct {
 	Port         int

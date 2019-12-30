@@ -108,8 +108,8 @@ func (h *ZEBUSD)removeServer(serverName string){
 }
 func (h *ZEBUSD) getOnlineServer()[]string{
 	fmt.Println("getOnlineServer")
-	h.RLock()
-	defer h.RUnlock()
+	h.mux.RLock()
+	defer h.mux.RUnlock()
 	onlineClient :=make([]string,0)
 	for k,_:=range h.onlineServer{
 		onlineClient=append(onlineClient,k)
@@ -149,7 +149,8 @@ func (h *ZEBUSD) forwardProcess(data []byte) {
 	}
 }
 func (h *ZEBUSD) getClients(topicName string) *Client {
-	h.RLock()
+	h.mux.Lock()
+	defer h.mux.Unlock()
 	t, ok := h.clientMap[topicName]
 	if ok {
 		return t
@@ -163,7 +164,6 @@ func (h *ZEBUSD) getClients(topicName string) *Client {
 		return t
 	}
 	fmt.Println("ip",ip,"/zebus/"+ip,h.clientMap)
-	h.RUnlock()
 
 	return nil
 }

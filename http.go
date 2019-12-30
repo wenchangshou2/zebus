@@ -42,11 +42,11 @@ func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Reque
 		newStr string
 		err    error
 	)
-	s.enableCors(&w,req);
+	s.enableCors(&w, req)
 	safey := safety.Safety{}
 	safey.DefaultKey()
 	if uuid, err = utils.GetSystemUUID(); err != nil {
-		return nil, http_api.Err{Code: e.ERROR, Text:err.Error()}
+		return nil, http_api.Err{Code: e.ERROR, Text: err.Error()}
 	}
 	msec := time.Now().UnixNano() / 1000000
 	systemInfo := SystemMachineCode{
@@ -63,7 +63,7 @@ func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Reque
 
 func (s *httpServer) getAuthorizationStatus(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 
-	s.enableCors(&w,req);
+	s.enableCors(&w, req)
 	if setting.RunningSetting.IsAuthorization {
 		return struct {
 			Status            bool   `json:"status"`
@@ -76,17 +76,17 @@ func (s *httpServer) getAuthorizationStatus(w http.ResponseWriter, req *http.Req
 	}
 }
 func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	s.enableCors(&w,req);
+	s.enableCors(&w, req)
 	if setting.EtcdSetting.Enable {
-		d:=G_workerMgr.GetAllClientInfo(s.ctx.getOnlineServer())
-		return d,nil
+		d := G_workerMgr.GetAllClientInfo(s.ctx.getOnlineServer())
+		return d, nil
 	} else {
 		return s.ctx.GetAllClientInfo(), nil
 	}
 }
 
 func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	s.enableCors(&w,req);
+	s.enableCors(&w, req)
 	readMax := setting.AppSetting.MaxMsgSize + 1
 	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
 	if err != nil {
@@ -98,7 +98,7 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 	if len(body) == 0 {
 		return nil, http_api.Err{Code: 400, Text: "MSG_EMPTY"}
 	}
-	reqParams, client, topic, _,err := s.getTopicFromQuery(req)
+	reqParams, client, topic, _, err := s.getTopicFromQuery(req)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 		}
 		deferred = time.Duration(di) * time.Millisecond
 	}
-	topic=strings.TrimPrefix(topic,"/zebus")
+	topic = strings.TrimPrefix(topic, "/zebus")
 	msg := NewMessage(client.GenerateID(), body, []byte(topic))
 	msg.deferred = deferred
 	err = client.PutMessage(msg)
@@ -120,8 +120,50 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 	}
 	return "OK", nil
 }
+// doPUBV3: 推送异步的调用
+func (s *httpServer) doPUBV3(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	var (
+		err     error
+		//postJob string
+		job     e.Job
+		oldJob  *e.Job
+		bytes []byte
+	)
+	s.enableCors(&w, req)
+	readMax:=setting.AppSetting.MaxMsgSize+1
+	body,err:=ioutil.ReadAll(io.LimitReader(req.Body,readMax))
+	fmt.Println("body",string(body))
+	if err != nil {
+		return nil, http_api.Err{
+			Code: 500,
+			Text: "Internal_error",
+		}
+	}
+	topic,err:=s.getTopic(req)
+	if err!=nil{
+		return nil,err
+	}
+	if err = json.Unmarshal(body, &job); err != nil {
+		return nil, http_api.Err{Code: 500, Text: "parse json failed"}
+	}
+	job.Topic=topic
+
+	fmt.Println("save job", job,bytes,G_JobMgr)
+	if len(job.Name)==0{
+		job.Name=strconv.Itoa(int(time.Now().UnixNano()))
+	}
+	if oldJob, err = G_JobMgr.SaveJob(&job); err != nil {
+	//	fmt.Println("err",err)
+	//	w.Write(bytes)
+	return nil,http_api.Err{Code:500,Text:"save key error:"+err.Error()}
+	}
+	fmt.Println("oldjob",oldJob)
+
+	return "OK", nil
+}
+
 func (s *httpServer) doPUBV2(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	s.enableCors(&w,req);
+	s.enableCors(&w, req)
 	readMax := setting.AppSetting.MaxMsgSize + 1
 	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
 	if err != nil {
@@ -133,7 +175,7 @@ func (s *httpServer) doPUBV2(w http.ResponseWriter, req *http.Request, ps httpro
 	if len(body) == 0 {
 		return nil, http_api.Err{Code: 400, Text: "MSG_EMPTY"}
 	}
-	reqParams, client, topic, timeOut,err := s.getTopicFromQuery(req)
+	reqParams, client, topic, timeOut, err := s.getTopicFromQuery(req)
 	if err != nil {
 		return nil, err
 	}
@@ -146,23 +188,23 @@ func (s *httpServer) doPUBV2(w http.ResponseWriter, req *http.Request, ps httpro
 		}
 		deferred = time.Duration(di) * time.Millisecond
 	}
-	topic=strings.TrimPrefix(topic,"/zebus")
+	topic = strings.TrimPrefix(topic, "/zebus")
 	msg := NewMessage(client.GenerateID(), body, []byte(topic))
 	msg.deferred = deferred
 	err = client.PutMessage(msg)
-	ctx,_:=context.WithTimeout(context.Background(),time.Duration(timeOut)*time.Millisecond)
-	done:=client.AddNewWaitMessage(msg.ID)
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeOut)*time.Millisecond)
+	done := client.AddNewWaitMessage(msg.ID)
 	//go func() {
-	select{
-	case messageBody,ok:=<-done:
-		 if ok{
-			 w.Header().Set("Content-Type","application/json")
-			 w.Write(*messageBody)
-		 }
+	select {
+	case messageBody, ok := <-done:
+		if ok {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(*messageBody)
+		}
 	case <-ctx.Done():
-		 w.Header().Set("Content-Type","application/json")
-		 d,_:=json.Marshal(http_api.Err{Code:500,Text:"No Message RECEIVERDu"})
-		 w.Write(d)
+		w.Header().Set("Content-Type", "application/json")
+		d, _ := json.Marshal(http_api.Err{Code: 500, Text: "No Message RECEIVERDu"})
+		w.Write(d)
 	}
 	client.DeleteWitMessage(msg.ID)
 	//}()
@@ -187,43 +229,58 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServe
 	router.Handle("POST", "/getClients", http_api.Decorate(s.getClients, log, http_api.V1))
 	router.Handle("POST", "/pub", http_api.Decorate(s.doPUB, http_api.V1))
 	router.Handle("POST", "/pubV2", http_api.Decorate(s.doPUBV2, http_api.V1))
+	router.Handle("POST", "/pubV3", http_api.Decorate(s.doPUBV3, http_api.V1))
 	return s
 }
 func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	s.router.ServeHTTP(w, req)
 }
-func (s *httpServer) enableCors(w *http.ResponseWriter,req *http.Request){
+func (s *httpServer) enableCors(w *http.ResponseWriter, req *http.Request) {
 	fmt.Println("enable cors")
-	(*w).Header().Set("Access-Control-Allow-Origin","*")
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
-func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, string, int,error) {
+// getTopic: 获取参数里面的topic字段
+func (s *httpServer)getTopic(req *http.Request)(string,error){
+	reqParams,err:=url.ParseQuery(req.URL.RawQuery)
+	if err!=nil{
+		s.ctx.logf.Error(fmt.Sprintf("failed to parse request params - %s",err.Error()))
+		return "",err
+	}
+	topic,ok:=reqParams["topic"]
+	if !ok{
+		return "",http_api.Err{Code:400,Text:"MISSING_APP_TOPIC"}
+	}
+	return topic[0],nil
+}
+
+func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, string, int, error) {
 	var (
 		timeOut int
 	)
 	reqParams, err := url.ParseQuery(req.URL.RawQuery)
 	if err != nil {
 		s.ctx.logf.Error(fmt.Sprintf("failed to parse request params - %s", err))
-		return nil, nil, "", 0,http_api.Err{Code: 400, Text: "INVALID REQUEST"}
+		return nil, nil, "", 0, http_api.Err{Code: 400, Text: "INVALID REQUEST"}
 	}
 	topicNames, ok := reqParams["topic"]
 	if !ok {
-		return nil, nil, "", 0,http_api.Err{Code: 400, Text: "MISSING_APG_TOPIC"}
+		return nil, nil, "", 0, http_api.Err{Code: 400, Text: "MISSING_APG_TOPIC"}
 	}
 	topicName := topicNames[0]
 	client := s.ctx.getClients(topicName)
 	if client == nil {
-		return nil, nil, "", 0,http_api.Err{Code: 400, Text: "DRIVER NOT ONLINE"}
+		return nil, nil, "", 0, http_api.Err{Code: 400, Text: "DRIVER NOT ONLINE"}
 	}
-	timeOutStr,ok:=reqParams["timeOut"]
-	if !ok{
-		timeOut=2000
-	}else{
-		tmp,err:=strconv.Atoi(timeOutStr[0])
-		if err!=nil{
-			timeOut=2000
-		}else{
-			timeOut=tmp
+	timeOutStr, ok := reqParams["timeOut"]
+	if !ok {
+		timeOut = 2000
+	} else {
+		tmp, err := strconv.Atoi(timeOutStr[0])
+		if err != nil {
+			timeOut = 2000
+		} else {
+			timeOut = tmp
 		}
 	}
-	return reqParams, client, topicName, timeOut,nil
+	return reqParams, client, topicName, timeOut, nil
 }

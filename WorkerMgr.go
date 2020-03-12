@@ -190,6 +190,7 @@ func (workerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 				Server: make([]string, 0),
 				Config:*pcConfig,
 			}
+			serverInfo.Server=append(serverInfo.Server,"Daemon")
 			workerArr = append(workerArr, serverInfo)
 		} else {
 			workerIp, serverName := utils2.ExtractServerName(string(kv.Key))

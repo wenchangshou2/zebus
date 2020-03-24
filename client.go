@@ -50,34 +50,34 @@ var upgrader = websocket.Upgrader{
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
 	sync.RWMutex
-	hub           *ZEBUSD
-	conn          *websocket.Conn
-	Ip            string
-	Mac           string
-	Topic         string
-	SocketName    string
-	MessageType   int
-	IsRegister    bool
-	SocketType    string
-	send          chan []byte
-	sendMessage   chan *Message
-	AuthStatus    bool
-	client        *clientv3.Client
-	kv            clientv3.KV
-	lease         clientv3.Lease
-	serverType    string
-	CancelChannel chan interface{}
-	register      *Register
-	messageCount  uint64
-	messageBytes  uint64
-	memoryMsgChan chan *Message
-	idFactory     *guidFactory
+	hub                  *ZEBUSD
+	conn                 *websocket.Conn
+	Ip                   string
+	Mac                  string
+	Topic                string
+	SocketName           string
+	MessageType          int
+	IsRegister           bool
+	SocketType           string
+	send                 chan []byte
+	sendMessage          chan *Message
+	AuthStatus           bool
+	client               *clientv3.Client
+	kv                   clientv3.KV
+	lease                clientv3.Lease
+	serverType           string
+	CancelChannel        chan interface{}
+	register             *Register
+	messageCount         uint64
+	messageBytes         uint64
+	memoryMsgChan        chan *Message
+	idFactory            *guidFactory
 	WaitRecvMessageMutex sync.Mutex
-	WaitRecvMessage map[MessageID]chan* []byte //回复的队列
-	deferredMessage map[MessageID]*pqueue.Item
-	deferredPQ pqueue.PriorityQueue
-	deferredMutex sync.Mutex
-
+	WaitRecvMessage      map[MessageID]chan *[]byte //回复的队列
+	deferredMessage      map[MessageID]*pqueue.Item
+	deferredPQ           pqueue.PriorityQueue
+	deferredMutex        sync.Mutex
+	proto                string
 }
 func (c *Client) AddNewWaitMessage(id MessageID)chan* []byte{
 	c.WaitRecvMessageMutex.Lock()
@@ -229,6 +229,9 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	}
 	if topic, ok := arguments["topic"]; ok {
 		c.Topic = topic.(string)
+	}
+	if proto,ok:=arguments["proto"];ok{
+		c.proto=proto.(string)
 	}
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
@@ -488,11 +491,20 @@ func (c *Client) PutMessage(m *Message) error {
 	return nil
 }
 func (c *Client) put(m *Message) error {
-	select {
-	case c.memoryMsgChan <- m:
-	default:
-		fmt.Println("put22")
-		//b:=bufferPoolGet()
+	if strings.Compare(c.proto,"text")==0{
+		select {
+		case c.send<-m.Body:
+			default:
+				
+		}
+	}else{
+		select {
+		case c.memoryMsgChan <- m:
+		default:
+			fmt.Println("put22")
+			//b:=bufferPoolGet()
+		}
+
 	}
 	return nil
 }
@@ -556,6 +568,7 @@ func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 		idFactory:     NewGUIDFactory(int64(rand.Intn(10000))),
 		memoryMsgChan: make(chan *Message, setting.AppSetting.MemQueueSize),
 		sendMessage:   make(chan *Message, 0),
+		proto:"text",
 	}
 	tmp := map[string]interface{}{}
 	tmp["ip"] = strings.Split(conn.RemoteAddr().String(), ":")[0]

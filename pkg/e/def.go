@@ -8,6 +8,7 @@ type RequestCmd struct {
 	Action       string                 `json:"Action"`
 	Arguments    map[string]interface{} `json:"Arguments"`
 	Auth         map[string]interface{} `json:"Auth"`
+	Proto string `json:"proto"`
 	SenderName   string                 `json:"senderName"`
 }
 type ForwardCmd struct {

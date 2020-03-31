@@ -114,6 +114,7 @@ func (h *ZEBUSD) getOnlineServer()[]string{
 	for k,_:=range h.onlineServer{
 		onlineClient=append(onlineClient,k)
 	}
+
 	onlineClient=append(onlineClient,"zebus")
 	return onlineClient
 }

@@ -230,9 +230,7 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	if topic, ok := arguments["topic"]; ok {
 		c.Topic = topic.(string)
 	}
-	if proto,ok:=arguments["proto"];ok{
-		c.proto=proto.(string)
-	}
+	c.proto=data.Proto
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
 		c.SocketName = strings.TrimPrefix(data.SocketName, "/")
@@ -495,7 +493,7 @@ func (c *Client) put(m *Message) error {
 		select {
 		case c.send<-m.Body:
 			default:
-				
+
 		}
 	}else{
 		select {

@@ -34,9 +34,11 @@ func (*Service) Start(_ service.Service) error {
 		return errors.New("读取配置文件失败")
 	}
 	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
+
 	if err = logging.InitLogging(logPath, setting.AppSetting.LogLevel); err != nil {
 		return errors.New("创建日志失败")
 	}
+	logging.G_Logger.Info("log path:"+logPath)
 	if err = certification.InitCertification(); err != nil { //初始化认证
 		return errors.New("初始化授权失败")
 	}
@@ -54,6 +56,7 @@ func (*Service) Start(_ service.Service) error {
 	serverAddr := fmt.Sprintf("%s", setting.ServerSetting.BindAddress)
 	if err = InitSchedume(serverAddr, hub); err != nil {
 		logging.G_Logger.Error("创建调度失败")
+		panic("创建高度失败")
 		return fmt.Errorf("创建调度失败")
 	}
 	if err=InitJobMgr();err!=nil{

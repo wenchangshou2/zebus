@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path"
 	"time"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"github.com/wenchangshou2/zebus/pkg/utils"
@@ -28,8 +29,12 @@ func InitLogging(logPath string, level string) (err error) {
 		atom zap.AtomicLevel
 	)
 
+	t := time.Now()
+	formatted := fmt.Sprintf("%d-%02d-%02d",
+		t.Year(), t.Month(), t.Day())
+	formatted = formatted + ".log"
 	hook := lumberjack.Logger{
-		Filename:   "./logs/zebus.log", // 日志文件路径
+		Filename:   path.Join(logPath,formatted), // 日志文件路径
 		MaxSize:    128,                      // 每个日志文件保存的最大尺寸 单位：M
 		MaxBackups: 30,                       // 日志文件最多保存多少个备份
 		MaxAge:     7,                        // 文件最多保存多少天
@@ -62,10 +67,10 @@ func InitLogging(logPath string, level string) (err error) {
 	default:
 		atom = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
-	t := time.Now()
-	formatted := fmt.Sprintf("%d-%02d-%02d",
-		t.Year(), t.Month(), t.Day())
-	formatted = formatted + ".log"
+	//t := time.Now()
+	//formatted := fmt.Sprintf("%d-%02d-%02d",
+	//	t.Year(), t.Month(), t.Day())
+	//formatted = formatted + ".log"
 	//fileSavePath := "winfile:///" + path.Join(logPath, formatted)
 	zap.RegisterSink("winfile", newWinFileSink)
 

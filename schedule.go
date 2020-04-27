@@ -41,7 +41,7 @@ func InitSchedume(addr string, hub *ZEBUSD) (err error) {
 			if retriesCount == 0 {
 				return fmt.Errorf("启动 etcd 服务失败")
 			}
-			logging.G_Logger.Info(fmt.Sprintf("etcd 服务启动失败,当前为第%d次尝试", retriesCount))
+			logging.G_Logger.Info(fmt.Sprintf("etcd 服务连接失败,当前还剩余连接次数%d", retriesCount))
 			time.Sleep(10 * time.Second)
 		}
 	}

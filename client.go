@@ -425,6 +425,9 @@ func (c *Client) TextMessageProcess(message []byte)(err error){
 }
 func (c *Client)BinaryMessageProcess(message []byte){
 	msg,_:=decodeMessage(message)
+	if string(msg.Topic)!="/zebus"&&string(msg.Topic)!="zebus"{
+		//c.put()
+	}
 	if c,ok:=c.WaitRecvMessage[msg.ID];ok{
 		c<-&msg.Body
 	}

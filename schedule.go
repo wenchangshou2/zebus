@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
 	"github.com/wenchangshou2/zebus/pkg/logging"
+	_ "net/http/pprof"
 	"github.com/wenchangshou2/zebus/pkg/setting"
 )
 

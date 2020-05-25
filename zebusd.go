@@ -3,12 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/utils"
 	"go.uber.org/zap"
 	"strings"
 	"sync"
-
-	"github.com/wenchangshou2/zebus/pkg/logging"
 )
 
 type ZEBUSD struct {
@@ -90,20 +89,17 @@ func (h *ZEBUSD) forwareClientMessage(client *Client, message []byte) {
 	}
 }
 func (h *ZEBUSD) addNewServer(serverName string){
-	fmt.Println("addNewServer1111111")
 	h.mux.Lock()
 	defer h.mux.Unlock()
 	h.onlineServer[serverName]=true
 }
 func (h *ZEBUSD)removeServer(serverName string){
-	fmt.Println("removeServer")
 	h.mux.Lock()
 
 	if _,ok:=h.onlineServer[serverName];ok{
 		delete(h.onlineServer,serverName)
 	}
 	h.mux.Unlock()
-	fmt.Println("removeServer done")
 
 }
 func (h *ZEBUSD) getOnlineServer()[]string{
@@ -170,6 +166,8 @@ func (h *ZEBUSD) getClients(topicName string) *Client {
 	return nil
 }
 func (h *ZEBUSD) run() {
+	//t := time.NewTicker(24*time.Hour)
+	// t:=time.NewTicker(time.Second)
 	for {
 		select {
 		case client := <-h.register:
@@ -206,6 +204,14 @@ func (h *ZEBUSD) run() {
 			}
 		case message := <-h.forward:
 			h.forwardProcess(message)
+		// case <-t.C:
+		// 	logging.G_Logger.Info("check license")
+		// 	err:=utils.CheckLicense()
+		// 	if err!=nil{
+		// 		logging.G_Logger.Error("license 到期:"+err.Error())
+		// 		panic("License 到期")
+		// 	}
+
 		}
 	}
 }

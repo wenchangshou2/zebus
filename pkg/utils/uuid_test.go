@@ -15,6 +15,7 @@ func TestGetCpuID(t *testing.T) {
 		t.Error("获取CPU ID错误")
 		return
 	}
+	fmt.Printf("当前获取到的CPUID：%s",cpuId)
 	t.Logf("当前获取到的CPUID:%s", cpuId)
 }
 func TestGetMachineUUID(t *testing.T) {

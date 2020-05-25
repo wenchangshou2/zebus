@@ -12,8 +12,6 @@ import (
 
 	"github.com/wenchangshou2/zebus/pkg/certification"
 
-	//_ "net/http/pprof"
-
 	"github.com/kardianos/service"
 	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/setting"
@@ -23,20 +21,25 @@ import (
 type Service struct {
 }
 
-func (*Service) Start(_ service.Service) error {
+func (s *Service) Start(_ service.Service) error {
 	var (
 		err               error
 		AuthorizationDone chan bool
 	)
+	err=utils.CheckLicense()
+	if err!=nil{
+		panic("当前授权失败:"+err.Error())
+		return errors.New("当前授权失败:"+err.Error())
+	}
 	AuthorizationDone = make(chan bool)
 	confPath, _ := utils.GetFullPath("conf/app.ini")
 	if err = setting.InitSetting(confPath); err != nil {
-		return errors.New("读取配置文件失败")
+		panic("读取配置文件失败")
 	}
 	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
 
 	if err = logging.InitLogging(logPath, setting.AppSetting.LogLevel); err != nil {
-		return errors.New("创建日志失败")
+		panic("创建日志文件失败")
 	}
 	logging.G_Logger.Info("log path:"+logPath)
 	if err = certification.InitCertification(); err != nil { //初始化认证
@@ -57,14 +60,14 @@ func (*Service) Start(_ service.Service) error {
 	if err = InitSchedume(serverAddr, hub); err != nil {
 		logging.G_Logger.Error("创建调度失败")
 		panic("创建高度失败")
-		return fmt.Errorf("创建调度失败")
+		return errors.New("创建调试失败")
 	}
 	if err=InitJobMgr();err!=nil{
 		logging.G_Logger.Error("创建jobMgr失败")
-		return fmt.Errorf("创建jobMgr失败")
+		return errors.New("创建JobMgr失败")
 	}
 	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
-		return fmt.Errorf("创建pnp失败")
+		return errors.New("创建pnp失败")
 	}
 	return nil
 }
@@ -80,6 +83,7 @@ func main() {
 		err error
 		s   service.Service
 	)
+
 	flag.Parse()
 
 	svcConfig := &service.Config{
@@ -104,7 +108,17 @@ func main() {
 			s.Uninstall()
 			fmt.Println("服务卸载成功")
 			return
+		case "get":
+			code,err:=utils.GetSystemUUID()
+			if err!=nil{
+				fmt.Errorf("获取系统唯一码失败:%s",err.Error())
+				return
+			}
+			fmt.Printf("获取系统唯一码成功:%s\n",code)
+			os.Exit(1)
+			return
 		}
+
 	}
 	err = s.Run()
 	if err != nil {

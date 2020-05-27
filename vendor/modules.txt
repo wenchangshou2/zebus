@@ -32,6 +32,8 @@ github.com/julienschmidt/httprouter
 github.com/kardianos/service
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
+# github.com/mreiferson/go-options v1.0.0
+github.com/mreiferson/go-options
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/prometheus/common v0.6.0

@@ -14,6 +14,7 @@ type App struct {
 	LogLevel     string
 	MaxMsgSize   int64
 	MemQueueSize int64
+	ArgumentType string
 }
 
 type Server struct {

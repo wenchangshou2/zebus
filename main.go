@@ -4,44 +4,53 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/mreiferson/go-options"
 	"log"
 	"net"
 	"os"
-
 	"github.com/wenchangshou2/zebus/pkg/http_api"
 
 	"github.com/wenchangshou2/zebus/pkg/certification"
-
 	"github.com/kardianos/service"
 	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/setting"
 	"github.com/wenchangshou2/zebus/pkg/utils"
 )
+type Cfg map[string]interface{}
 
-type Service struct {
+func (cfg Cfg) Validate(){
+
 }
 
+type Service struct {
+	flagSet *flag.FlagSet
+	opts *Options
+}
 func (s *Service) Start(_ service.Service) error {
 	var (
 		err               error
 		AuthorizationDone chan bool
 	)
-	err=utils.CheckLicense()
-	if err!=nil{
-		panic("当前授权失败:"+err.Error())
-		return errors.New("当前授权失败:"+err.Error())
-	}
+	//err=utils.CheckLicense()
+	//if err!=nil{
+	//	return errors.New("当前授权失败:"+err.Error())
+	//}
+
 	AuthorizationDone = make(chan bool)
 	confPath, _ := utils.GetFullPath("conf/app.ini")
 	if err = setting.InitSetting(confPath); err != nil {
 		panic("读取配置文件失败")
+	}
+	if setting.AppSetting.ArgumentType=="cmd"{
+		var cfg Cfg
+		options.Resolve(s.opts,s.flagSet,cfg)
+		s.SetRunningArguments()
 	}
 	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
 
 	if err = logging.InitLogging(logPath, setting.AppSetting.LogLevel); err != nil {
 		panic("创建日志文件失败")
 	}
-	logging.G_Logger.Info("log path:"+logPath)
 	if err = certification.InitCertification(); err != nil { //初始化认证
 		return errors.New("初始化授权失败")
 	}
@@ -59,7 +68,6 @@ func (s *Service) Start(_ service.Service) error {
 	serverAddr := fmt.Sprintf("%s", setting.ServerSetting.BindAddress)
 	if err = InitSchedume(serverAddr, hub); err != nil {
 		logging.G_Logger.Error("创建调度失败")
-		panic("创建高度失败")
 		return errors.New("创建调试失败")
 	}
 	if err=InitJobMgr();err!=nil{
@@ -71,20 +79,28 @@ func (s *Service) Start(_ service.Service) error {
 	}
 	return nil
 }
+func (s *Service)SetRunningArguments(){
+	fmt.Println("ops",s.opts)
+	setting.ServerSetting.BindAddress=s.opts.ServerBindAddress
+	setting.ServerSetting.ServerIP=s.opts.ServerAddress
+	setting.EtcdSetting.Enable=s.opts.EtcdEnable
+	setting.EtcdSetting.ConnStr=s.opts.EtcdConnStr
+
+}
 
 func (*Service) Stop(_ service.Service) error {
 	return nil
 }
 
-var serviceFlag = flag.String("service", "", "Control the service")
 
 func main() {
 	var (
 		err error
 		s   service.Service
 	)
-
-	flag.Parse()
+	opts:=NewOptions()
+	flagSet:=SyncFlagSet(opts)
+	flagSet.Parse(os.Args[1:])
 
 	svcConfig := &service.Config{
 		Name:        "zoolon-zebus",
@@ -92,7 +108,10 @@ func main() {
 		Description: "zoolon 消息服务",
 	}
 
-	svc := &Service{}
+	svc := &Service{
+		flagSet:flagSet,
+		opts: NewOptions(),
+	}
 	s, err = service.New(svc, svcConfig)
 	if err != nil {
 		log.Fatal(err)

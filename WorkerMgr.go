@@ -41,6 +41,7 @@ func InitWorkerMgr(hub *ZEBUSD) (err error) {
 		kv     clientv3.KV
 		lease  clientv3.Lease
 	)
+	fmt.Println("setting.EtcdSetting.ConnStr",setting.EtcdSetting.ConnStr)
 	config = clientv3.Config{Endpoints: []string{setting.EtcdSetting.ConnStr}, DialTimeout: 5 * time.Second}
 	if client, err = clientv3.New(config); err != nil {
 		return

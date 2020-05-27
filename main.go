@@ -4,7 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/mreiferson/go-options"
+
+	//"github.com/mreiferson/go-options"
+	"github.com/jessevdk/go-flags"
 	"log"
 	"net"
 	"os"
@@ -16,15 +18,10 @@ import (
 	"github.com/wenchangshou2/zebus/pkg/setting"
 	"github.com/wenchangshou2/zebus/pkg/utils"
 )
-type Cfg map[string]interface{}
-
-func (cfg Cfg) Validate(){
-
-}
 
 type Service struct {
 	flagSet *flag.FlagSet
-	opts *Options
+	opts Options
 }
 func (s *Service) Start(_ service.Service) error {
 	var (
@@ -42,8 +39,6 @@ func (s *Service) Start(_ service.Service) error {
 		panic("读取配置文件失败")
 	}
 	if setting.AppSetting.ArgumentType=="cmd"{
-		var cfg Cfg
-		options.Resolve(s.opts,s.flagSet,cfg)
 		s.SetRunningArguments()
 	}
 	logPath, _ := utils.GetFullPath(setting.AppSetting.LogSavePath)
@@ -80,11 +75,10 @@ func (s *Service) Start(_ service.Service) error {
 	return nil
 }
 func (s *Service)SetRunningArguments(){
-	fmt.Println("ops",s.opts)
 	setting.ServerSetting.BindAddress=s.opts.ServerBindAddress
 	setting.ServerSetting.ServerIP=s.opts.ServerAddress
 	setting.EtcdSetting.Enable=s.opts.EtcdEnable
-	setting.EtcdSetting.ConnStr=s.opts.EtcdConnStr
+	setting.EtcdSetting.ConnStr=s.opts.EtcdServer
 
 }
 
@@ -98,9 +92,18 @@ func main() {
 		err error
 		s   service.Service
 	)
-	opts:=NewOptions()
-	flagSet:=SyncFlagSet(opts)
-	flagSet.Parse(os.Args[1:])
+	fmt.Println("args",os.Args[1:])
+	//opts:=NewOptions()
+	//flagSet:=SyncFlagSet(opts)
+	//flagSet.Parse(os.Args[1:])
+	//fmt.Println("vv",flagSet.Lookup("etcd-server"))
+	var opts Options
+	args, err := flags.ParseArgs(&opts, os.Args[1:])
+	fmt.Println("args",args)
+	if err!=nil{
+		fmt.Errorf("参数解析错误:"+err.Error())
+		panic("参数解析错误")
+	}
 
 	svcConfig := &service.Config{
 		Name:        "zoolon-zebus",
@@ -109,8 +112,7 @@ func main() {
 	}
 
 	svc := &Service{
-		flagSet:flagSet,
-		opts: NewOptions(),
+		opts:opts,
 	}
 	s, err = service.New(svc, svcConfig)
 	if err != nil {

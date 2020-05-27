@@ -26,14 +26,14 @@ github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
 # github.com/gorilla/websocket v1.4.0
 github.com/gorilla/websocket
+# github.com/jessevdk/go-flags v1.4.0
+github.com/jessevdk/go-flags
 # github.com/julienschmidt/httprouter v1.2.0
 github.com/julienschmidt/httprouter
 # github.com/kardianos/service v1.0.0
 github.com/kardianos/service
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
-# github.com/mreiferson/go-options v1.0.0
-github.com/mreiferson/go-options
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/prometheus/common v0.6.0

@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -70,6 +71,7 @@ func InitSetting(path string) (err error) {
 	mapTo("app", AppSetting)
 	mapTo("server", ServerSetting)
 	mapTo("etcd", EtcdSetting)
+	fmt.Println("etcdsetting",EtcdSetting.ConnStr)
 	mapTo("http", HttpSetting)
 	mapTo("authorization", AuthorizationSetting)
 	IgnoreTopic := cfg.Section("app").Key("IgnoreTopic").String()

@@ -53,11 +53,13 @@ func InitJobMgr()(err error){
 		kv clientv3.KV
 		lease clientv3.Lease
 	)
+	fmt.Println("connStr:"+setting.EtcdSetting.ConnStr)
 	config = clientv3.Config{
 		Endpoints:[]string{setting.EtcdSetting.ConnStr},
 		DialTimeout:time.Duration(setting.EtcdSetting.Timeout)*time.Millisecond,
 	}
 	if client,err=clientv3.New(config);err!=nil{
+		fmt.Println("error:"+err.Error())
 		return
 	}
 	kv=clientv3.NewKV(client)

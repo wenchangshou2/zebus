@@ -55,6 +55,7 @@ type Client struct {
 	Ip                   string
 	Mac                  string
 	Topic                string
+	Group                string //用于分组
 	SocketName           string
 	MessageType          int
 	IsRegister           bool
@@ -79,16 +80,17 @@ type Client struct {
 	deferredMutex        sync.Mutex
 	proto                string
 }
-func (c *Client) AddNewWaitMessage(id MessageID)chan* []byte{
+
+func (c *Client) AddNewWaitMessage(id MessageID) chan *[]byte {
 	c.WaitRecvMessageMutex.Lock()
-	chanBody:=make(chan* []byte)
-	c.WaitRecvMessage[id]=chanBody
+	chanBody := make(chan *[]byte)
+	c.WaitRecvMessage[id] = chanBody
 	c.WaitRecvMessageMutex.Unlock()
 	return chanBody
 }
-func (c *Client)DeleteWitMessage(id MessageID){
+func (c *Client) DeleteWitMessage(id MessageID) {
 	c.WaitRecvMessageMutex.Lock()
-	delete(c.WaitRecvMessage,id)
+	delete(c.WaitRecvMessage, id)
 	c.WaitRecvMessageMutex.Unlock()
 }
 func (c *Client) writePump() {
@@ -120,9 +122,9 @@ func (c *Client) writePump() {
 			}
 		case msg, ok := <-c.memoryMsgChan:
 			//chanMsg:=msg
-			if msg.deferred!=0{
+			if msg.deferred != 0 {
 				fmt.Println("迟延发送")
-				c.PutMessageDeferred(msg,msg.deferred)
+				c.PutMessageDeferred(msg, msg.deferred)
 				continue
 			}
 			var buf = &bytes.Buffer{}
@@ -204,20 +206,22 @@ func (c *Client) initRegister(socketName string) {
 	go c.register.keepOnline()
 	return
 }
+
 // 初始化消息队列
-func (c *Client) InitPQ(){
-	pqSize:=int(math.Max(1,100))
+func (c *Client) InitPQ() {
+	pqSize := int(math.Max(1, 100))
 	// 初始化回复消息
 	c.WaitRecvMessageMutex.Lock()
-	c.WaitRecvMessage=make(map[MessageID]chan *[]byte)
+	c.WaitRecvMessage = make(map[MessageID]chan *[]byte)
 	c.WaitRecvMessageMutex.Unlock()
 
 	//初始化延迟消息
 	c.deferredMutex.Lock()
-	c.deferredMessage=make(map[MessageID]*pqueue.Item)
-	c.deferredPQ=pqueue.New(pqSize)
+	c.deferredMessage = make(map[MessageID]*pqueue.Item)
+	c.deferredPQ = pqueue.New(pqSize)
 	c.deferredMutex.Unlock()
 }
+
 //注册到Daemon的事件
 func (c *Client) registerToDaemon(data e.RequestCmd) {
 	arguments := data.Arguments
@@ -230,7 +234,12 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	if topic, ok := arguments["topic"]; ok {
 		c.Topic = topic.(string)
 	}
-	c.proto=data.Proto
+	if group, ok := arguments["group"]; ok {
+		c.Group = group.(string)
+	} else {
+		c.Group = "default"
+	}
+	c.proto = data.Proto
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
 		c.SocketName = strings.TrimPrefix(data.SocketName, "/")
@@ -253,7 +262,6 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	}
 	c.Ip = strings.Split(c.conn.RemoteAddr().String(), ":")[0]
 	c.IsRegister = true
-	// c.send <-
 	b, err := c.generateResponse(&map[string]interface{}{
 		"MessageType": data.MessageType,
 		"Action":      data.MessageType,
@@ -275,46 +283,48 @@ func (c *Client) generateResponse(data *map[string]interface{}) ([]byte, error) 
 	}
 	return json.Marshal(result)
 }
-func (c *Client)PutMessageDeferred(msg *Message,timeout time.Duration){
-	atomic.AddUint64(&c.messageCount,1)
-	c.StartDeferredTimeout(msg,timeout)
+func (c *Client) PutMessageDeferred(msg *Message, timeout time.Duration) {
+	atomic.AddUint64(&c.messageCount, 1)
+	c.StartDeferredTimeout(msg, timeout)
 }
-func (c *Client) pushDeferredMessage(item *pqueue.Item)error{
+func (c *Client) pushDeferredMessage(item *pqueue.Item) error {
 	c.deferredMutex.Lock()
-	id:=item.Value.(*Message).ID
-	_,ok:=c.deferredMessage[id]
-	if ok{
+	id := item.Value.(*Message).ID
+	_, ok := c.deferredMessage[id]
+	if ok {
 		c.deferredMutex.Unlock()
 		return errors.New("ID 已经存在")
 	}
-	c.deferredMessage[id]=item
+	c.deferredMessage[id] = item
 	c.deferredMutex.Unlock()
 	return nil
 }
 
-func (c *Client) StartDeferredTimeout(msg *Message,timeout time.Duration)error{
-	absTs:=time.Now().Add(timeout).UnixNano()
-	item:=&pqueue.Item{Value:msg,Priority:absTs}
-	err:=c.pushDeferredMessage(item)
-	if err!=nil{
+func (c *Client) StartDeferredTimeout(msg *Message, timeout time.Duration) error {
+	absTs := time.Now().Add(timeout).UnixNano()
+	item := &pqueue.Item{Value: msg, Priority: absTs}
+	err := c.pushDeferredMessage(item)
+	if err != nil {
 		return err
 	}
 	c.addToDeferredPQ(item)
 	return nil
 }
+
 //添加到队列
-func (c *Client) addToDeferredPQ(item *pqueue.Item){
+func (c *Client) addToDeferredPQ(item *pqueue.Item) {
 	c.deferredMutex.Lock()
-	heap.Push(&c.deferredPQ,item)
+	heap.Push(&c.deferredPQ, item)
 	c.deferredMutex.Unlock()
 }
-
 
 func (c *Client) execute(data []byte) {
 	type zeBusCmd struct {
 		Action       string `json:"action"`
 		ReceiverName string `json:"receiverName"`
 		SenderName   string `json:"senderName"`
+		GroupName string `json:"group_name"`
+		Body string `json:"body"`
 	}
 	d := make(map[string]interface{})
 	cmd := zeBusCmd{}
@@ -323,10 +333,11 @@ func (c *Client) execute(data []byte) {
 		logging.G_Logger.Error("解析json错误:" + err.Error())
 		return
 	}
+	fmt.Println("action",cmd.Action)
 	switch cmd.Action {
 	case "getClients":
 		if setting.EtcdSetting.Enable {
-			d=G_workerMgr.GetAllClientInfo(c.hub.getOnlineServer())
+			d = G_workerMgr.GetAllClientInfo(c.hub.getOnlineServer())
 		} else {
 			d = c.hub.GetAllClientInfo()
 		}
@@ -334,7 +345,13 @@ func (c *Client) execute(data []byte) {
 		d["status"] = G_Authorization.Status
 		//d=G_workerMgr.ListWorkers()
 	case "syncServiceInfo":
-			c.syncServiceInfo(data)
+		c.syncServiceInfo(data)
+	case "forwardGroupMessage":
+		if len(cmd.GroupName)==0{
+			logging.G_Logger.Info("forwardGroupMessage not found group_name")
+			return
+		}
+		c.ForwardGroupMessage(cmd.GroupName,cmd.Body)
 	}
 	if len(cmd.SenderName) == 0 {
 		return
@@ -359,9 +376,10 @@ func (c *Client) execute(data []byte) {
 	}
 	c.hub.forward <- b
 }
-func (c *Client)syncServiceInfo(data []byte){
+func (c *Client) syncServiceInfo(data []byte) {
 
 }
+
 // 未授权消息
 func (c *Client) unAuthorization(recv string) {
 	var (
@@ -387,7 +405,7 @@ func (c *Client) checkFrontCondition(data e.RequestCmd) bool {
 	}
 	return true
 }
-func (c *Client) TextMessageProcess(message []byte)(err error){
+func (c *Client) TextMessageProcess(message []byte) (err error) {
 	data := e.RequestCmd{}
 	if err = json.Unmarshal(message, &data); err != nil {
 		tmp := fmt.Sprintf("解析json错误:%s,错误原因:%s", string(message), err.Error())
@@ -423,13 +441,13 @@ func (c *Client) TextMessageProcess(message []byte)(err error){
 	}
 	return nil
 }
-func (c *Client)BinaryMessageProcess(message []byte){
-	msg,_:=decodeMessage(message)
-	if string(msg.Topic)!="/zebus"&&string(msg.Topic)!="zebus"{
+func (c *Client) BinaryMessageProcess(message []byte) {
+	msg, _ := decodeMessage(message)
+	if string(msg.Topic) != "/zebus" && string(msg.Topic) != "zebus" {
 		//c.put()
 	}
-	if c,ok:=c.WaitRecvMessage[msg.ID];ok{
-		c<-&msg.Body
+	if c, ok := c.WaitRecvMessage[msg.ID]; ok {
+		c <- &msg.Body
 	}
 }
 
@@ -456,9 +474,9 @@ func (c *Client) readPump() {
 			logging.G_Logger.Error("接收失败:" + err.Error())
 			break
 		}
-		if messageType==websocket.BinaryMessage{
+		if messageType == websocket.BinaryMessage {
 			c.BinaryMessageProcess(messageBody)
-		}else{
+		} else {
 			c.TextMessageProcess(messageBody)
 		}
 
@@ -492,13 +510,13 @@ func (c *Client) PutMessage(m *Message) error {
 	return nil
 }
 func (c *Client) put(m *Message) error {
-	if strings.Compare(c.proto,"text")==0{
+	if strings.Compare(c.proto, "text") == 0 {
 		select {
-		case c.send<-m.Body:
-			default:
+		case c.send <- m.Body:
+		default:
 
 		}
-	}else{
+	} else {
 		select {
 		case c.memoryMsgChan <- m:
 		default:
@@ -509,47 +527,57 @@ func (c *Client) put(m *Message) error {
 	}
 	return nil
 }
-func (c *Client) popDeferredMessage(id MessageID)(*pqueue.Item,error){
+func (c *Client) popDeferredMessage(id MessageID) (*pqueue.Item, error) {
 	c.deferredMutex.Lock()
-	item,ok:=c.deferredMessage[id]
-	if !ok{
+	item, ok := c.deferredMessage[id]
+	if !ok {
 		c.deferredMutex.Unlock()
-		return nil,errors.New("ID 没有迟延")
+		return nil, errors.New("ID 没有迟延")
 	}
-	delete(c.deferredMessage,id)
+	delete(c.deferredMessage, id)
 	c.deferredMutex.Unlock()
-	return item,nil
+	return item, nil
 }
-func (c *Client) ProcessDeferredQueue(t int64)bool{
-	dirty:=false
-	for{
+func (c *Client) ProcessDeferredQueue(t int64) bool {
+	dirty := false
+	for {
 		c.deferredMutex.Lock()
-		item,_:=c.deferredPQ.PeekAndShift(t)
+		item, _ := c.deferredPQ.PeekAndShift(t)
 		c.deferredMutex.Unlock()
 
-		if item==nil{
+		if item == nil {
 			goto exit
 		}
-		dirty=true
-		msg:=item.Value.(*Message)
-		_,err:=c.popDeferredMessage(msg.ID)
-		if err!=nil{
+		dirty = true
+		msg := item.Value.(*Message)
+		_, err := c.popDeferredMessage(msg.ID)
+		if err != nil {
 			goto exit
 		}
-		msg.deferred=0
-		fmt.Println("延迟",string(msg.Body))
-		c.send<-msg.Body
+		msg.deferred = 0
+		fmt.Println("延迟", string(msg.Body))
+		c.send <- msg.Body
 		//c.put(msg)
 	}
-	exit:
-		return dirty
+exit:
+	return dirty
 }
-func (c *Client) loop(){
-	for{
+func (c *Client) loop() {
+	for {
 		now := time.Now().UnixNano()
 		c.ProcessDeferredQueue(now)
-		time.Sleep(5*time.Millisecond)
+		time.Sleep(5 * time.Millisecond)
 	}
+}
+
+func (c *Client) ForwardGroupMessage(groupName string,body string) {
+	data:=e.ForWardGroupMessage{}
+	data.Body=[]byte(body)
+	data.GroupName=groupName
+	go func() {
+		c.hub.forwardGroupMessage<-data
+	}()
+
 }
 
 // serveWs handles websocket requests from  the peer.
@@ -569,7 +597,7 @@ func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 		idFactory:     NewGUIDFactory(int64(rand.Intn(10000))),
 		memoryMsgChan: make(chan *Message, setting.AppSetting.MemQueueSize),
 		sendMessage:   make(chan *Message, 0),
-		proto:"text",
+		proto:         "text",
 	}
 	tmp := map[string]interface{}{}
 	tmp["ip"] = strings.Split(conn.RemoteAddr().String(), ":")[0]

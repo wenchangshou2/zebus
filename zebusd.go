@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/wenchangshou2/zebus/pkg/e"
 	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/utils"
 	"go.uber.org/zap"
@@ -21,26 +22,30 @@ type ZEBUSD struct {
 	// Register requests from the clients.
 	register chan *Client
 	forward  chan []byte
+	group    map[string][]*Client
 	// Unregister requests from clients.
-	unregister chan *Client
-	mux        sync.RWMutex
-	logf       *zap.Logger
-	onlineServer map[string]bool
+	unregister          chan *Client
+	mux                 sync.RWMutex
+	logf                *zap.Logger
+	onlineServer        map[string]bool
+	forwardGroupMessage chan e.ForWardGroupMessage
 }
 
 func newHub(logf *zap.Logger) *ZEBUSD {
 	return &ZEBUSD{
-		broadcast:  make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
-		forward:    make(chan []byte),
-		online:     make(map[string]bool),
-		offline:    make(map[string]bool),
-		onlineServer:make(map[string]bool),
-		clientMap:  make(map[string]*Client, 0),
-		mux:        sync.RWMutex{},
-		logf:       logf,
+		broadcast:    make(chan []byte),
+		register:     make(chan *Client),
+		unregister:   make(chan *Client),
+		clients:      make(map[*Client]bool),
+		forward:      make(chan []byte),
+		online:       make(map[string]bool),
+		offline:      make(map[string]bool),
+		onlineServer: make(map[string]bool),
+		clientMap:    make(map[string]*Client, 0),
+		group:        make(map[string][]*Client),
+		forwardGroupMessage: make(chan e.ForWardGroupMessage),
+		mux:          sync.RWMutex{},
+		logf:         logf,
 	}
 }
 func (h *ZEBUSD) GetAllClientInfo() map[string]interface{} {
@@ -88,33 +93,32 @@ func (h *ZEBUSD) forwareClientMessage(client *Client, message []byte) {
 		delete(h.clients, client)
 	}
 }
-func (h *ZEBUSD) addNewServer(serverName string){
+func (h *ZEBUSD) addNewServer(serverName string) {
 	h.mux.Lock()
 	defer h.mux.Unlock()
-	h.onlineServer[serverName]=true
+	h.onlineServer[serverName] = true
 }
-func (h *ZEBUSD)removeServer(serverName string){
+func (h *ZEBUSD) removeServer(serverName string) {
 	h.mux.Lock()
 
-	if _,ok:=h.onlineServer[serverName];ok{
-		delete(h.onlineServer,serverName)
+	if _, ok := h.onlineServer[serverName]; ok {
+		delete(h.onlineServer, serverName)
 	}
 	h.mux.Unlock()
 
 }
-func (h *ZEBUSD) getOnlineServer()[]string{
+func (h *ZEBUSD) getOnlineServer() []string {
 	fmt.Println("getOnlineServer")
 	h.mux.RLock()
 	defer h.mux.RUnlock()
-	onlineClient :=make([]string,0)
-	for k,_:=range h.onlineServer{
-		onlineClient=append(onlineClient,k)
+	onlineClient := make([]string, 0)
+	for k, _ := range h.onlineServer {
+		onlineClient = append(onlineClient, k)
 	}
 
-	onlineClient=append(onlineClient,"zebus")
+	onlineClient = append(onlineClient, "zebus")
 	return onlineClient
 }
-
 
 // 将消息转发到子节点
 func (h *ZEBUSD) forwardProcess(data []byte) {
@@ -130,8 +134,8 @@ func (h *ZEBUSD) forwardProcess(data []byte) {
 		if len(client.SocketName) == 0 { //如果没有注册的名称就 不处理
 			continue
 		}
-		ReceiverName,_= cmdBody["receiverName"].(string)
-		ReceiverName=h.trimPrefix(ReceiverName)
+		ReceiverName, _ = cmdBody["receiverName"].(string)
+		ReceiverName = h.trimPrefix(ReceiverName)
 		if strings.Compare(ReceiverName, client.SocketName) == 0 { //指定 发送第三方服务
 			h.forwareClientMessage(client, data)
 			return
@@ -153,15 +157,15 @@ func (h *ZEBUSD) getClients(topicName string) *Client {
 	if ok {
 		return t
 	}
-	ip:=utils.FindIp(topicName)
-	if len(ip)<=0{
+	ip := utils.FindIp(topicName)
+	if len(ip) <= 0 {
 		return nil
 	}
 	t, ok = h.clientMap["/zebus/"+ip]
 	if ok {
 		return t
 	}
-	fmt.Println("ip",ip,"/zebus/"+ip,h.clientMap)
+	fmt.Println("ip", ip, "/zebus/"+ip, h.clientMap)
 
 	return nil
 }
@@ -171,25 +175,26 @@ func (h *ZEBUSD) run() {
 	for {
 		select {
 		case client := <-h.register:
-			logging.G_Logger.Info("new client up",zap.String("event","ServerOnline"),
-				zap.String("clientName",client.Ip))
+			logging.G_Logger.Info("new client up", zap.String("event", "ServerOnline"),
+				zap.String("clientName", client.Ip))
 			h.SetClientInfo(client.Ip, true)
 			h.clients[client] = true
 			h.clientMap[client.SocketName] = client
-			if strings.Compare(client.SocketType,"Services")==0{
+			h.addGroupMember(client)
+			if strings.Compare(client.SocketType, "Services") == 0 {
 				h.addNewServer(client.SocketName)
 			}
 			//client.SocketName
 		case client := <-h.unregister:
-			logging.G_Logger.Info("client down",zap.String("event","ServerDropped"),zap.String("clientName",client.Ip))
+			logging.G_Logger.Info("client down", zap.String("event", "ServerDropped"), zap.String("clientName", client.Ip))
+			h.removeGroupMember(client)
 			if _, ok := h.clients[client]; ok {
-				fmt.Println("ok", client.send)
 				delete(h.clients, client)
 				delete(h.clientMap, client.SocketName)
 				close(client.send)
 			}
 			h.SetClientInfo(client.Ip, false)
-			if strings.Compare(client.SocketType,"Services")==0{
+			if strings.Compare(client.SocketType, "Services") == 0 {
 				h.removeServer(client.SocketName)
 			}
 
@@ -204,14 +209,41 @@ func (h *ZEBUSD) run() {
 			}
 		case message := <-h.forward:
 			h.forwardProcess(message)
-		// case <-t.C:
-		// 	logging.G_Logger.Info("check license")
-		// 	err:=utils.CheckLicense()
-		// 	if err!=nil{
-		// 		logging.G_Logger.Error("license 到期:"+err.Error())
-		// 		panic("License 到期")
-		// 	}
+		case message := <-h.forwardGroupMessage:
+			h.forwardGroupMessageProcess(message)
+		}
+	}
+}
 
+func (h *ZEBUSD) forwardGroupMessageProcess(message e.ForWardGroupMessage) {
+	if g, ok := h.group[message.GroupName]; ok {
+		for _, c := range g {
+			logging.G_Logger.Info(fmt.Sprintf("forward GroupMessage:topic(%s)",c.SocketName))
+			h.forwareClientMessage(c, message.Body)
+		}
+	}
+}
+
+func (h *ZEBUSD) addGroupMember(c *Client) {
+	logging.G_Logger.Debug(fmt.Sprintf("add group member,%s",c.Group))
+	if g, ok := h.group[c.Group]; ok {
+		g = append(g, c)
+		h.group[c.Group]=g
+	} else {
+		g = make([]*Client, 0)
+		g = append(g, c)
+		h.group[c.Group] = g
+	}
+}
+
+func (h *ZEBUSD) removeGroupMember(c *Client) {
+	if g, ok := h.group[c.Group]; ok {
+		for k, _c := range g {
+			if _c == c {
+				fmt.Println("移动group成员",k,_c.SocketName)
+				g = append(g[:k], g[k+1:]...)
+				h.group[c.Group]=g
+			}
 		}
 	}
 }

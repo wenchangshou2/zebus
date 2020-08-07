@@ -13,3 +13,7 @@ logs/
 *.out
 .idea/
 zebus
+logs/
+*.7z
+*.rar
+*.zip

@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  zebus:
+    image: wenchangshou/zebus
+    restart: always
+    volumes: 
+      - /works/zebus_log:/app/logs
+    env_file:
+      - ./Docker/env/zebus.env
+    ports:
+      - "8182:8181"
+    depends_on:
+      - etcd
+    networks:
+      - zebus-networks
+  etcd:
+    image: wenchangshou/etcd
+    restart: always
+    networks:
+      - zebus-networks
+    ports:
+      - "23379:2379"
+networks:
+  zebus-networks:

@@ -16,7 +16,9 @@ before_deploy:
 deploy:
  provider: release
  api_key: "3746b2ea81aee169e5c7044ec60021fd7832173d "
- file: "zebus.exe"
+ file: 
+  - "zebus.exe"
+  - "conf/**/*"
  skip_cleanup: true
  on:
   tags: true

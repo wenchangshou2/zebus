@@ -1,5 +1,6 @@
 language: go
+os: windows
 go: 
- - release
+ - 1.14
 
 script:

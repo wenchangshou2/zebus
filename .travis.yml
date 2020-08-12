@@ -6,8 +6,8 @@ go:
  - 1.14
 script:
  - mkdir build
- - if [ "$TRAVIS_OS_NAME" = "linux" ];  go build  -o build/zebus
- - if [ "$TRAVIS_OS_NAME" = "windows" ];  go build  -o build/zebus.exe
+ - if [ "$TRAVIS_OS_NAME" = "linux" ];  go build  -o build/zebus ; fi
+ - if [ "$TRAVIS_OS_NAME" = "windows" ];  go build  -o build/zebus.exe ; fi
 after_success:
  - pwd
  - ls

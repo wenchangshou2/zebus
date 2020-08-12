@@ -1,9 +1,13 @@
 language: go
-os: windows
+os: 
+  - windows
+  - linux
 go: 
  - 1.14
 script:
- - go build -o zebus.exe
+ - mkdir build
+ - if [ "$TRAVIS_OS_NAME" = "linux" ];  go build  -o build/zebus
+ - if [ "$TRAVIS_OS_NAME" = "windows" ];  go build  -o build/zebus.exe
 after_success:
  - pwd
  - ls
@@ -11,13 +15,13 @@ before_deploy:
  # Set up git user name and tag this commit
  - git config --local user.name "wenchangshou"
  - git config --local user.email "wenchangshou@live.cn"
- - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+ - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$($TRAVIS_OS_NAME)-$(git log --format=%h -1)}
  - git tag $TRAVIS_TAG
 deploy:
  provider: release
  api_key: "3746b2ea81aee169e5c7044ec60021fd7832173d"
  overwrite: true
+ file_glob: true
  file: 
-  - "zebus.exe"
-  - "conf/*"
+  - "build/**/*"
  skip_cleanup: true

@@ -2,7 +2,6 @@ language: go
 os: windows
 go: 
  - 1.14
-env:
 script:
  - go build -o zebus.exe
 after_success:

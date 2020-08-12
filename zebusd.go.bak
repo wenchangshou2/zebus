@@ -33,19 +33,19 @@ type ZEBUSD struct {
 
 func newHub(logf *zap.Logger) *ZEBUSD {
 	return &ZEBUSD{
-		broadcast:           make(chan []byte),
-		register:            make(chan *Client),
-		unregister:          make(chan *Client),
-		clients:             make(map[*Client]bool),
-		forward:             make(chan []byte),
-		online:              make(map[string]bool),
-		offline:             make(map[string]bool),
-		onlineServer:        make(map[string]bool),
-		clientMap:           make(map[string]*Client, 0),
-		group:               make(map[string][]*Client),
+		broadcast:    make(chan []byte),
+		register:     make(chan *Client),
+		unregister:   make(chan *Client),
+		clients:      make(map[*Client]bool),
+		forward:      make(chan []byte),
+		online:       make(map[string]bool),
+		offline:      make(map[string]bool),
+		onlineServer: make(map[string]bool),
+		clientMap:    make(map[string]*Client, 0),
+		group:        make(map[string][]*Client),
 		forwardGroupMessage: make(chan e.ForWardGroupMessage),
-		mux:                 sync.RWMutex{},
-		logf:                logf,
+		mux:          sync.RWMutex{},
+		logf:         logf,
 	}
 }
 func (h *ZEBUSD) GetAllClientInfo() map[string]interface{} {
@@ -86,11 +86,6 @@ func (h *ZEBUSD) trimPrefix(topic string) (newTopic string) {
 }
 
 func (h *ZEBUSD) forwareClientMessage(client *Client, message []byte) {
-	defer func() {
-		if err:=recover();err!=nil{
-			logging.G_Logger.Error(fmt.Sprintf("forwareClientMessage 程序异常退出:%s,转发的topic:%s,转发的内容:%s",err,client.Topic,string(message)))
-		}
-	}()
 	select {
 	case client.send <- message:
 	default:
@@ -223,17 +218,17 @@ func (h *ZEBUSD) run() {
 func (h *ZEBUSD) forwardGroupMessageProcess(message e.ForWardGroupMessage) {
 	if g, ok := h.group[message.GroupName]; ok {
 		for _, c := range g {
-			logging.G_Logger.Info(fmt.Sprintf("forward GroupMessage:topic(%s)", c.SocketName))
+			logging.G_Logger.Info(fmt.Sprintf("forward GroupMessage:topic(%s)",c.SocketName))
 			h.forwareClientMessage(c, message.Body)
 		}
 	}
 }
 
 func (h *ZEBUSD) addGroupMember(c *Client) {
-	logging.G_Logger.Debug(fmt.Sprintf("add group member,%s", c.Group))
+	logging.G_Logger.Debug(fmt.Sprintf("add group member,%s",c.Group))
 	if g, ok := h.group[c.Group]; ok {
 		g = append(g, c)
-		h.group[c.Group] = g
+		h.group[c.Group]=g
 	} else {
 		g = make([]*Client, 0)
 		g = append(g, c)
@@ -245,8 +240,9 @@ func (h *ZEBUSD) removeGroupMember(c *Client) {
 	if g, ok := h.group[c.Group]; ok {
 		for k, _c := range g {
 			if _c == c {
+				fmt.Println("移动group成员",k,_c.SocketName)
 				g = append(g[:k], g[k+1:]...)
-				h.group[c.Group] = g
+				h.group[c.Group]=g
 				return
 			}
 		}

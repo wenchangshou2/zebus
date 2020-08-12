@@ -4,6 +4,10 @@ go:
  - 1.14
 
 script:
+after_success:
+ - pwd
+ - ls
+ - tree
 before_deploy:
  # Set up git user name and tag this commit
  - git config --local user.name "YOUR GIT USER NAME"

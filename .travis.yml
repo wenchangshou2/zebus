@@ -2,8 +2,11 @@ language: go
 os: windows
 go: 
  - 1.14
+env:
+- GO111MODULE=on # 启用Go mod
 
 script:
+ - go build -o zebus.exe
 after_success:
  - pwd
  - ls

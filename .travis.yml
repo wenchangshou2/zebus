@@ -4,3 +4,16 @@ go:
  - 1.14
 
 script:
+before_deploy:
+ # Set up git user name and tag this commit
+ - git config --local user.name "YOUR GIT USER NAME"
+ - git config --local user.email "YOUR GIT USER EMAIL"
+ - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+ - git tag $TRAVIS_TAG
+deploy:
+ provider: release
+ api_key: "3746b2ea81aee169e5c7044ec60021fd7832173d "
+ file: "zebus.exe"
+ skip_cleanup: true
+ on:
+  tags: true

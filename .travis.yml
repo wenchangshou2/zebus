@@ -24,4 +24,5 @@ deploy:
  file_glob: true
  file: 
   - "build/**/*"
+  - "conf/**/*"
  skip_cleanup: true

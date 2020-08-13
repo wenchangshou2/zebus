@@ -85,10 +85,10 @@ func (h *ZEBUSD) trimPrefix(topic string) (newTopic string) {
 	return
 }
 
-func (h *ZEBUSD) forwareClientMessage(client *Client, message []byte) {
+func (h *ZEBUSD) forwardClientMessage(client *Client, message []byte) {
 	defer func() {
 		if err:=recover();err!=nil{
-			logging.G_Logger.Error(fmt.Sprintf("forwareClientMessage 程序异常退出:%s,转发的topic:%s,转发的内容:%s",err,client.Topic,string(message)))
+			logging.G_Logger.Error(fmt.Sprintf("forwardClientMessage 程序异常退出:%s,转发的topic:%s,转发的内容:%s",err,client.Topic,string(message)))
 		}
 	}()
 	select {
@@ -142,7 +142,7 @@ func (h *ZEBUSD) forwardProcess(data []byte) {
 		ReceiverName, _ = cmdBody["receiverName"].(string)
 		ReceiverName = h.trimPrefix(ReceiverName)
 		if strings.Compare(ReceiverName, client.SocketName) == 0 { //指定 发送第三方服务
-			h.forwareClientMessage(client, data)
+			h.forwardClientMessage(client, data)
 			return
 		}
 		isIp, ip := utils.GetIp(ReceiverName)
@@ -150,7 +150,7 @@ func (h *ZEBUSD) forwardProcess(data []byte) {
 			cmdBody["receiverName"] = ReceiverName
 			data, err = json.Marshal(cmdBody)
 			if err == nil {
-				h.forwareClientMessage(client, data)
+				h.forwardClientMessage(client, data)
 			}
 		}
 	}
@@ -224,7 +224,7 @@ func (h *ZEBUSD) forwardGroupMessageProcess(message e.ForWardGroupMessage) {
 	if g, ok := h.group[message.GroupName]; ok {
 		for _, c := range g {
 			logging.G_Logger.Info(fmt.Sprintf("forward GroupMessage:topic(%s)", c.SocketName))
-			h.forwareClientMessage(c, message.Body)
+			h.forwardClientMessage(c, message.Body)
 		}
 	}
 }

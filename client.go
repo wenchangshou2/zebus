@@ -201,8 +201,8 @@ func (c *Client) initRegister(socketName string) {
 		lease:      lease,
 		serverType: "Server",
 		serverName: socketName,
+		exit: make(chan bool),
 	}
-
 	go c.register.keepOnline()
 	return
 }

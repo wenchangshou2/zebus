@@ -175,8 +175,6 @@ func (h *ZEBUSD) getClients(topicName string) *Client {
 	return nil
 }
 func (h *ZEBUSD) run() {
-	//t := time.NewTicker(24*time.Hour)
-	// t:=time.NewTicker(time.Second)
 	for {
 		select {
 		case client := <-h.register:
@@ -189,7 +187,6 @@ func (h *ZEBUSD) run() {
 			if strings.Compare(client.SocketType, "Services") == 0 {
 				h.addNewServer(client.SocketName)
 			}
-			//client.SocketName
 		case client := <-h.unregister:
 			logging.G_Logger.Info("client down", zap.String("event", "ServerDropped"), zap.String("clientName", client.Ip))
 			h.removeGroupMember(client)

@@ -8,9 +8,7 @@ script:
  - mkdir build
  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then go build -o build/zebus.exe  ; fi
  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then go build -o build/zebus ; fi
-after_success:
- - pwd
- - ls
+
 before_deploy:
  # Set up git user name and tag this commit
  - git config --local user.name "wenchangshou"
@@ -25,3 +23,5 @@ deploy:
  file: 
   - "build/**/*"
  skip_cleanup: true
+ on:
+  tags: true

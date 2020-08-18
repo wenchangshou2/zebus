@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/wenchangshou2/zebus/pkg/logging"
 	"strings"
 	"time"
 
@@ -17,6 +19,7 @@ type Register struct {
 	serverType    string
 	serverName    string
 	CancelChannel chan interface{}
+	exit chan bool
 }
 
 func (register *Register) keepOnline() {
@@ -55,10 +58,13 @@ func (register *Register) keepOnline() {
 					goto RETRY
 				}
 			case <-register.CancelChannel:
+				logging.G_Logger.Error(fmt.Sprintf("exit register channel"))
 				time.Sleep(1 * time.Second)
 				if cancelKeepOnlineFunc != nil {
 					cancelKeepOnlineFunc()
 				}
+				register.client.Close()
+				register.lease.Close()
 				return
 			}
 		}
@@ -68,4 +74,9 @@ func (register *Register) keepOnline() {
 			cancelFunc()
 		}
 	}
+}
+
+func (register *Register) Destroy() {
+	register.exit<-true
+
 }

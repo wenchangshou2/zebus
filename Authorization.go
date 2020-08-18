@@ -76,8 +76,6 @@ func (a *AuthorizationProcess) RequestVerify(info *AuthorizationInfo) (bool, err
 		return false, err
 	}
 	defer resp.Body.Close()
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	response := e.HttpResponse{}
 	err = json.Unmarshal(body, &response)

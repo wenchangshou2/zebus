@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 
-	//"github.com/mreiferson/go-options"
 	"github.com/jessevdk/go-flags"
 	"log"
 	"net"

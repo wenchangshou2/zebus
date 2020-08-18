@@ -11,7 +11,7 @@ import (
 	"net"
 	"os"
 	"github.com/wenchangshou2/zebus/pkg/http_api"
-
+	_ "net/http/pprof"
 	"github.com/wenchangshou2/zebus/pkg/certification"
 	"github.com/kardianos/service"
 	"github.com/wenchangshou2/zebus/pkg/logging"

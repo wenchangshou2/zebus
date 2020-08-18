@@ -79,6 +79,7 @@ type Client struct {
 	deferredPQ           pqueue.PriorityQueue
 	deferredMutex        sync.Mutex
 	proto                string
+	exitChan chan bool
 }
 
 func (c *Client) AddNewWaitMessage(id MessageID) chan *[]byte {
@@ -152,6 +153,8 @@ func (c *Client) writePump() {
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
+		case <-c.exitChan:
+			return
 		}
 	}
 }
@@ -457,6 +460,7 @@ func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
+		close(c.exitChan)
 		if setting.EtcdSetting.Enable {
 			if c.register != nil {
 				c.register.CancelChannel <- true
@@ -565,10 +569,15 @@ exit:
 	return dirty
 }
 func (c *Client) loop() {
+	t:=time.NewTicker(5*time.Second)
 	for {
-		now := time.Now().UnixNano()
-		c.ProcessDeferredQueue(now)
-		time.Sleep(5 * time.Millisecond)
+		select {
+			case <-c.exitChan:
+				return
+			case <-t.C:
+				now := time.Now().UnixNano()
+				c.ProcessDeferredQueue(now)
+		}
 	}
 }
 
@@ -600,18 +609,12 @@ func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 		memoryMsgChan: make(chan *Message, setting.AppSetting.MemQueueSize),
 		sendMessage:   make(chan *Message, 0),
 		proto:         "text",
+		exitChan: make(chan bool),
 	}
 	tmp := map[string]interface{}{}
 	tmp["ip"] = strings.Split(conn.RemoteAddr().String(), ":")[0]
 	tmp["Service"] = "registerCall"
 	conn.WriteJSON(tmp)
-	//time.AfterFunc(5*time.Second, func() {
-
-		//if !client.IsRegister {
-		//	close(client.send)
-		//	client.conn.Close()
-		//}
-	//})
 	client.InitPQ()
 	go client.writePump()
 	go client.readPump()

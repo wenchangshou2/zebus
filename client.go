@@ -595,6 +595,7 @@ func (c *Client) ForwardGroupMessage(groupName string,body string) {
 func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(w, r, nil)
+		
 	// defer conn.Close()
 	if err != nil {
 		log.Println(err)

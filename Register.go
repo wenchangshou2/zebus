@@ -65,6 +65,7 @@ func (register *Register) keepOnline() {
 				}
 				register.client.Close()
 				register.lease.Close()
+				cancelFunc()
 				return
 			}
 		}

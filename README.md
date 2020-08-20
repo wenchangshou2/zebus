@@ -1,4 +1,5 @@
 Daemon能力
+[![Run on Repl.it](https://repl.it/badge/github/wenchangshou2/zebus)](https://repl.it/github/wenchangshou2/zebus)
 ========
 
 Daemon支持单机模式，组网模式两种工作模式

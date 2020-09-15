@@ -122,7 +122,6 @@ func (c *Client) writePump() {
 				return
 			}
 		case msg, ok := <-c.memoryMsgChan:
-			//chanMsg:=msg
 			if msg.deferred != 0 {
 				fmt.Println("迟延发送")
 				c.PutMessageDeferred(msg, msg.deferred)
@@ -447,7 +446,13 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 	return nil
 }
 func (c *Client) BinaryMessageProcess(message []byte) {
+	fmt.Println("binary message process 111111",len(message))
 	msg, _ := decodeMessage(message)
+	if msg==nil||msg.Topic==nil{
+		return
+	}
+	j,_:=json.Marshal(msg)
+	fmt.Println("json=",string(j))
 	if string(msg.Topic) != "/zebus" && string(msg.Topic) != "zebus" {
 		//c.put()
 	}

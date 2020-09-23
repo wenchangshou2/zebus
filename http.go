@@ -4,13 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
-	"github.com/wenchangshou2/zebus/pkg/e"
-	"github.com/wenchangshou2/zebus/pkg/http_api"
-	"github.com/wenchangshou2/zebus/pkg/logging"
-	"github.com/wenchangshou2/zebus/pkg/safety"
-	"github.com/wenchangshou2/zebus/pkg/setting"
-	"github.com/wenchangshou2/zebus/pkg/utils"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -18,6 +11,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/julienschmidt/httprouter"
+	"github.com/wenchangshou2/zebus/pkg/e"
+	"github.com/wenchangshou2/zebus/pkg/http_api"
+	"github.com/wenchangshou2/zebus/pkg/logging"
+	"github.com/wenchangshou2/zebus/pkg/safety"
+	"github.com/wenchangshou2/zebus/pkg/setting"
+	"github.com/wenchangshou2/zebus/pkg/utils"
 )
 
 type httpServer struct {
@@ -120,44 +121,45 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 	}
 	return "OK", nil
 }
+
 // doPUBV3: 推送异步的调用
 func (s *httpServer) doPUBV3(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	var (
-		err     error
+		err error
 		//postJob string
-		job     e.Job
-		oldJob  *e.Job
-		bytes []byte
+		job    e.Job
+		oldJob *e.Job
+		bytes  []byte
 	)
 	s.enableCors(&w, req)
-	readMax:=setting.AppSetting.MaxMsgSize+1
-	body,err:=ioutil.ReadAll(io.LimitReader(req.Body,readMax))
-	fmt.Println("body",string(body))
+	readMax := setting.AppSetting.MaxMsgSize + 1
+	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
+	fmt.Println("body", string(body))
 	if err != nil {
 		return nil, http_api.Err{
 			Code: 500,
 			Text: "Internal_error",
 		}
 	}
-	topic,err:=s.getTopic(req)
-	if err!=nil{
-		return nil,err
+	topic, err := s.getTopic(req)
+	if err != nil {
+		return nil, err
 	}
 	if err = json.Unmarshal(body, &job); err != nil {
 		return nil, http_api.Err{Code: 500, Text: "parse json failed"}
 	}
-	job.Topic=topic
+	job.Topic = topic
 
-	fmt.Println("save job", job,bytes,G_JobMgr)
-	if len(job.Name)==0{
-		job.Name=strconv.Itoa(int(time.Now().UnixNano()))
+	fmt.Println("save job", job, bytes, G_JobMgr)
+	if len(job.Name) == 0 {
+		job.Name = strconv.Itoa(int(time.Now().UnixNano()))
 	}
 	if oldJob, err = G_JobMgr.SaveJob(&job); err != nil {
-	//	fmt.Println("err",err)
-	//	w.Write(bytes)
-	return nil,http_api.Err{Code:500,Text:"save key error:"+err.Error()}
+		//	fmt.Println("err",err)
+		//	w.Write(bytes)
+		return nil, http_api.Err{Code: 500, Text: "save key error:" + err.Error()}
 	}
-	fmt.Println("oldjob",oldJob)
+	fmt.Println("oldjob", oldJob)
 
 	return "OK", nil
 }
@@ -239,18 +241,19 @@ func (s *httpServer) enableCors(w *http.ResponseWriter, req *http.Request) {
 	fmt.Println("enable cors")
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
+
 // getTopic: 获取参数里面的topic字段
-func (s *httpServer)getTopic(req *http.Request)(string,error){
-	reqParams,err:=url.ParseQuery(req.URL.RawQuery)
-	if err!=nil{
-		s.ctx.logf.Error(fmt.Sprintf("failed to parse request params - %s",err.Error()))
-		return "",err
+func (s *httpServer) getTopic(req *http.Request) (string, error) {
+	reqParams, err := url.ParseQuery(req.URL.RawQuery)
+	if err != nil {
+		s.ctx.logf.Error(fmt.Sprintf("failed to parse request params - %s", err.Error()))
+		return "", err
 	}
-	topic,ok:=reqParams["topic"]
-	if !ok{
-		return "",http_api.Err{Code:400,Text:"MISSING_APP_TOPIC"}
+	topic, ok := reqParams["topic"]
+	if !ok {
+		return "", http_api.Err{Code: 400, Text: "MISSING_APP_TOPIC"}
 	}
-	return topic[0],nil
+	return topic[0], nil
 }
 
 func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, string, int, error) {

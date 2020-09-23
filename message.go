@@ -31,7 +31,7 @@ func NewMessage(id MessageID, body []byte, topic []byte) *Message {
 	return &Message{
 		ID:        id,
 		Body:      body,
-		Timestamp: time.Now().UnixNano()/1000000,
+		Timestamp: time.Now().UnixNano() / 1000000,
 		Topic:     topic,
 	}
 }
@@ -53,8 +53,8 @@ func (m *Message) WriteTo(w io.Writer) (int64, error) {
 		return total, err
 	}
 	// 写入一个ID，用来标识当前的消息ID
-	n,err=w.Write(m.ID[:])
-	total+=int64(n)
+	n, err = w.Write(m.ID[:])
+	total += int64(n)
 	if err != nil {
 		return total, err
 	}

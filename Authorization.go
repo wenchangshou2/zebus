@@ -16,10 +16,11 @@ import (
 	"github.com/wenchangshou2/zebus/pkg/utils"
 )
 
+// AuthorizationInfo: 认证信息
 type AuthorizationInfo struct {
 	UUID           string `json:"uuid"`          //设备标识
 	Expire         int    `json:"expire"`        //过期时间
-	Id             int    `json:"id"`            //当前检验的id
+	ID             int    `json:"id"`            //当前检验的id
 	IsVerify       bool   `json:"isVerify"`      //是否定时检验有效性
 	Service        string `json:"service"`       //服务名称
 	VerifyAddress  string `json:"verifyAddress"` //校验api地址
@@ -60,7 +61,7 @@ func (a *AuthorizationProcess) QueryAuthorization() bool {
 	return a.Status
 }
 
-//请求远程检验
+//RequestVerify :请求远程检验
 func (a *AuthorizationProcess) RequestVerify(info *AuthorizationInfo) (bool, error) {
 	str, err := json.Marshal(info)
 	content, err := safety.G_Safety.EncryptWithSha1Base64(string(str))
@@ -92,6 +93,8 @@ func (a *AuthorizationProcess) RequestVerify(info *AuthorizationInfo) (bool, err
 	}
 	return verifyResponse.Action, nil
 }
+
+// writeLicense:写入授权
 func (A *AuthorizationProcess) writeLicense(info *AuthorizationInfo) error {
 	now := int64(time.Now().Unix())
 	info.LastVerifyTime = now

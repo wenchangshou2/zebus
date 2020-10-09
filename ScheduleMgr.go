@@ -39,7 +39,7 @@ func (scheduleMgr *ConfigMgr) Process() {
 		}
 	}
 }
-func InitScheduleMgr(hub *ZEBUSD) (err error) {
+func enitScheduleMgr(hub *ZEBUSD) (err error) {
 	var (
 		config clientv3.Config
 		client *clientv3.Client

@@ -437,7 +437,6 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 			zap.String("SenderName", data.SenderName),
 			zap.String("msg", string(message)))
 		if strings.Compare(data.ReceiverName, "/zebus") == 0 {
-			fmt.Println("execute")
 			c.execute(message)
 		} else {
 			c.hub.forward <- message
@@ -446,7 +445,6 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 	return nil
 }
 func (c *Client) BinaryMessageProcess(message []byte) {
-	fmt.Println("binary message process 111111",len(message))
 	msg, _ := decodeMessage(message)
 	if msg==nil||msg.Topic==nil{
 		return

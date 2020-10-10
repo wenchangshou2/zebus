@@ -91,7 +91,6 @@ func main() {
 		err error
 		s   service.Service
 	)
-	fmt.Println("args",os.Args[1:])
 	//opts:=NewOptions()
 	//flagSet:=SyncFlagSet(opts)
 	//flagSet.Parse(os.Args[1:])

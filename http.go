@@ -32,11 +32,12 @@ type SystemMachineCode struct {
 	Uuid    string
 	Service string
 }
-
+// 心跳
 func (s *httpServer) pingHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	health := "ok"
 	return health, nil
 }
+// 获取系统硬件id
 func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	var (
 		uuid   string
@@ -62,6 +63,7 @@ func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Reque
 	}{newStr}, nil
 }
 
+// 获取授权状态
 func (s *httpServer) getAuthorizationStatus(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 
 	s.enableCors(&w, req)
@@ -74,15 +76,6 @@ func (s *httpServer) getAuthorizationStatus(w http.ResponseWriter, req *http.Req
 		return struct {
 			Status bool `json:"status"`
 		}{false}, nil
-	}
-}
-func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	s.enableCors(&w, req)
-	if setting.EtcdSetting.Enable {
-		d := G_workerMgr.GetAllClientInfo(s.ctx.getOnlineServer())
-		return d, nil
-	} else {
-		return s.ctx.GetAllClientInfo(), nil
 	}
 }
 
@@ -232,13 +225,13 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServe
 	router.Handle("POST", "/pub", http_api.Decorate(s.doPUB, http_api.V1))
 	router.Handle("POST", "/pubV2", http_api.Decorate(s.doPUBV2, http_api.V1))
 	router.Handle("POST", "/pubV3", http_api.Decorate(s.doPUBV3, http_api.V1))
+	router.Handle("POST","/getClient",http_api.Decorate(s.getClient,http_api.V1))
 	return s
 }
 func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	s.router.ServeHTTP(w, req)
 }
 func (s *httpServer) enableCors(w *http.ResponseWriter, req *http.Request) {
-	fmt.Println("enable cors")
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 
@@ -286,4 +279,48 @@ func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, 
 		}
 	}
 	return reqParams, client, topicName, timeOut, nil
+}
+func (s *httpServer) getIpFromQuery(req *http.Request)(url.Values,string,error){
+	reqParams,err:=url.ParseQuery(req.URL.RawQuery)
+	if err!=nil{
+		fmt.Println("err",err.Error())
+		return nil,"",http_api.Err{
+			Code: 400,
+			Text: "INVALID REQUEST",
+		}
+	}
+	ip,ok:=reqParams["ip"]
+	if !ok{
+		return nil,"",http_api.Err{
+			Code: 0,
+			Text: "MISSING_APG_IP",
+		}
+	}
+	return reqParams,ip[0],nil
+
+}
+//getClients: 获取所有的客户端信息
+func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	s.enableCors(&w, req)
+	if setting.EtcdSetting.Enable {
+		d := G_workerMgr.GetAllClientInfo(s.ctx.getOnlineServer())
+		return d, nil
+	} else {
+		return s.ctx.GetAllClientInfo(), nil
+	}
+}
+// getClient:获取客户信息
+func (s *httpServer) getClient(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	s.enableCors(&w,req)
+	_,ip,err:=s.getIpFromQuery(req)
+	if err!=nil{
+		return nil,err
+	}
+	if setting.EtcdSetting.Enable{
+		d:=G_workerMgr.GetClientFromIp(ip)
+		return d,nil
+	}else {
+
+	}
+	return nil,nil
 }

@@ -21,7 +21,7 @@ require (
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/kardianos/service v1.0.0
-	github.com/mreiferson/go-options v1.0.0
+	github.com/mreiferson/go-options v1.0.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/common v0.6.0
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect

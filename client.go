@@ -104,6 +104,7 @@ func (c *Client) writePump() {
 		select {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			logging.G_Logger.Debug(fmt.Sprintf("转发消息:"+string(message)))
 			if !ok {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
@@ -113,17 +114,11 @@ func (c *Client) writePump() {
 				return
 			}
 			w.Write(message)
-			n := len(c.send)
-			for i := 0; i < n; i++ {
-				w.Write(newline)
-				w.Write(<-c.send)
-			}
 			if err := w.Close(); err != nil {
 				return
 			}
 		case msg, ok := <-c.memoryMsgChan:
 			if msg.deferred != 0 {
-				fmt.Println("迟延发送")
 				c.PutMessageDeferred(msg, msg.deferred)
 				continue
 			}
@@ -285,6 +280,7 @@ func (c *Client) generateResponse(data *map[string]interface{}) ([]byte, error) 
 	}
 	return json.Marshal(result)
 }
+// PutMessageDeferred:延迟推送消息
 func (c *Client) PutMessageDeferred(msg *Message, timeout time.Duration) {
 	atomic.AddUint64(&c.messageCount, 1)
 	c.StartDeferredTimeout(msg, timeout)
@@ -301,6 +297,7 @@ func (c *Client) pushDeferredMessage(item *pqueue.Item) error {
 	c.deferredMutex.Unlock()
 	return nil
 }
+
 
 func (c *Client) StartDeferredTimeout(msg *Message, timeout time.Duration) error {
 	absTs := time.Now().Add(timeout).UnixNano()
@@ -319,7 +316,7 @@ func (c *Client) addToDeferredPQ(item *pqueue.Item) {
 	heap.Push(&c.deferredPQ, item)
 	c.deferredMutex.Unlock()
 }
-
+// execute:执行
 func (c *Client) execute(data []byte) {
 	type zeBusCmd struct {
 		Action       string `json:"action"`
@@ -335,7 +332,6 @@ func (c *Client) execute(data []byte) {
 		logging.G_Logger.Error("解析json错误:" + err.Error())
 		return
 	}
-	fmt.Println("action",cmd.Action)
 	switch cmd.Action {
 	case "getClients":
 		if setting.EtcdSetting.Enable {
@@ -380,11 +376,12 @@ func (c *Client) execute(data []byte) {
 	}
 	c.hub.forward <- b
 }
+
 func (c *Client) syncServiceInfo(data []byte) {
 
 }
 
-// 未授权消息
+// unAuthorization:未授权消息
 func (c *Client) unAuthorization(recv string) {
 	var (
 		rtu map[string]interface{}
@@ -401,7 +398,6 @@ func (c *Client) unAuthorization(recv string) {
 func (c *Client) checkFrontCondition(data e.RequestCmd) bool {
 	// 如果当前的结点没有注册，不
 	if !c.IsRegister {
-		fmt.Println("未注册")
 		return false
 	}
 	if len(data.ReceiverName) <= 0 {
@@ -432,7 +428,7 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 			zap.String("SenderName", data.SenderName),
 		)
 	} else {
-		logging.G_Logger.Info("消息成功接收", zap.String("type", "MessageReceiver"),
+		logging.G_Logger.Debug("消息成功接收", zap.String("type", "MessageReceiver"),
 			zap.String("ReceiverName", data.ReceiverName),
 			zap.String("SenderName", data.SenderName),
 			zap.String("msg", string(message)))
@@ -449,8 +445,6 @@ func (c *Client) BinaryMessageProcess(message []byte) {
 	if msg==nil||msg.Topic==nil{
 		return
 	}
-	j,_:=json.Marshal(msg)
-	fmt.Println("json=",string(j))
 	if string(msg.Topic) != "/zebus" && string(msg.Topic) != "zebus" {
 		//c.put()
 	}
@@ -529,8 +523,6 @@ func (c *Client) put(m *Message) error {
 		select {
 		case c.memoryMsgChan <- m:
 		default:
-			fmt.Println("put22")
-			//b:=bufferPoolGet()
 		}
 
 	}
@@ -564,7 +556,6 @@ func (c *Client) ProcessDeferredQueue(t int64) bool {
 			goto exit
 		}
 		msg.deferred = 0
-		fmt.Println("延迟", string(msg.Body))
 		c.send <- msg.Body
 		//c.put(msg)
 	}

@@ -35,11 +35,10 @@ func (scheduleMgr *ConfigMgr) Process() {
 				ip := utils.ExtractWorkerIP(msg.ReceiverName)
 				fmt.Println("ip", ip, msg.Action)
 			}
-			fmt.Println("message", string(message))
 		}
 	}
 }
-func enitScheduleMgr(hub *ZEBUSD) (err error) {
+func InitScheduleMgr(hub *ZEBUSD) (err error) {
 	var (
 		config clientv3.Config
 		client *clientv3.Client

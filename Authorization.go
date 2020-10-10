@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -81,7 +80,6 @@ func (a *AuthorizationProcess) RequestVerify(info *AuthorizationInfo) (bool, err
 	response := e.HttpResponse{}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		fmt.Println("err", err)
 		return false, errors.New("解析Response失败")
 	}
 	jmStr, err := safety.G_Safety.DecryptWithSha1Base64(response.Data.(string))
@@ -140,7 +138,6 @@ func (a *AuthorizationProcess) Loop() {
 		}
 		c, _ = a.readLincenseFile()
 		content, err = a.s.DecryptWithSha1Base64(c)
-		fmt.Println("content", content)
 		if err != nil {
 			a.Status = false
 			goto next
@@ -158,7 +155,6 @@ func (a *AuthorizationProcess) Loop() {
 			a.Status = false
 			continue
 		}
-		fmt.Println("info", info)
 		if info.LastVerifyTime == 0 {
 			a.verify(info)
 			goto next

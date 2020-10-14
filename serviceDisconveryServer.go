@@ -27,16 +27,19 @@ func upnpServer(conn net.PacketConn) {
 		}
 		data, err := GetServerInfo()
 		if err == nil {
-			conn.WriteTo(data, addr)
+			_, _ = conn.WriteTo(data, addr)
 		}
 	}
 }
-func InituPnpServer(ip string, port int) (err error) {
+func InitUPNPServer(ip string, port int) (err error) {
+	var (
+		pc *net.UDPConn
+	)
 	addr := net.UDPAddr{
 		Port: port,
 		IP:   net.ParseIP(ip),
 	}
-	pc, err := net.ListenUDP("udp", &addr)
+	pc, err = net.ListenUDP("udp", &addr)
 	if err != nil {
 		return
 	}

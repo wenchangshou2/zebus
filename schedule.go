@@ -2,17 +2,14 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"time"
 	"github.com/wenchangshou2/zebus/pkg/logging"
-	_ "net/http/pprof"
 	"github.com/wenchangshou2/zebus/pkg/setting"
+	"net/http"
+	_ "net/http/pprof"
+	"time"
 )
 
-type ServerList struct {
-}
-
-func InitSchedume(addr string, hub *ZEBUSD) (err error) {
+func InitSchedule(addr string, hub *ZEBUSD) (err error) {
 	var (
 		retriesCount = 10
 	)
@@ -24,10 +21,9 @@ func InitSchedume(addr string, hub *ZEBUSD) (err error) {
 
 	if setting.EtcdSetting.Enable {
 		logging.G_Logger.Info("正在配置etcd")
-
 		for {
 			if err = InitWorkerMgr(hub); err != nil {
-				logging.G_Logger.Error("创建 etcd workerear 失败")
+				logging.G_Logger.Error("创建 etcd workers 失败")
 				goto exit
 			}
 			if err = InitScheduleMgr(hub); err != nil {
@@ -45,7 +41,7 @@ func InitSchedume(addr string, hub *ZEBUSD) (err error) {
 			time.Sleep(10 * time.Second)
 		}
 	}
-	logging.G_Logger.Info("启动 websocket server:" + addr)
+	logging.G_Logger.Info("启动 websockets server:" + addr)
 	go http.ListenAndServe(addr, nil)
 	return
 }

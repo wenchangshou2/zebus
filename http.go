@@ -32,12 +32,14 @@ type SystemMachineCode struct {
 	Uuid    string
 	Service string
 }
-// 心跳
+
+//pingHandler 心跳
 func (s *httpServer) pingHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	health := "ok"
 	return health, nil
 }
-// 获取系统硬件id
+
+//getSystemMachineCode 获取系统硬件id
 func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	var (
 		uuid   string
@@ -45,8 +47,8 @@ func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Reque
 		err    error
 	)
 	s.enableCors(&w, req)
-	safey := safety.Safety{}
-	safey.DefaultKey()
+	safety := safety.Safety{}
+	safety.DefaultKey()
 	if uuid, err = utils.GetSystemUUID(); err != nil {
 		return nil, http_api.Err{Code: e.ERROR, Text: err.Error()}
 	}
@@ -57,9 +59,9 @@ func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Reque
 		Service: "Zebus",
 	}
 	out, err := json.Marshal(systemInfo)
-	newStr, err = safey.EncryptWithSha1Base64(string(out))
+	newStr, err = safety.EncryptWithSha1Base64(string(out))
 	return struct {
-		Msg string `json:"msg"`
+		Msg string `json:"code"`
 	}{newStr}, nil
 }
 
@@ -101,7 +103,7 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 		var di int64
 		di, err = strconv.ParseInt(ds[0], 10, 64)
 		if err != nil {
-			return nil, http_api.Err{Code: 400, Text: "INVLID_DEFER"}
+			return nil, http_api.Err{Code: 400, Text: "INTERNAL_ERROR"}
 		}
 		deferred = time.Duration(di) * time.Millisecond
 	}
@@ -115,14 +117,13 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 	return "OK", nil
 }
 
-// doPUBV3: 推送异步的调用
-func (s *httpServer) doPUBV3(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+// doPUBv3: 推送异步的调用
+func (s *httpServer) doPUBv3(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	var (
 		err error
 		//postJob string
-		job    e.Job
-		oldJob *e.Job
-		bytes  []byte
+		job   e.Job
+		bytes []byte
 	)
 	s.enableCors(&w, req)
 	readMax := setting.AppSetting.MaxMsgSize + 1
@@ -143,21 +144,20 @@ func (s *httpServer) doPUBV3(w http.ResponseWriter, req *http.Request, ps httpro
 	}
 	job.Topic = topic
 
-	fmt.Println("save job", job, bytes, G_JobMgr)
+	fmt.Println("save job", job, bytes, GJobMgr)
 	if len(job.Name) == 0 {
 		job.Name = strconv.Itoa(int(time.Now().UnixNano()))
 	}
-	if oldJob, err = G_JobMgr.SaveJob(&job); err != nil {
+	if _, err = GJobMgr.SaveJob(&job); err != nil {
 		//	fmt.Println("err",err)
 		//	w.Write(bytes)
 		return nil, http_api.Err{Code: 500, Text: "save key error:" + err.Error()}
 	}
-	fmt.Println("oldjob", oldJob)
 
 	return "OK", nil
 }
 
-func (s *httpServer) doPUBV2(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+func (s *httpServer) doPUBv2(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	s.enableCors(&w, req)
 	readMax := setting.AppSetting.MaxMsgSize + 1
 	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
@@ -189,7 +189,6 @@ func (s *httpServer) doPUBV2(w http.ResponseWriter, req *http.Request, ps httpro
 	err = client.PutMessage(msg)
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeOut)*time.Millisecond)
 	done := client.AddNewWaitMessage(msg.ID)
-	//go func() {
 	select {
 	case messageBody, ok := <-done:
 		if ok {
@@ -198,13 +197,32 @@ func (s *httpServer) doPUBV2(w http.ResponseWriter, req *http.Request, ps httpro
 		}
 	case <-ctx.Done():
 		w.Header().Set("Content-Type", "application/json")
-		d, _ := json.Marshal(http_api.Err{Code: 500, Text: "No Message RECEIVERDu"})
+		d, _ := json.Marshal(http_api.Err{Code: 500, Text: "No Message RECEIVED"})
 		w.Write(d)
 	}
 	client.DeleteWitMessage(msg.ID)
-	//}()
 	return nil, nil
 }
+// doPUBGroup :推送到分组
+func (s *httpServer) doPUBGroup(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	s.enableCors(&w,req)
+	readMax:=setting.AppSetting.MaxMsgSize+1
+	body,err:=ioutil.ReadAll(io.LimitReader(req.Body,readMax))
+	if err!=nil{
+		return nil,http_api.Err{
+			Code: 500,
+			Text: "INTERNAL_ERROR",
+		}
+	}
+	if int64(len(body)) == readMax {
+		return nil, http_api.Err{Code: 413, Text: "MSG_TOO_BIG"}
+	}
+	if len(body) == 0 {
+		return nil, http_api.Err{Code: 400, Text: "MSG_EMPTY"}
+	}
+	return  nil,nil
+}
+
 func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServer {
 	log := http_api.Log(logging.G_Logger)
 	router := httprouter.New()
@@ -223,9 +241,10 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServe
 	router.Handle("POST", "/getAuthorizationStatus", http_api.Decorate(s.getAuthorizationStatus, log, http_api.V1))
 	router.Handle("POST", "/getClients", http_api.Decorate(s.getClients, log, http_api.V1))
 	router.Handle("POST", "/pub", http_api.Decorate(s.doPUB, http_api.V1))
-	router.Handle("POST", "/pubV2", http_api.Decorate(s.doPUBV2, http_api.V1))
-	router.Handle("POST", "/pubV3", http_api.Decorate(s.doPUBV3, http_api.V1))
-	router.Handle("POST","/getClient",http_api.Decorate(s.getClient,http_api.V1))
+	router.Handle("POST", "/pubV2", http_api.Decorate(s.doPUBv2, http_api.V1))
+	router.Handle("POST", "/pubV3", http_api.Decorate(s.doPUBv3, http_api.V1))
+	router.Handle("POST","/pubGroup",http_api.Decorate(s.doPUBGroup,http_api.V1))
+	router.Handle("POST", "/getClient", http_api.Decorate(s.getClient, http_api.V1))
 	return s
 }
 func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -249,6 +268,7 @@ func (s *httpServer) getTopic(req *http.Request) (string, error) {
 	return topic[0], nil
 }
 
+// getTopicFromQuery 解析url来获取相应topic
 func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, string, int, error) {
 	var (
 		timeOut int
@@ -280,26 +300,27 @@ func (s *httpServer) getTopicFromQuery(req *http.Request) (url.Values, *Client, 
 	}
 	return reqParams, client, topicName, timeOut, nil
 }
-func (s *httpServer) getIpFromQuery(req *http.Request)(url.Values,string,error){
-	reqParams,err:=url.ParseQuery(req.URL.RawQuery)
-	if err!=nil{
-		fmt.Println("err",err.Error())
-		return nil,"",http_api.Err{
+func (s *httpServer) getIpFromQuery(req *http.Request) (url.Values, string, error) {
+	reqParams, err := url.ParseQuery(req.URL.RawQuery)
+	if err != nil {
+		fmt.Println("err", err.Error())
+		return nil, "", http_api.Err{
 			Code: 400,
 			Text: "INVALID REQUEST",
 		}
 	}
-	ip,ok:=reqParams["ip"]
-	if !ok{
-		return nil,"",http_api.Err{
+	ip, ok := reqParams["ip"]
+	if !ok {
+		return nil, "", http_api.Err{
 			Code: 0,
 			Text: "MISSING_APG_IP",
 		}
 	}
-	return reqParams,ip[0],nil
+	return reqParams, ip[0], nil
 
 }
-//getClients: 获取所有的客户端信息
+
+//getClients 获取所有的客户端信息
 func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	s.enableCors(&w, req)
 	if setting.EtcdSetting.Enable {
@@ -309,18 +330,20 @@ func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps htt
 		return s.ctx.GetAllClientInfo(), nil
 	}
 }
-// getClient:获取客户信息
+
+// getClient 获取客户信息
 func (s *httpServer) getClient(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	s.enableCors(&w,req)
-	_,ip,err:=s.getIpFromQuery(req)
-	if err!=nil{
-		return nil,err
+	s.enableCors(&w, req)
+	_, ip, err := s.getIpFromQuery(req)
+	if err != nil {
+		return nil, err
 	}
-	if setting.EtcdSetting.Enable{
-		d:=G_workerMgr.GetClientFromIp(ip)
-		return d,nil
-	}else {
+	if setting.EtcdSetting.Enable {
+		d := G_workerMgr.GetClientFromIp(ip)
+		return d, nil
+	} else {
 
 	}
-	return nil,nil
+	return nil, nil
 }
+

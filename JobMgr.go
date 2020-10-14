@@ -15,7 +15,7 @@ type JobMgr struct {
 	lease clientv3.Lease
 }
 var (
-	G_JobMgr *JobMgr
+	GJobMgr *JobMgr
 )
 func (jobMgr *JobMgr)SaveJob(job *e.Job)(oldJob *e.Job,err error){
 	var (
@@ -58,7 +58,7 @@ func InitJobMgr()(err error){
 	}
 	kv=clientv3.NewKV(client)
 	lease=clientv3.NewLease(client)
-	G_JobMgr=&JobMgr{
+	GJobMgr =&JobMgr{
 		client: client,
 		kv:     kv,
 		lease:  lease,

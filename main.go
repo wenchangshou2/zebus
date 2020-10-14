@@ -60,7 +60,7 @@ func (s *Service) Start(_ service.Service) error {
 		_ = InitAuthorization(AuthorizationDone)
 	}
 	serverAddr := fmt.Sprintf("%s", setting.ServerSetting.BindAddress)
-	if err = InitSchedume(serverAddr, hub); err != nil {
+	if err = InitSchedule(serverAddr, hub); err != nil {
 		logging.G_Logger.Error("创建调度失败")
 		return errors.New("创建调试失败")
 	}
@@ -68,7 +68,7 @@ func (s *Service) Start(_ service.Service) error {
 		logging.G_Logger.Error("创建jobMgr失败")
 		return errors.New("创建JobMgr失败")
 	}
-	if err = InituPnpServer("0.0.0.0", 8888); err != nil {
+	if err = InitUPNPServer("0.0.0.0", 8888); err != nil {
 		return errors.New("创建pnp失败")
 	}
 	return nil

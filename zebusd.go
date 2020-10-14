@@ -104,13 +104,14 @@ func (h *ZEBUSD) forwardClientMessage(client *Client, message []byte) {
 		delete(h.clients, client)
 	}
 }
-// addNewServer: 添加新的服务
+// addNewServer 添加新的服务
 func (h *ZEBUSD) addNewServer(serverName string) {
 	h.mux.Lock()
 	defer h.mux.Unlock()
 	h.onlineServer[serverName] = true
 }
-// removeServer: 移除服务
+// @title removeServer
+// @param serverName string 服务名称
 func (h *ZEBUSD) removeServer(serverName string) {
 	h.mux.Lock()
 	if _, ok := h.onlineServer[serverName]; ok {
@@ -224,7 +225,7 @@ func (h *ZEBUSD) run() {
 		}
 	}
 }
-// forwardGroupMessageProcess: 转发消息到特定分组
+// forwardGroupMessageProcess 转发消息到特定分组
 func (h *ZEBUSD) forwardGroupMessageProcess(message e.ForWardGroupMessage) {
 	if g, ok := h.group[message.GroupName]; ok {
 		for _, c := range g {
@@ -234,7 +235,7 @@ func (h *ZEBUSD) forwardGroupMessageProcess(message e.ForWardGroupMessage) {
 	}
 }
 
-// addGroupMember: 添加分组成员
+// addGroupMember 添加分组成员
 func (h *ZEBUSD) addGroupMember(c *Client) {
 	logging.G_Logger.Debug(fmt.Sprintf("add group member,%s", c.Group))
 	if g, ok := h.group[c.Group]; ok {
@@ -247,7 +248,7 @@ func (h *ZEBUSD) addGroupMember(c *Client) {
 	}
 }
 
-// removeGroupMember: 移除分组成员
+// removeGroupMember 移除分组成员
 func (h *ZEBUSD) removeGroupMember(c *Client) {
 	if g, ok := h.group[c.Group]; ok {
 		for k, _c := range g {

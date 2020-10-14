@@ -339,7 +339,7 @@ func (c *Client) execute(data []byte) {
 		} else {
 			d = c.hub.GetAllClientInfo()
 		}
-	case "getAuthoricationStatus":
+	case "getAuthorizationStatus":
 		d["status"] = G_Authorization.Status
 		//d=G_workerMgr.ListWorkers()
 	case "syncServiceInfo":
@@ -412,6 +412,7 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 		logging.G_Logger.Error(tmp)
 		return
 	}
+	logging.G_Logger.Debug(fmt.Sprintf("接收到文本数据.接收者:%s,发送者:%s,数据:%s",data.ReceiverName,data.SenderName,string(message)))
 	if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
 		if setting.ServerSetting.Auth {
 			if !c.login(data.Auth) {
@@ -442,6 +443,7 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 }
 func (c *Client) BinaryMessageProcess(message []byte) {
 	msg, _ := decodeMessage(message)
+	logging.G_Logger.Debug(fmt.Sprintf("接收到二进制数据,目标:%s,数据:%s",msg.Topic,string(msg.Body)))
 	if msg==nil||msg.Topic==nil{
 		return
 	}
@@ -501,7 +503,9 @@ retry:
 	}
 	return id.Hex()
 }
+// PutMessage 推送消息
 func (c *Client) PutMessage(m *Message) error {
+	logging.G_Logger.Debug(fmt.Sprintf("推送消息,接收者:%s,数据:%s",string(m.Topic),string(m.Body)))
 	c.RLock()
 	defer c.RUnlock()
 	err := c.put(m)
@@ -517,7 +521,6 @@ func (c *Client) put(m *Message) error {
 		select {
 		case c.send <- m.Body:
 		default:
-
 		}
 	} else {
 		select {

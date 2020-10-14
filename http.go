@@ -223,7 +223,7 @@ func (s *httpServer) doPUBGroup(w http.ResponseWriter, req *http.Request, ps htt
 	return  nil,nil
 }
 
-func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServer {
+func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) (*httpServer,error) {
 	log := http_api.Log(logging.G_Logger)
 	router := httprouter.New()
 	router.HandleMethodNotAllowed = true
@@ -245,7 +245,11 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) *httpServe
 	router.Handle("POST", "/pubV3", http_api.Decorate(s.doPUBv3, http_api.V1))
 	router.Handle("POST","/pubGroup",http_api.Decorate(s.doPUBGroup,http_api.V1))
 	router.Handle("POST", "/getClient", http_api.Decorate(s.getClient, http_api.V1))
-	return s
+
+	router.GET("/ws", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		serveWs(zebusd,writer,request)
+	})
+	return s,nil
 }
 func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	s.router.ServeHTTP(w, req)

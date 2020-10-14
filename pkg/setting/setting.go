@@ -37,9 +37,12 @@ type Etcd struct {
 type Http struct {
 	Port         int
 	Enable       bool
-	RunMode      string
+	Proto string
+	Cert string
+	Key string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
+	Policy string
 }
 type Authorization struct {
 	Enable bool
@@ -49,6 +52,7 @@ type Running struct {
 	AuthorizationCode string
 	IgnoreTopic       []string
 }
+
 
 var (
 	cfg                  *ini.File

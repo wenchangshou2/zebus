@@ -10,11 +10,11 @@ func IsExist(path string) bool {
 	return err == nil || os.IsExist(err)
 }
 func GetFullPath(path string) (string, error) {
-	fullexecpath, err := os.Executable()
+	fullExecPath, err := os.Executable()
 	if err != nil {
 		return "", err
 	}
 
-	dir, _ := filepath.Split(fullexecpath)
+	dir, _ := filepath.Split(fullExecPath)
 	return filepath.Join(dir, path), nil
 }

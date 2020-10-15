@@ -1,3 +1,5 @@
+//+build license
+
 package utils
 
 import (

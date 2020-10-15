@@ -15,11 +15,9 @@ func InitSchedule(addr string, hub *ZEBUSD, server *Service) (err error) {
 	)
 	logging.G_Logger.Info("开始启动调度")
 	go hub.run()
-	/*
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
-	 */
 	if setting.EtcdSetting.Enable {
 		logging.G_Logger.Info("正在配置etcd")
 		for {

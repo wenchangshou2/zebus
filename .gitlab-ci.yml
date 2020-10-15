@@ -1,0 +1,12 @@
+before_script:
+  - echo "Before script"
+after_script:
+  - echo "after script"
+stages:
+  - build
+build1:
+  stage: build
+  before_script:
+    - echo "build before-script"
+  after_script:
+    - echo "build after-script"

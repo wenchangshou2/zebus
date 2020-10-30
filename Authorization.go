@@ -15,7 +15,7 @@ import (
 	"github.com/wenchangshou2/zebus/pkg/utils"
 )
 
-// AuthorizationInfo: 认证信息
+// AuthorizationInfo 认证信息
 type AuthorizationInfo struct {
 	UUID           string `json:"uuid"`          //设备标识
 	Expire         int    `json:"expire"`        //过期时间

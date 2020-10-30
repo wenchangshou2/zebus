@@ -35,6 +35,7 @@ type SystemMachineCode struct {
 
 //pingHandler 心跳
 func (s *httpServer) pingHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	s.enableCors(&w,req)
 	health := "ok"
 	return health, nil
 }
@@ -117,6 +118,7 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 	return "OK", nil
 }
 
+
 // doPUBv3: 推送异步的调用
 func (s *httpServer) doPUBv3(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	var (
@@ -157,6 +159,27 @@ func (s *httpServer) doPUBv3(w http.ResponseWriter, req *http.Request, ps httpro
 	return "OK", nil
 }
 
+// mPub 多消息推送
+func (s *httpServer) mPub(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
+	var (
+		err error
+		readMax int64
+		body []byte
+	)
+	s.enableCors(&w,req)
+	readMax=setting.AppSetting.MaxMsgSize+1
+	body,err=ioutil.ReadAll(io.LimitReader(req.Body,readMax))
+	if err!=nil{
+		return nil,http_api.Err{Code: 500,Text: "INTERNAL_ERROR"}
+	}
+	if int64(len(body)) == readMax {
+		return nil, http_api.Err{Code: 413, Text: "MSG_TOO_BIG"}
+	}
+	if len(body) == 0 {
+		return nil, http_api.Err{Code: 400, Text: "MSG_EMPTY"}
+	}
+	return nil,nil
+}
 func (s *httpServer) doPUBv2(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	s.enableCors(&w, req)
 	readMax := setting.AppSetting.MaxMsgSize + 1
@@ -243,6 +266,8 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) (*httpServ
 	router.Handle("POST", "/pub", http_api.Decorate(s.doPUB, http_api.V1))
 	router.Handle("POST", "/pubV2", http_api.Decorate(s.doPUBv2, http_api.V1))
 	router.Handle("POST", "/pubV3", http_api.Decorate(s.doPUBv3, http_api.V1))
+	router.Handle("POST","/mpub",http_api.Decorate(s.mPub,http_api.V1))
+
 	router.Handle("POST","/pubGroup",http_api.Decorate(s.doPUBGroup,http_api.V1))
 	router.Handle("POST", "/getClient", http_api.Decorate(s.getClient, http_api.V1))
 

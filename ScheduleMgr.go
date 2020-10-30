@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/wenchangshou2/zebus/pkg/e"
 	"github.com/wenchangshou2/zebus/pkg/setting"
 	"github.com/wenchangshou2/zebus/pkg/utils"
 	"go.etcd.io/etcd/clientv3"
-	"time"
 )
 
 type ConfigMgr struct {
@@ -38,6 +39,8 @@ func (scheduleMgr *ConfigMgr) Process() {
 		}
 	}
 }
+
+// InitShceduleMgr 初始化调度
 func InitScheduleMgr(hub *ZEBUSD) (err error) {
 	var (
 		config clientv3.Config

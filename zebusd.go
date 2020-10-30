@@ -3,14 +3,16 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"sync"
+
 	"github.com/wenchangshou2/zebus/pkg/e"
 	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/utils"
 	"go.uber.org/zap"
-	"strings"
-	"sync"
 )
 
+//ZEBUSD zebus hub
 type ZEBUSD struct {
 	// Registered clients.
 	clients   map[*Client]bool
@@ -37,7 +39,7 @@ func newHub(logf *zap.Logger) *ZEBUSD {
 		register:            make(chan *Client),
 		unregister:          make(chan *Client),
 		clients:             make(map[*Client]bool),
-		forward:             make(chan []byte,32),
+		forward:             make(chan []byte, 32),
 		online:              make(map[string]bool),
 		offline:             make(map[string]bool),
 		onlineServer:        make(map[string]bool),
@@ -70,6 +72,7 @@ func (h *ZEBUSD) GetAllClientInfo() map[string]interface{} {
 	rtu["offline"] = offlineClient
 	return rtu
 }
+
 // SetClientInfo: 设置客户端信息
 func (h *ZEBUSD) SetClientInfo(ip string, isRegister bool) {
 	h.mux.Lock()
@@ -93,8 +96,8 @@ func (h *ZEBUSD) trimPrefix(topic string) (newTopic string) {
 // forwardClientMessage: 转发消息到客户端
 func (h *ZEBUSD) forwardClientMessage(client *Client, message []byte) {
 	defer func() {
-		if err:=recover();err!=nil{
-			logging.G_Logger.Error(fmt.Sprintf("forwardClientMessage 程序异常退出:%s,转发的topic:%s,转发的内容:%s",err,client.Topic,string(message)))
+		if err := recover(); err != nil {
+			logging.G_Logger.Error(fmt.Sprintf("forwardClientMessage 程序异常退出:%s,转发的topic:%s,转发的内容:%s", err, client.Topic, string(message)))
 		}
 	}()
 	select {
@@ -104,12 +107,14 @@ func (h *ZEBUSD) forwardClientMessage(client *Client, message []byte) {
 		delete(h.clients, client)
 	}
 }
+
 // addNewServer 添加新的服务
 func (h *ZEBUSD) addNewServer(serverName string) {
 	h.mux.Lock()
 	defer h.mux.Unlock()
 	h.onlineServer[serverName] = true
 }
+
 // @title removeServer
 // @param serverName string 服务名称
 func (h *ZEBUSD) removeServer(serverName string) {
@@ -120,6 +125,7 @@ func (h *ZEBUSD) removeServer(serverName string) {
 	h.mux.Unlock()
 
 }
+
 // getOnlineServer: 获取在线服务
 func (h *ZEBUSD) getOnlineServer() []string {
 	h.mux.RLock()
@@ -157,28 +163,29 @@ func (h *ZEBUSD) forwardProcess(data []byte) {
 			cmdBody["receiverName"] = ReceiverName
 			data, err = json.Marshal(cmdBody)
 			if err == nil {
-				logging.G_Logger.Debug("转发消息:"+string(data))
+				logging.G_Logger.Debug("转发消息:" + string(data))
 				h.forwardClientMessage(client, data)
 			}
 		}
 	}
 }
+
 // getClients: 获取客户端
 func (h *ZEBUSD) getClients(topicName string) *Client {
 	var (
 		client *Client
-		ok bool
+		ok     bool
 	)
 	h.mux.Lock()
 	defer h.mux.Unlock()
-	if client, ok = h.clientMap[topicName];ok{
+	if client, ok = h.clientMap[topicName]; ok {
 		return client
 	}
 	ip := utils.FindIp(topicName)
 	if len(ip) <= 0 {
 		return nil
 	}
-	if client,ok=h.clientMap["/zebus/"+ip];ok{
+	if client, ok = h.clientMap["/zebus/"+ip]; ok {
 		return client
 	}
 	return nil
@@ -225,6 +232,7 @@ func (h *ZEBUSD) run() {
 		}
 	}
 }
+
 // forwardGroupMessageProcess 转发消息到特定分组
 func (h *ZEBUSD) forwardGroupMessageProcess(message e.ForWardGroupMessage) {
 	if g, ok := h.group[message.GroupName]; ok {

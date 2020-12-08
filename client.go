@@ -450,6 +450,7 @@ func (c *Client) BinaryMessageProcess(message []byte) {
 	if string(msg.Topic) != "/zebus" && string(msg.Topic) != "zebus" {
 		//c.put()
 	}
+	fmt.Printf("%s",msg.ID)
 	if c, ok := c.WaitRecvMessage[msg.ID]; ok {
 		c <- &msg.Body
 	}

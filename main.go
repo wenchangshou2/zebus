@@ -5,6 +5,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
+	"net"
+	_ "net/http/pprof"
+	"os"
+
 	"github.com/jessevdk/go-flags"
 	"github.com/kardianos/service"
 	"github.com/wenchangshou2/zebus/pkg/certification"
@@ -12,10 +17,6 @@ import (
 	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/setting"
 	"github.com/wenchangshou2/zebus/pkg/utils"
-	"log"
-	"net"
-	_ "net/http/pprof"
-	"os"
 )
 
 type Service struct {
@@ -26,7 +27,7 @@ type Service struct {
 	hub          *ZEBUSD
 }
 
-func (s *Service)InitHttpServer()error{
+func (s *Service) InitHttpServer() error {
 	var (
 		err error
 	)
@@ -46,7 +47,7 @@ func (s *Service)InitHttpServer()error{
 		s.httpServer, _ = newHTTPServer(s.hub, true, true)
 	} else {
 		s.httpListener, err = net.Listen("tcp", "0.0.0.0:9191")
-		if err!=nil{
+		if err != nil {
 			return err
 		}
 		s.httpServer, err = newHTTPServer(s.hub, false, false)
@@ -58,11 +59,10 @@ func (s *Service) Start(_ service.Service) error {
 	var (
 		err               error
 		AuthorizationDone chan bool
-
 	)
-	err=utils.CheckLicense()
-	if err!=nil{
-		return errors.New("当前授权失败:"+err.Error())
+	err = utils.CheckLicense()
+	if err != nil {
+		return errors.New("当前授权失败:" + err.Error())
 	}
 
 	AuthorizationDone = make(chan bool)
@@ -81,20 +81,20 @@ func (s *Service) Start(_ service.Service) error {
 		return errors.New("初始化授权失败")
 	}
 	hub := newHub(logging.G_Logger)
-	s.hub=hub
-	if err:=s.InitHttpServer();err!=nil{
+	s.hub = hub
+	if err := s.InitHttpServer(); err != nil {
 		panic("创建http服务错误")
 	}
 	if setting.AuthorizationSetting.Enable {
 		_ = InitAuthorization(AuthorizationDone)
 	}
 	serverAddr := fmt.Sprintf("%s", setting.ServerSetting.BindAddress)
-	if err = InitSchedule(serverAddr, hub,s); err != nil {
+	if err = InitSchedule(serverAddr, hub, s); err != nil {
 		logging.G_Logger.Error("创建调度失败")
 		return errors.New("创建调试失败")
 	}
 	if err = InitJobMgr(); err != nil {
-		logging.G_Logger.Error("创建jobMgr失败")
+		logging.G_Logger.Error("创建jobMgr失败:" + err.Error())
 		return errors.New("创建JobMgr失败")
 	}
 	if err = InitUPNPServer("0.0.0.0", 8888); err != nil {
@@ -146,8 +146,8 @@ func (s *Service) BuildTLSConfig() (*tls.Config, error) {
 		ClientAuth:   tlsClientAuthPolicy,
 		//ClientAuth:   tls.RequireAndVerifyClientCert,
 		InsecureSkipVerify: true,
-		MinVersion:   tls.VersionTLS10,
-		MaxVersion:   tls.VersionTLS12,
+		MinVersion:         tls.VersionTLS10,
+		MaxVersion:         tls.VersionTLS12,
 	}
 
 	tlsConfig.BuildNameToCertificate()
@@ -156,8 +156,8 @@ func (s *Service) BuildTLSConfig() (*tls.Config, error) {
 
 func main() {
 	var (
-		err error
-		s   service.Service
+		err  error
+		s    service.Service
 		args []string
 	)
 	//opts:=NewOptions()

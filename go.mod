@@ -20,7 +20,7 @@ require (
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/julienschmidt/httprouter v1.2.0
-	github.com/kardianos/service v1.0.0
+	github.com/kardianos/service v1.2.0
 	github.com/mreiferson/go-options v1.0.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/common v0.6.0
@@ -33,7 +33,8 @@ require (
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0
-	golang.org/x/sys v0.0.0-20190626221950-04f50cda93cb
+	golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e
+	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
 	google.golang.org/grpc v1.21.1 // indirect
 	gopkg.in/ini.v1 v1.48.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0

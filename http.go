@@ -126,20 +126,19 @@ func (s *httpServer) doPUBv3(w http.ResponseWriter, req *http.Request, ps httpro
 		//postJob string
 		job   e.Job
 		bytes []byte
+		body []byte
+		topic string
 	)
 	s.enableCors(&w, req)
 	readMax := setting.AppSetting.MaxMsgSize + 1
-	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
-	fmt.Println("body", string(body))
-	if err != nil {
+	if body, err = ioutil.ReadAll(io.LimitReader(req.Body, readMax));err!=nil{
 		return nil, http_api.Err{
 			Code: 500,
 			Text: "Internal_error",
 		}
 	}
-	topic, err := s.getTopic(req)
-	if err != nil {
-		return nil, err
+	if topic, err = s.getTopic(req);err!=nil{
+		return nil,err
 	}
 	if err = json.Unmarshal(body, &job); err != nil {
 		return nil, http_api.Err{Code: 500, Text: "parse json failed"}

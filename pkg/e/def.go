@@ -1,5 +1,10 @@
 package e
 
+import (
+	"sync"
+	"sync/atomic"
+)
+
 type RequestCmd struct {
 	MessageType  string                 `json:"messageType"`
 	SocketName   string                 `json:"socketName"`
@@ -26,7 +31,32 @@ type ClientResponseInfo struct{
 
 // 客户端配置信息
 type ConfigInfo struct {
-	Volume int
+	Volume int32
+	Mute int32
+	sync.RWMutex
+}
+func (cfg ConfigInfo) GetVolume()int{
+	volume:=atomic.LoadInt32(&cfg.Volume)
+	return int(volume)
+
+}
+func (cfg ConfigInfo) GetMute()bool{
+	mute:=atomic.LoadInt32(&cfg.Mute)
+	if mute==1{
+		return true
+	}else{
+		return false;
+	}
+}
+func (cfg *ConfigInfo)SetVolume(volume int){
+	atomic.StoreInt32(&cfg.Volume,int32(volume))
+}
+func (cfg *ConfigInfo)SetMute(mute bool){
+	if mute{
+		atomic.StoreInt32(&cfg.Mute,1)
+	}else{
+		atomic.StoreInt32(&cfg.Mute,0)
+	}
 }
 
 type WorkerInfo struct {

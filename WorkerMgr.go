@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -25,14 +26,50 @@ type WorkerMgr struct {
 	kv           clientv3.KV
 	lease        clientv3.Lease
 	hub          *ZEBUSD
-	clientsInfo  map[string]*e.ConfigInfo
 	resourceInfo map[string][]string
+	clientInfoList ClientInfoList
+	sync.RWMutex
+}
+//type ClientInfoList map[string]e.ConfigInfo
+type ClientInfoList struct{
+	clientList map[string]*e.ConfigInfo
+	sync.RWMutex
+}
+func (list *ClientInfoList) Get(addr string)(*e.ConfigInfo,error){
+	list.RLock()
+	defer list.RUnlock()
+	client,ok:=list.clientList[addr]
+	if !ok{
+
+		info:=&e.ConfigInfo{}
+		list.clientList[addr]=info
+		return  list.clientList[addr],nil
+	}
+	return client,nil
+}
+func (list ClientInfoList)Set(addr string,info *e.ConfigInfo)error{
+	list.Lock()
+	defer list.Unlock()
+	list.clientList[addr]=info
+	return nil
+}
+func NewClientInfoList()ClientInfoList{
+	return ClientInfoList{
+		clientList: make(map[string]*e.ConfigInfo),
+		RWMutex:    sync.RWMutex{},
+	}
 }
 
+func (list *ClientInfoList) GetAll() map[string]*e.ConfigInfo {
+	return list.clientList
+}
+
+
+//func (workerMgr *WorkerMgr)GetClient()
 var (
 	G_workerMgr *WorkerMgr
 )
-
+var once sync.Once
 // 初始经状态同步
 func InitWorkerMgr(hub *ZEBUSD) (err error) {
 	var (
@@ -52,29 +89,30 @@ func InitWorkerMgr(hub *ZEBUSD) (err error) {
 		kv:           kv,
 		lease:        lease,
 		hub:          hub,
-		clientsInfo:  make(map[string]*e.ConfigInfo),
+		clientInfoList: NewClientInfoList(),
 		resourceInfo: make(map[string][]string),
 	}
-	go G_workerMgr.deployUpdateNotify()
-	go G_workerMgr.ResourceUpdateNotify()
+	if G_workerMgr!=nil{
+		go G_workerMgr.deployUpdateNotify()
+		go G_workerMgr.ResourceUpdateNotify()
+	}
 	logging.G_Logger.Info("info workermgr success")
 	return
 }
 func (WorkerMgr *WorkerMgr) updateConfig(addr, item, val string) {
 	var (
 		client *e.ConfigInfo
-		ok     bool
 	)
-	if client, ok = WorkerMgr.clientsInfo[addr]; ok {
-		client = WorkerMgr.clientsInfo[addr]
-	} else {
-		client = &e.ConfigInfo{}
-		WorkerMgr.clientsInfo[addr] = client
-	}
+	client,_=WorkerMgr.clientInfoList.Get(addr)
 	if strings.Compare(item, "volume") == 0 {
-		client.Volume, _ = strconv.Atoi(val)
+		volume, _ := strconv.Atoi(val)
+		client.SetVolume(volume)
+	}else if strings.Compare(item,"mute")==0{
+		if mute,err:=strconv.ParseBool(val);err==nil{
+			client.SetMute(mute)
+		}
 	}
-	WorkerMgr.clientsInfo[addr]=client
+	//WorkerMgr.clientsInfo[addr]=client
 }
 func (WorkerMgr *WorkerMgr) updateResourceInfo(addr string, aid string) {
 	var (
@@ -181,14 +219,11 @@ func (WorkerMgr *WorkerMgr) ListWorkers() (workerArr []e.WorkerInfo, err error) 
 	for _, kv = range getResp.Kvs {
 		if utils2.IsDaemon(string(kv.Key)) || strings.Compare(string(kv.Value), "Daemon") == 0 {
 			workerIp = utils2.ExtractWorkerIP(string(kv.Key))
-			pcConfig,ok:= WorkerMgr.clientsInfo[workerIp]
-			if !ok{
-				pcConfig=&e.ConfigInfo{}
-			}
+			config,_:=WorkerMgr.clientInfoList.Get(workerIp)
 			serverInfo := e.WorkerInfo{
 				Ip:     workerIp,
 				Server: make([]string, 0),
-				Config:*pcConfig,
+				Config:*config,
 			}
 			serverInfo.Server=append(serverInfo.Server,"Daemon")
 			workerArr = append(workerArr, serverInfo)
@@ -217,14 +252,11 @@ func (WorkerMgr *WorkerMgr)GetWorkerFromIp(ip string)(*e.WorkerInfo,error){
 	}
 	for _,kv=range getResp.Kvs{
 		if utils2.IsDaemon(string(kv.Key))||strings.Compare(string(kv.Value),"Daemon")==0{
-			pcConfig,ok:= WorkerMgr.clientsInfo[ip]
-			if !ok{
-				pcConfig=&e.ConfigInfo{}
-			}
+			config,_:=WorkerMgr.clientInfoList.Get(ip)
 			serverInfo=&e.WorkerInfo{
 				Ip:       ip,
 				Server:   make([]string,0),
-				Config:   *pcConfig,
+				Config:   *config,
 			}
 			serverInfo.Server=append(serverInfo.Server,"Daemon")
 
@@ -289,48 +321,48 @@ func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 	}
 	return
 }
-func (WorkerMgr *WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
-	return WorkerMgr.clientsInfo
+func (WorkerMgr WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
+	return WorkerMgr.clientInfoList.GetAll()
 }
 
 // GetAllClientInfo: 获取所有的服务信息
 func (WorkerMgr *WorkerMgr)GetAllClientInfo(onlineServer []string)map[string]interface{}{
-	var (
-		err error
-		allServer []string
-	)
+	//var (
+	//	err error
+	//	allServer []string
+	//)
 	data:=make(map[string]interface{})
-	tmpOnlineList,err:= WorkerMgr.ListWorkers()
-	tmpOfflineList:=make([]string,0)
-	allServer,err=G_workerMgr.GetAllClient()
-	if err==nil{
-		for _,v:=range  allServer{
-			isOffline:=true
-			for _,onlineClient:=range tmpOnlineList{
-				if strings.Compare(v,onlineClient.Ip)==0{
-					isOffline=false
-				}
-			}
-			if isOffline{
-				tmpOfflineList=append(tmpOfflineList,v)
-			}
-		}
-	}
-	clientsConfigInfo:= WorkerMgr.GetClientConfigInfo()
-	resourcesInfo:= WorkerMgr.GetResourceInfo()
-	for k,onlineClient:=range tmpOnlineList{
-		if info,ok:=clientsConfigInfo[onlineClient.Ip];ok{
-			tmpOnlineList[k].Config=*info
-		}
-		if resource,ok:=resourcesInfo[onlineClient.Ip];ok{
-			tmpOnlineList[k].Resource=resource
-		}else{
-			tmpOnlineList[k].Resource=make([]string,0)
-		}
-	}
-	data["offline"]=tmpOfflineList
-	data["online"]=tmpOnlineList
-	data["server"]=onlineServer
+	//tmpOnlineList,_:= WorkerMgr.ListWorkers()
+	//tmpOfflineList:=make([]string,0)
+	//allServer,err=G_workerMgr.GetAllClient()
+	//if err==nil{
+	//	for _,v:=range  allServer{
+	//		isOffline:=true
+	//		for _,onlineClient:=range tmpOnlineList{
+	//			if strings.Compare(v,onlineClient.Ip)==0{
+	//				isOffline=false
+	//			}
+	//		}
+	//		if isOffline{
+	//			tmpOfflineList=append(tmpOfflineList,v)
+	//		}
+	//	}
+	//}
+	//clientsConfigInfo:= WorkerMgr.GetClientConfigInfo()
+	//resourcesInfo:= WorkerMgr.GetResourceInfo()
+	//for k,onlineClient:=range tmpOnlineList{
+	//	if info,ok:=clientsConfigInfo[onlineClient.Ip];ok{
+	//		tmpOnlineList[k].Config=*info
+	//	}
+	//	if resource,ok:=resourcesInfo[onlineClient.Ip];ok{
+	//		tmpOnlineList[k].Resource=resource
+	//	}else{
+	//		tmpOnlineList[k].Resource=make([]string,0)
+	//	}
+	//}
+	//data["offline"]=tmpOfflineList
+	//data["online"]=tmpOnlineList
+	//data["server"]=onlineServer
 	return data
 }
 func (WorkerMgr *WorkerMgr) GetResourceInfo()map[string][]string {

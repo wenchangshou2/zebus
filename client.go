@@ -28,7 +28,7 @@ import (
 
 const (
 	// Time allowed to write a message to the peer.
-	writeWait = 10 * time.Second
+	writeWait = 60 * time.Second
 	// Time allowed to read the next pong message from the peer.
 	pongWait = 5 * time.Second
 	// Send pings to peer with this period. Must be less than pongWait.
@@ -130,6 +130,7 @@ func (c *Client) writePump() {
 			}
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
+				logging.G_Logger.Info("send write deadline not ok")
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
@@ -145,6 +146,7 @@ func (c *Client) writePump() {
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				logging.G_Logger.Info("send ping err:"+err.Error())
 				return
 			}
 		case <-c.exitChan:
@@ -442,7 +444,11 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 	return nil
 }
 func (c *Client) BinaryMessageProcess(message []byte) {
-	msg, _ := decodeMessage(message)
+	msg, err := decodeMessage(message)
+	if err!=nil{
+		logging.G_Logger.Error(fmt.Sprintf("decode message error:"+err.Error()))
+		return
+	}
 	logging.G_Logger.Debug(fmt.Sprintf("接收到二进制数据,目标:%s,数据:%s",msg.Topic,string(msg.Body)))
 	if msg==nil||msg.Topic==nil{
 		return
@@ -474,10 +480,10 @@ func (c *Client) readPump() {
 		messageType, messageBody, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				logging.G_Logger.Error("接收失败1:" + err.Error())
 				break
 			}
-			logging.G_Logger.Error("接收失败:" + err.Error())
+			logging.G_Logger.Error(fmt.Sprintf("接收失败:%v" , err))
 			break
 		}
 		if messageType == websocket.BinaryMessage {

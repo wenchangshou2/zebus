@@ -327,42 +327,42 @@ func (WorkerMgr WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
 
 // GetAllClientInfo: 获取所有的服务信息
 func (WorkerMgr *WorkerMgr)GetAllClientInfo(onlineServer []string)map[string]interface{}{
-	//var (
-	//	err error
-	//	allServer []string
-	//)
+	var (
+		err error
+		allServer []string
+	)
 	data:=make(map[string]interface{})
-	//tmpOnlineList,_:= WorkerMgr.ListWorkers()
-	//tmpOfflineList:=make([]string,0)
-	//allServer,err=G_workerMgr.GetAllClient()
-	//if err==nil{
-	//	for _,v:=range  allServer{
-	//		isOffline:=true
-	//		for _,onlineClient:=range tmpOnlineList{
-	//			if strings.Compare(v,onlineClient.Ip)==0{
-	//				isOffline=false
-	//			}
-	//		}
-	//		if isOffline{
-	//			tmpOfflineList=append(tmpOfflineList,v)
-	//		}
-	//	}
-	//}
-	//clientsConfigInfo:= WorkerMgr.GetClientConfigInfo()
-	//resourcesInfo:= WorkerMgr.GetResourceInfo()
-	//for k,onlineClient:=range tmpOnlineList{
-	//	if info,ok:=clientsConfigInfo[onlineClient.Ip];ok{
-	//		tmpOnlineList[k].Config=*info
-	//	}
-	//	if resource,ok:=resourcesInfo[onlineClient.Ip];ok{
-	//		tmpOnlineList[k].Resource=resource
-	//	}else{
-	//		tmpOnlineList[k].Resource=make([]string,0)
-	//	}
-	//}
-	//data["offline"]=tmpOfflineList
-	//data["online"]=tmpOnlineList
-	//data["server"]=onlineServer
+	tmpOnlineList,err:= WorkerMgr.ListWorkers()
+	tmpOfflineList:=make([]string,0)
+	allServer,err=G_workerMgr.GetAllClient()
+	if err==nil{
+		for _,v:=range  allServer{
+			isOffline:=true
+			for _,onlineClient:=range tmpOnlineList{
+				if strings.Compare(v,onlineClient.Ip)==0{
+					isOffline=false
+				}
+			}
+			if isOffline{
+				tmpOfflineList=append(tmpOfflineList,v)
+			}
+		}
+	}
+	clientsConfigInfo:= WorkerMgr.GetClientConfigInfo()
+	resourcesInfo:= WorkerMgr.GetResourceInfo()
+	for k,onlineClient:=range tmpOnlineList{
+		if info,ok:=clientsConfigInfo[onlineClient.Ip];ok{
+			tmpOnlineList[k].Config=*info
+		}
+		if resource,ok:=resourcesInfo[onlineClient.Ip];ok{
+			tmpOnlineList[k].Resource=resource
+		}else{
+			tmpOnlineList[k].Resource=make([]string,0)
+		}
+	}
+	data["offline"]=tmpOfflineList
+	data["online"]=tmpOnlineList
+	data["server"]=onlineServer
 	return data
 }
 func (WorkerMgr *WorkerMgr) GetResourceInfo()map[string][]string {

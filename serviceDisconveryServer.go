@@ -14,6 +14,8 @@ func GetServerInfo() (data []byte, err error) {
 	tmp["Service"] = "RegisterInfo"
 	tmp["ip"] = setting.ServerSetting.ServerIP
 	tmp["port"] = setting.ServerSetting.ServerPort
+	tmp["etcd_enable"]=setting.EtcdSetting.Enable
+	tmp["etcd_address"]=setting.EtcdSetting.ConnStr
 	return json.Marshal(tmp)
 }
 

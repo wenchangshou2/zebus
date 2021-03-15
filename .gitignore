@@ -17,3 +17,4 @@ logs/
 *.7z
 *.rar
 *.zip
+/vendor/

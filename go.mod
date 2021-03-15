@@ -19,11 +19,12 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.9.5 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jonboulle/clockwork v0.1.0 // indirect
-	github.com/julienschmidt/httprouter v1.2.0
+	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/kardianos/service v1.2.0
 	github.com/mreiferson/go-options v1.0.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/common v0.6.0
+	github.com/rs/cors v1.7.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
 	github.com/soheilhy/cmux v0.1.4 // indirect
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect

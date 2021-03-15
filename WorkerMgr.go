@@ -285,6 +285,7 @@ func (WorkerMgr *WorkerMgr) isAllowPut(serverName string) bool {
 func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) (err error) {
 	var (
 		topic string
+		//resp *clientv3.LeaseGrantResponse
 	)
 	if !WorkerMgr.isAllowPut(serverName) {
 		logging.G_Logger.Info(fmt.Sprintf("当前推送的topic:" + serverName + ",在忽略名单当中"))
@@ -296,6 +297,10 @@ func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) 
 		topic = e.JOB_SERVER_DIR + serverName
 	}
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
+	//if resp,err=WorkerMgr.client.Grant(context.TODO(),24*60*60*15);err!=nil{
+	//	logging.G_Logger.Warn(fmt.Sprintf("grant resp error:%v",err))
+	//	return
+	//}
 	_, err = WorkerMgr.client.Put(ctx, topic, serverType)
 	if err != nil {
 		logging.G_Logger.Warn("put  Host info fail:" + err.Error())

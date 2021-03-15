@@ -31,8 +31,8 @@ func (s *Service) InitHttpServer() error {
 	var (
 		err error
 	)
-
 	if setting.HttpSetting.Proto == "https" {
+		// 配置https
 		tlsConfig, err := s.BuildTLSConfig()
 		if err != nil {
 			panic(fmt.Sprintf("Failed to build TLS config - %s", err))
@@ -46,8 +46,8 @@ func (s *Service) InitHttpServer() error {
 		}
 		s.httpServer, _ = newHTTPServer(s.hub, true, true)
 	} else {
-		s.httpListener, err = net.Listen("tcp", "0.0.0.0:9191")
-		if err != nil {
+		// 配置http
+		if s.httpListener, err = net.Listen("tcp", "0.0.0.0:9191"); err != nil {
 			return err
 		}
 		s.httpServer, err = newHTTPServer(s.hub, false, false)
@@ -107,7 +107,6 @@ func (s *Service) SetRunningArguments() {
 	setting.ServerSetting.ServerIP = s.opts.ServerAddress
 	setting.EtcdSetting.Enable = s.opts.EtcdEnable
 	setting.EtcdSetting.ConnStr = s.opts.EtcdServer
-
 }
 
 func (*Service) Stop(_ service.Service) error {
@@ -116,9 +115,10 @@ func (*Service) Stop(_ service.Service) error {
 func (s *Service) BuildTLSConfig() (*tls.Config, error) {
 	var (
 		tlsConfig *tls.Config
+		tlsCert   string
+		err       error
 	)
-	tlsCert, err := utils.GetFullPath(setting.HttpSetting.Cert)
-	if err != nil {
+	if tlsCert, err = utils.GetFullPath(setting.HttpSetting.Cert); err != nil {
 		return nil, err
 	}
 	//caCert, _ := ioutil.ReadFile(setting.HttpSetting.Cert)

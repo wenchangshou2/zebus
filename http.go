@@ -150,8 +150,6 @@ func (s *httpServer) doPUBv3(w http.ResponseWriter, req *http.Request, ps httpro
 		job.Name = strconv.Itoa(int(time.Now().UnixNano()))
 	}
 	if _, err = GJobMgr.SaveJob(&job); err != nil {
-		//	fmt.Println("err",err)
-		//	w.Write(bytes)
 		return nil, http_api.Err{Code: 500, Text: "save key error:" + err.Error()}
 	}
 
@@ -192,6 +190,7 @@ func (s *httpServer) doPUBv2(w http.ResponseWriter, req *http.Request, ps httpro
 	if len(body) == 0 {
 		return nil, http_api.Err{Code: 400, Text: "MSG_EMPTY"}
 	}
+	fmt.Println("body",string(body))
 	reqParams, client, topic, timeOut, err := s.getTopicFromQuery(req)
 	if err != nil {
 		return nil, err
@@ -252,6 +251,21 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) (*httpServ
 	router.PanicHandler = http_api.LogPanicHandler(logging.G_Logger)
 	router.NotFound = http_api.LogNotFoundHandler(logging.G_Logger)
 	router.MethodNotAllowed = http_api.LogMethodNotAllowedHandler(logging.G_Logger)
+	allowedHeaders := "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization,X-CSRF-Token"
+	router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if origin := r.Header.Get("Origin"); origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", allowedHeaders)
+			w.Header().Set("Access-Control-Expose-Headers", "Authorization")
+		}
+		//if r.Header.Get("Access-Control-Request-Method") != "" {
+		//	header := w.Header()
+		//	header.Set("Access-Control-Allow-Methods", header.Get("Allow"))
+		//	header.Set("Access-Control-Allow-Origin", "*")
+		//}
+		w.WriteHeader(http.StatusNoContent)
+	})
 	s := &httpServer{
 		ctx:         zebusd,
 		tlsEnabled:  tlsEnabled,
@@ -266,10 +280,9 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) (*httpServ
 	router.Handle("POST", "/pubV2", http_api.Decorate(s.doPUBv2, http_api.V1))
 	router.Handle("POST", "/pubV3", http_api.Decorate(s.doPUBv3, http_api.V1))
 	router.Handle("POST","/mpub",http_api.Decorate(s.mPub,http_api.V1))
-
 	router.Handle("POST","/pubGroup",http_api.Decorate(s.doPUBGroup,http_api.V1))
 	router.Handle("POST", "/getClient", http_api.Decorate(s.getClient, http_api.V1))
-
+	router.Handle("GET","/clients",http_api.Decorate(s.getClients,http_api.V1))
 	router.GET("/ws", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		serveWs(zebusd,writer,request)
 	})
@@ -280,6 +293,9 @@ func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 func (s *httpServer) enableCors(w *http.ResponseWriter, req *http.Request) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	(*w).Header().Set("Access-Control-Allow-Methods", "*")
+	(*w).Header().Set("Access-Control-Request-Headers","*")
 }
 
 // getTopic: 获取参数里面的topic字段
@@ -361,7 +377,6 @@ func (s *httpServer) getClients(w http.ResponseWriter, req *http.Request, ps htt
 
 // getClient 获取客户信息
 func (s *httpServer) getClient(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	s.enableCors(&w, req)
 	_, ip, err := s.getIpFromQuery(req)
 	if err != nil {
 		return nil, err

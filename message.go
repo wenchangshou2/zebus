@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"time"
+    "errors"
 )
 
 const (
@@ -69,6 +70,8 @@ func (m *Message) WriteTo(w io.Writer) (int64, error) {
 func decodeMessage(b []byte) (*Message, error) {
 	var msg Message
 	var topicLen uint16
+    var msgLen uint16
+    msgLen=uint16(len(b))
 	if len(b) < minValidMsgLength {
 		return nil, fmt.Errorf("invalid message buff size (%d)", len(b))
 	}
@@ -77,7 +80,13 @@ func decodeMessage(b []byte) (*Message, error) {
 	msg.Attempts = binary.BigEndian.Uint16(b[8:10])
 	topicLen = binary.BigEndian.Uint16(b[10:12])
 	msg.Topic = make([]byte, topicLen)
+    if (12+topicLen)>msgLen{
+        return nil,errors.New("解析topic失败")
+    }
 	copy(msg.Topic[:], b[12:12+topicLen])
+    if msgLen<(12+topicLen+MsgIDLength){
+        return nil,errors.New("解析id失败")
+    }
 	copy(msg.ID[:], b[12+topicLen:12+topicLen+MsgIDLength])
 	msg.Body = b[12+topicLen+MsgIDLength:]
 	fmt.Println("topic", string(msg.Topic), b[10:12], topicLen, string(b[12+topicLen:]))

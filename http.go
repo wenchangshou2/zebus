@@ -35,7 +35,7 @@ type SystemMachineCode struct {
 
 //pingHandler 心跳
 func (s *httpServer) pingHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	s.enableCors(&w,req)
+	s.enableCors(&w, req)
 	health := "ok"
 	return health, nil
 }
@@ -59,8 +59,8 @@ func (s *httpServer) getSystemMachineCode(w http.ResponseWriter, req *http.Reque
 		Date:    msec,
 		Service: "Zebus",
 	}
-	out, err := json.Marshal(systemInfo)
-	newStr, err = safety.EncryptWithSha1Base64(string(out))
+	out, _ := json.Marshal(systemInfo)
+	newStr, _ = safety.EncryptWithSha1Base64(string(out))
 	return struct {
 		Msg string `json:"code"`
 	}{newStr}, nil
@@ -118,7 +118,6 @@ func (s *httpServer) doPUB(w http.ResponseWriter, req *http.Request, ps httprout
 	return "OK", nil
 }
 
-
 // doPUBv3: 推送异步的调用
 func (s *httpServer) doPUBv3(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	var (
@@ -126,19 +125,19 @@ func (s *httpServer) doPUBv3(w http.ResponseWriter, req *http.Request, ps httpro
 		//postJob string
 		job   e.Job
 		bytes []byte
-		body []byte
+		body  []byte
 		topic string
 	)
 	s.enableCors(&w, req)
 	readMax := setting.AppSetting.MaxMsgSize + 1
-	if body, err = ioutil.ReadAll(io.LimitReader(req.Body, readMax));err!=nil{
+	if body, err = ioutil.ReadAll(io.LimitReader(req.Body, readMax)); err != nil {
 		return nil, http_api.Err{
 			Code: 500,
 			Text: "Internal_error",
 		}
 	}
-	if topic, err = s.getTopic(req);err!=nil{
-		return nil,err
+	if topic, err = s.getTopic(req); err != nil {
+		return nil, err
 	}
 	if err = json.Unmarshal(body, &job); err != nil {
 		return nil, http_api.Err{Code: 500, Text: "parse json failed"}
@@ -159,15 +158,15 @@ func (s *httpServer) doPUBv3(w http.ResponseWriter, req *http.Request, ps httpro
 // mPub 多消息推送
 func (s *httpServer) mPub(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	var (
-		err error
+		err     error
 		readMax int64
-		body []byte
+		body    []byte
 	)
-	s.enableCors(&w,req)
-	readMax=setting.AppSetting.MaxMsgSize+1
-	body,err=ioutil.ReadAll(io.LimitReader(req.Body,readMax))
-	if err!=nil{
-		return nil,http_api.Err{Code: 500,Text: "INTERNAL_ERROR"}
+	s.enableCors(&w, req)
+	readMax = setting.AppSetting.MaxMsgSize + 1
+	body, err = ioutil.ReadAll(io.LimitReader(req.Body, readMax))
+	if err != nil {
+		return nil, http_api.Err{Code: 500, Text: "INTERNAL_ERROR"}
 	}
 	if int64(len(body)) == readMax {
 		return nil, http_api.Err{Code: 413, Text: "MSG_TOO_BIG"}
@@ -175,7 +174,7 @@ func (s *httpServer) mPub(w http.ResponseWriter, req *http.Request, ps httproute
 	if len(body) == 0 {
 		return nil, http_api.Err{Code: 400, Text: "MSG_EMPTY"}
 	}
-	return nil,nil
+	return nil, nil
 }
 func (s *httpServer) doPUBv2(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
 	s.enableCors(&w, req)
@@ -190,7 +189,7 @@ func (s *httpServer) doPUBv2(w http.ResponseWriter, req *http.Request, ps httpro
 	if len(body) == 0 {
 		return nil, http_api.Err{Code: 400, Text: "MSG_EMPTY"}
 	}
-	fmt.Println("body",string(body))
+	fmt.Println("body", string(body))
 	reqParams, client, topic, timeOut, err := s.getTopicFromQuery(req)
 	if err != nil {
 		return nil, err
@@ -207,7 +206,7 @@ func (s *httpServer) doPUBv2(w http.ResponseWriter, req *http.Request, ps httpro
 	topic = strings.TrimPrefix(topic, "/zebus")
 	msg := NewMessage(client.GenerateID(), body, []byte(topic))
 	msg.deferred = deferred
-	err = client.PutMessage(msg)
+	client.PutMessage((msg))
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeOut)*time.Millisecond)
 	done := client.AddNewWaitMessage(msg.ID)
 	select {
@@ -224,13 +223,14 @@ func (s *httpServer) doPUBv2(w http.ResponseWriter, req *http.Request, ps httpro
 	client.DeleteWitMessage(msg.ID)
 	return nil, nil
 }
+
 // doPUBGroup :推送到分组
 func (s *httpServer) doPUBGroup(w http.ResponseWriter, req *http.Request, ps httprouter.Params) (interface{}, error) {
-	s.enableCors(&w,req)
-	readMax:=setting.AppSetting.MaxMsgSize+1
-	body,err:=ioutil.ReadAll(io.LimitReader(req.Body,readMax))
-	if err!=nil{
-		return nil,http_api.Err{
+	s.enableCors(&w, req)
+	readMax := setting.AppSetting.MaxMsgSize + 1
+	body, err := ioutil.ReadAll(io.LimitReader(req.Body, readMax))
+	if err != nil {
+		return nil, http_api.Err{
 			Code: 500,
 			Text: "INTERNAL_ERROR",
 		}
@@ -241,10 +241,10 @@ func (s *httpServer) doPUBGroup(w http.ResponseWriter, req *http.Request, ps htt
 	if len(body) == 0 {
 		return nil, http_api.Err{Code: 400, Text: "MSG_EMPTY"}
 	}
-	return  nil,nil
+	return nil, nil
 }
 
-func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) (*httpServer,error) {
+func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) (*httpServer, error) {
 	log := http_api.Log(logging.G_Logger)
 	router := httprouter.New()
 	router.HandleMethodNotAllowed = true
@@ -279,14 +279,14 @@ func newHTTPServer(zebusd *ZEBUSD, tlsEnabled bool, tlsRequired bool) (*httpServ
 	router.Handle("POST", "/pub", http_api.Decorate(s.doPUB, http_api.V1))
 	router.Handle("POST", "/pubV2", http_api.Decorate(s.doPUBv2, http_api.V1))
 	router.Handle("POST", "/pubV3", http_api.Decorate(s.doPUBv3, http_api.V1))
-	router.Handle("POST","/mpub",http_api.Decorate(s.mPub,http_api.V1))
-	router.Handle("POST","/pubGroup",http_api.Decorate(s.doPUBGroup,http_api.V1))
+	router.Handle("POST", "/mpub", http_api.Decorate(s.mPub, http_api.V1))
+	router.Handle("POST", "/pubGroup", http_api.Decorate(s.doPUBGroup, http_api.V1))
 	router.Handle("POST", "/getClient", http_api.Decorate(s.getClient, http_api.V1))
-	router.Handle("GET","/clients",http_api.Decorate(s.getClients,http_api.V1))
+	router.Handle("GET", "/clients", http_api.Decorate(s.getClients, http_api.V1))
 	router.GET("/ws", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		serveWs(zebusd,writer,request)
+		serveWs(zebusd, writer, request)
 	})
-	return s,nil
+	return s, nil
 }
 func (s *httpServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	s.router.ServeHTTP(w, req)
@@ -295,7 +295,7 @@ func (s *httpServer) enableCors(w *http.ResponseWriter, req *http.Request) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	(*w).Header().Set("Access-Control-Allow-Methods", "*")
-	(*w).Header().Set("Access-Control-Request-Headers","*")
+	(*w).Header().Set("Access-Control-Request-Headers", "*")
 }
 
 // getTopic: 获取参数里面的topic字段
@@ -389,4 +389,3 @@ func (s *httpServer) getClient(w http.ResponseWriter, req *http.Request, ps http
 	}
 	return nil, nil
 }
-

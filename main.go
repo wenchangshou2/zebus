@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/tls"
 	"errors"
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -20,7 +19,6 @@ import (
 )
 
 type Service struct {
-	flagSet      *flag.FlagSet
 	opts         Options
 	httpListener net.Listener
 	httpServer   *httpServer
@@ -38,7 +36,7 @@ func (s *Service) InitHttpServer() error {
 			panic(fmt.Sprintf("Failed to build TLS config - %s", err))
 		}
 		if tlsConfig == nil {
-			panic(fmt.Sprintf("cert or key error"))
+			panic("cert or key error")
 		}
 		s.httpListener, err = tls.Listen("tcp", "0.0.0.0:9191", tlsConfig)
 		if err != nil {
@@ -50,7 +48,9 @@ func (s *Service) InitHttpServer() error {
 		if s.httpListener, err = net.Listen("tcp", "0.0.0.0:9191"); err != nil {
 			return err
 		}
-		s.httpServer, err = newHTTPServer(s.hub, false, false)
+		if s.httpServer, err = newHTTPServer(s.hub, false, false); err != nil {
+			return err
+		}
 	}
 	go http_api.Serve(s.httpListener, s.httpServer, setting.HttpSetting.Proto, *logging.G_Logger)
 	return nil
@@ -88,7 +88,7 @@ func (s *Service) Start(_ service.Service) error {
 	if setting.AuthorizationSetting.Enable {
 		_ = InitAuthorization(AuthorizationDone)
 	}
-	serverAddr := fmt.Sprintf("%s", setting.ServerSetting.BindAddress)
+	serverAddr := fmt.Sprintf(setting.ServerSetting.BindAddress)
 	if err = InitSchedule(serverAddr, hub, s); err != nil {
 		logging.G_Logger.Error("创建调度失败")
 		return errors.New("创建调试失败")
@@ -112,6 +112,8 @@ func (s *Service) SetRunningArguments() {
 func (*Service) Stop(_ service.Service) error {
 	return nil
 }
+
+// BuildTLSConfig 生成tls配置
 func (s *Service) BuildTLSConfig() (*tls.Config, error) {
 	var (
 		tlsConfig *tls.Config
@@ -168,7 +170,7 @@ func main() {
 	args, err = flags.ParseArgs(&opts, os.Args[1:])
 	fmt.Println("args", args)
 	if err != nil {
-		fmt.Errorf("参数解析错误:" + err.Error())
+		fmt.Printf("参数解析错误:%s\n", err.Error())
 		panic("参数解析错误")
 	}
 
@@ -199,7 +201,7 @@ func main() {
 		case "get":
 			code, err := utils.GetSystemUUID()
 			if err != nil {
-				fmt.Errorf("获取系统唯一码失败:%s", err.Error())
+				log.Fatalf("获取系统唯一码失败:%s", err.Error())
 				return
 			}
 			fmt.Printf("获取系统唯一码成功:%s\n", code)
@@ -210,7 +212,7 @@ func main() {
 	}
 	err = s.Run()
 	if err != nil {
-		fmt.Errorf("启动服务失败:%v", err)
+		log.Fatalf("启动服务失败:%v", err)
 	}
 
 }

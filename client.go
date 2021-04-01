@@ -6,10 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/wenchangshou2/zebus/pkg/certification"
-	"github.com/wenchangshou2/zebus/pkg/pqueue"
-	"go.etcd.io/etcd/clientv3"
-	"go.uber.org/zap"
 	"log"
 	"math"
 	"math/rand"
@@ -18,6 +14,11 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/wenchangshou2/zebus/pkg/certification"
+	"github.com/wenchangshou2/zebus/pkg/pqueue"
+	"go.etcd.io/etcd/clientv3"
+	"go.uber.org/zap"
 
 	"github.com/wenchangshou2/zebus/pkg/setting"
 
@@ -39,7 +40,7 @@ const (
 
 var (
 	newline = []byte{'\n'}
-	space   = []byte{' '}
+	// space   = []byte{' '}
 )
 
 var upgrader = websocket.Upgrader{
@@ -63,10 +64,6 @@ type Client struct {
 	send                 chan []byte
 	sendMessage          chan *Message
 	AuthStatus           bool
-	client               *clientv3.Client
-	kv                   clientv3.KV
-	lease                clientv3.Lease
-	serverType           string
 	CancelChannel        chan interface{}
 	register             *Register
 	messageCount         uint64
@@ -79,7 +76,7 @@ type Client struct {
 	deferredPQ           pqueue.PriorityQueue
 	deferredMutex        sync.Mutex
 	proto                string
-	exitChan chan bool
+	exitChan             chan bool
 }
 
 func (c *Client) AddNewWaitMessage(id MessageID) chan *[]byte {
@@ -104,7 +101,7 @@ func (c *Client) writePump() {
 		select {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			logging.G_Logger.Debug(fmt.Sprintf("转发消息:"+string(message)))
+			logging.G_Logger.Debug(fmt.Sprintf("转发消息:" + string(message)))
 			if !ok {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
@@ -146,7 +143,7 @@ func (c *Client) writePump() {
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				logging.G_Logger.Info("send ping err:"+err.Error())
+				logging.G_Logger.Info("send ping err:" + err.Error())
 				return
 			}
 		case <-c.exitChan:
@@ -200,10 +197,9 @@ func (c *Client) initRegister(socketName string) {
 		lease:      lease,
 		serverType: "Server",
 		serverName: socketName,
-		exit: make(chan bool),
+		exit:       make(chan bool),
 	}
 	go c.register.keepOnline()
-	return
 }
 
 // 初始化消息队列
@@ -282,6 +278,7 @@ func (c *Client) generateResponse(data *map[string]interface{}) ([]byte, error) 
 	}
 	return json.Marshal(result)
 }
+
 // PutMessageDeferred:延迟推送消息
 func (c *Client) PutMessageDeferred(msg *Message, timeout time.Duration) {
 	atomic.AddUint64(&c.messageCount, 1)
@@ -300,7 +297,6 @@ func (c *Client) pushDeferredMessage(item *pqueue.Item) error {
 	return nil
 }
 
-
 func (c *Client) StartDeferredTimeout(msg *Message, timeout time.Duration) error {
 	absTs := time.Now().Add(timeout).UnixNano()
 	item := &pqueue.Item{Value: msg, Priority: absTs}
@@ -318,14 +314,15 @@ func (c *Client) addToDeferredPQ(item *pqueue.Item) {
 	heap.Push(&c.deferredPQ, item)
 	c.deferredMutex.Unlock()
 }
+
 // execute:执行
 func (c *Client) execute(data []byte) {
 	type zeBusCmd struct {
 		Action       string `json:"action"`
 		ReceiverName string `json:"receiverName"`
 		SenderName   string `json:"senderName"`
-		GroupName string `json:"group_name"`
-		Body string `json:"body"`
+		GroupName    string `json:"group_name"`
+		Body         string `json:"body"`
 	}
 	d := make(map[string]interface{})
 	cmd := zeBusCmd{}
@@ -347,13 +344,13 @@ func (c *Client) execute(data []byte) {
 	case "syncServiceInfo":
 		c.syncServiceInfo(data)
 	case "forwardGroupMessage":
-		if len(cmd.GroupName)==0{
+		if len(cmd.GroupName) == 0 {
 			logging.G_Logger.Info("forwardGroupMessage not found group_name")
 			return
 		}
-		c.ForwardGroupMessage(cmd.GroupName,cmd.Body)
+		c.ForwardGroupMessage(cmd.GroupName, cmd.Body)
 	case "ping":
-		d["result"]="pong"
+		d["result"] = "pong"
 	}
 	if len(cmd.SenderName) == 0 {
 		return
@@ -384,19 +381,19 @@ func (c *Client) syncServiceInfo(data []byte) {
 }
 
 // unAuthorization:未授权消息
-func (c *Client) unAuthorization(recv string) {
-	var (
-		rtu map[string]interface{}
-	)
-	rtu = make(map[string]interface{})
-	if len(recv) > 0 {
-		rtu["Action"] = "UnAuthorization"
-		rtu["receiverName"] = recv
-		rtu["senderName"] = "/zebus"
-		byte, _ := json.Marshal(rtu)
-		c.hub.forward <- byte
-	}
-}
+// func (c *Client) unAuthorization(recv string) {
+// 	var (
+// 		rtu map[string]interface{}
+// 	)
+// 	rtu = make(map[string]interface{})
+// 	if len(recv) > 0 {
+// 		rtu["Action"] = "UnAuthorization"
+// 		rtu["receiverName"] = recv
+// 		rtu["senderName"] = "/zebus"
+// 		byte, _ := json.Marshal(rtu)
+// 		c.hub.forward <- byte
+// 	}
+// }
 func (c *Client) checkFrontCondition(data e.RequestCmd) bool {
 	// 如果当前的结点没有注册，不
 	if !c.IsRegister {
@@ -414,7 +411,7 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 		logging.G_Logger.Error(tmp)
 		return
 	}
-	logging.G_Logger.Debug(fmt.Sprintf("接收到文本数据.接收者:%s,发送者:%s,数据:%s",data.ReceiverName,data.SenderName,string(message)))
+	logging.G_Logger.Debug(fmt.Sprintf("接收到文本数据.接收者:%s,发送者:%s,数据:%s", data.ReceiverName, data.SenderName, string(message)))
 	if strings.Compare(data.MessageType, "RegisterToDaemon") == 0 {
 		if setting.ServerSetting.Auth {
 			if !c.login(data.Auth) {
@@ -445,18 +442,17 @@ func (c *Client) TextMessageProcess(message []byte) (err error) {
 }
 func (c *Client) BinaryMessageProcess(message []byte) {
 	msg, err := decodeMessage(message)
-	if err!=nil{
-		logging.G_Logger.Error(fmt.Sprintf("decode message error:"+err.Error()))
+	if err != nil {
+		logging.G_Logger.Error(fmt.Sprintf("decode message error:" + err.Error()))
 		return
 	}
-	logging.G_Logger.Debug(fmt.Sprintf("接收到二进制数据,目标:%s,数据:%s",msg.Topic,string(msg.Body)))
-	if msg==nil||msg.Topic==nil{
+	if msg == nil || msg.Topic == nil {
 		return
 	}
-	if string(msg.Topic) != "/zebus" && string(msg.Topic) != "zebus" {
-		//c.put()
-	}
-	fmt.Printf("%s",msg.ID)
+	// if string(msg.Topic) != "/zebus" && string(msg.Topic) != "zebus" {
+	//c.put()
+	// }
+	fmt.Printf("%s", msg.ID)
 	if c, ok := c.WaitRecvMessage[msg.ID]; ok {
 		c <- &msg.Body
 	}
@@ -483,7 +479,7 @@ func (c *Client) readPump() {
 				logging.G_Logger.Error("接收失败1:" + err.Error())
 				break
 			}
-			logging.G_Logger.Error(fmt.Sprintf("接收失败:%v" , err))
+			logging.G_Logger.Error(fmt.Sprintf("接收失败:%v", err))
 			break
 		}
 		if messageType == websocket.BinaryMessage {
@@ -494,13 +490,14 @@ func (c *Client) readPump() {
 
 	}
 }
-func (c *Client) process(data []byte) {
-	if setting.EtcdSetting.Enable {
-		G_ScheduleMgr.ProcessData <- data
-	} else {
-		c.hub.forward <- data
-	}
-}
+
+// func (c *Client) process(data []byte) {
+// 	if setting.EtcdSetting.Enable {
+// 		G_ScheduleMgr.ProcessData <- data
+// 	} else {
+// 		c.hub.forward <- data
+// 	}
+// }
 func (c *Client) GenerateID() MessageID {
 retry:
 	id, err := c.idFactory.NewGUID()
@@ -510,9 +507,10 @@ retry:
 	}
 	return id.Hex()
 }
+
 // PutMessage 推送消息
 func (c *Client) PutMessage(m *Message) error {
-	logging.G_Logger.Debug(fmt.Sprintf("推送消息,接收者:%s,数据:%s",string(m.Topic),string(m.Body)))
+	logging.G_Logger.Debug(fmt.Sprintf("推送消息,接收者:%s,数据:%s", string(m.Topic), string(m.Body)))
 	c.RLock()
 	defer c.RUnlock()
 	err := c.put(m)
@@ -573,24 +571,24 @@ exit:
 	return dirty
 }
 func (c *Client) loop() {
-	t:=time.NewTicker(5*time.Second)
+	t := time.NewTicker(5 * time.Second)
 	for {
 		select {
-			case <-c.exitChan:
-				return
-			case <-t.C:
-				now := time.Now().UnixNano()
-				c.ProcessDeferredQueue(now)
+		case <-c.exitChan:
+			return
+		case <-t.C:
+			now := time.Now().UnixNano()
+			c.ProcessDeferredQueue(now)
 		}
 	}
 }
 
-func (c *Client) ForwardGroupMessage(groupName string,body string) {
-	data:=e.ForWardGroupMessage{}
-	data.Body=[]byte(body)
-	data.GroupName=groupName
+func (c *Client) ForwardGroupMessage(groupName string, body string) {
+	data := e.ForWardGroupMessage{}
+	data.Body = []byte(body)
+	data.GroupName = groupName
 	go func() {
-		c.hub.forwardGroupMessage<-data
+		c.hub.forwardGroupMessage <- data
 	}()
 
 }
@@ -599,7 +597,7 @@ func (c *Client) ForwardGroupMessage(groupName string,body string) {
 func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(w, r, nil)
-		
+
 	// defer conn.Close()
 	if err != nil {
 		log.Println(err)
@@ -612,9 +610,9 @@ func serveWs(hub *ZEBUSD, w http.ResponseWriter, r *http.Request) {
 		send:          make(chan []byte, 256),
 		idFactory:     NewGUIDFactory(int64(rand.Intn(10000))),
 		memoryMsgChan: make(chan *Message, setting.AppSetting.MemQueueSize),
-		sendMessage:   make(chan *Message, 0),
+		sendMessage:   make(chan *Message),
 		proto:         "text",
-		exitChan: make(chan bool),
+		exitChan:      make(chan bool),
 	}
 	tmp := map[string]interface{}{}
 	tmp["ip"] = strings.Split(conn.RemoteAddr().String(), ":")[0]

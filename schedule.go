@@ -2,13 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/wenchangshou2/zebus/pkg/logging"
-	"github.com/wenchangshou2/zebus/pkg/setting"
 	"net/http"
 	_ "net/http/pprof"
 	"time"
+
+	"github.com/wenchangshou2/zebus/pkg/logging"
+	"github.com/wenchangshou2/zebus/pkg/setting"
 )
 
+// InitSchedule 初始化调度
 func InitSchedule(addr string, hub *ZEBUSD, server *Service) (err error) {
 	var (
 		retriesCount = 10

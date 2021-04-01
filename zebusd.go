@@ -43,7 +43,7 @@ func newHub(logf *zap.Logger) *ZEBUSD {
 		online:              make(map[string]bool),
 		offline:             make(map[string]bool),
 		onlineServer:        make(map[string]bool),
-		clientMap:           make(map[string]*Client, 0),
+		clientMap:           make(map[string]*Client),
 		group:               make(map[string][]*Client),
 		forwardGroupMessage: make(chan e.ForWardGroupMessage),
 		mux:                 sync.RWMutex{},
@@ -58,12 +58,12 @@ func (h *ZEBUSD) GetAllClientInfo() map[string]interface{} {
 	rtu := make(map[string]interface{})
 	onlineClient := make([]string, 0)
 	offlineClient := make([]string, 0)
-	for k, _ := range h.online {
+	for k := range h.online {
 		if len(k) > 0 {
 			onlineClient = append(onlineClient, k)
 		}
 	}
-	for k, _ := range h.offline {
+	for k := range h.offline {
 		if len(k) > 0 {
 			offlineClient = append(offlineClient, k)
 		}
@@ -119,9 +119,9 @@ func (h *ZEBUSD) addNewServer(serverName string) {
 // @param serverName string 服务名称
 func (h *ZEBUSD) removeServer(serverName string) {
 	h.mux.Lock()
-	if _, ok := h.onlineServer[serverName]; ok {
-		delete(h.onlineServer, serverName)
-	}
+	// if _, ok := h.onlineServer[serverName]; ok {
+	delete(h.onlineServer, serverName)
+	// }
 	h.mux.Unlock()
 
 }
@@ -131,7 +131,7 @@ func (h *ZEBUSD) getOnlineServer() []string {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 	onlineClient := make([]string, 0)
-	for k, _ := range h.onlineServer {
+	for k := range h.onlineServer {
 		onlineClient = append(onlineClient, k)
 	}
 	onlineClient = append(onlineClient, "zebus")

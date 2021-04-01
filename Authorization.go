@@ -62,12 +62,22 @@ func (a *AuthorizationProcess) QueryAuthorization() bool {
 
 //RequestVerify :请求远程检验
 func (a *AuthorizationProcess) RequestVerify(info *AuthorizationInfo) (bool, error) {
-	str, err := json.Marshal(info)
-	content, err := safety.G_Safety.EncryptWithSha1Base64(string(str))
+	var (
+		data    []byte
+		err     error
+		req     *http.Request
+		doneStr string
+	)
+	if data, err = json.Marshal(info); err != nil {
+		return false, err
+	}
+	content, err := safety.G_Safety.EncryptWithSha1Base64(string(data))
 	if err != nil {
 		return false, err
 	}
-	req, err := http.NewRequest("POST", "http://39.98.68.4:9091/api/v1/verify", bytes.NewBuffer([]byte(content)))
+	if req, err = http.NewRequest("POST", "http://39.98.68.4:9091/api/v1/verify", bytes.NewBuffer([]byte(content))); err != nil {
+		return false, err
+	}
 	req.Header.Set("Content-Type", "application/plan")
 
 	client := &http.Client{}
@@ -82,10 +92,12 @@ func (a *AuthorizationProcess) RequestVerify(info *AuthorizationInfo) (bool, err
 	if err != nil {
 		return false, errors.New("解析Response失败")
 	}
-	jmStr, err := safety.G_Safety.DecryptWithSha1Base64(response.Data.(string))
+	if doneStr, err = safety.G_Safety.DecryptWithSha1Base64(response.Data.(string)); err != nil {
+		return false, err
+	}
 	verifyResponse := &VerifyResponse{}
 
-	err = json.Unmarshal([]byte(jmStr), &verifyResponse)
+	err = json.Unmarshal([]byte(doneStr), &verifyResponse)
 	if err != nil {
 		return false, nil
 	}
@@ -131,7 +143,7 @@ func (a *AuthorizationProcess) Loop() {
 	for {
 		now := int(time.Now().Unix())
 
-		if utils.IsExist("License.dat") == false {
+		if !utils.IsExist("License.dat") {
 			G_Authorization.Status = false
 			logging.G_Logger.Warn("授权文件不存在")
 			goto next
@@ -147,9 +159,7 @@ func (a *AuthorizationProcess) Loop() {
 			a.Status = false
 			goto next
 		}
-		if len(info.UUID) == 0 { //待处理
-
-		}
+		//TODO info.UUID为空的判断
 		if info.UUID != a.uuid {
 			logging.G_Logger.Warn("授权文件错误")
 			a.Status = false
@@ -191,7 +201,7 @@ var (
 )
 
 func InitAuthorization(done chan bool) (err error) {
-	if utils.IsExist("License.dat") == false {
+	if !utils.IsExist("License.dat") {
 		G_Authorization.Status = false
 		logging.G_Logger.Warn("授权文件不存在")
 	}

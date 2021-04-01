@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/wenchangshou2/zebus/pkg/logging"
 	"strings"
 	"time"
+
+	"github.com/wenchangshou2/zebus/pkg/logging"
 
 	"github.com/wenchangshou2/zebus/pkg/e"
 	"go.etcd.io/etcd/clientv3"
@@ -15,11 +15,10 @@ type Register struct {
 	client        *clientv3.Client
 	kv            clientv3.KV
 	lease         clientv3.Lease
-	localIP       string
 	serverType    string
 	serverName    string
 	CancelChannel chan interface{}
-	exit chan bool
+	exit          chan bool
 }
 
 func (register *Register) keepOnline() {
@@ -58,7 +57,7 @@ func (register *Register) keepOnline() {
 					goto RETRY
 				}
 			case <-register.CancelChannel:
-				logging.G_Logger.Error(fmt.Sprintf("exit register channel"))
+				logging.G_Logger.Error("exit register channel")
 				time.Sleep(1 * time.Second)
 				if cancelKeepOnlineFunc != nil {
 					cancelKeepOnlineFunc()
@@ -78,6 +77,6 @@ func (register *Register) keepOnline() {
 }
 
 func (register *Register) Destroy() {
-	register.exit<-true
+	register.exit <- true
 
 }

@@ -13,8 +13,9 @@ type RequestCmd struct {
 	Action       string                 `json:"Action"`
 	Arguments    map[string]interface{} `json:"Arguments"`
 	Auth         map[string]interface{} `json:"Auth"`
-	Proto string `json:"proto"`
+	Proto        string                 `json:"proto"`
 	SenderName   string                 `json:"senderName"`
+	RegisterName string
 }
 type ForwardCmd struct {
 	Service      string `json:"Service"`
@@ -23,46 +24,47 @@ type ForwardCmd struct {
 	SenderName   string `json:"senderName"`
 	Type         int    `json:"type"`
 }
-type ClientResponseInfo struct{
-	Online []WorkerInfo `json:"online"`
-	Offline []string `json:"Offline"`
-	Server [] string `json:"server"`
+type ClientResponseInfo struct {
+	Online  []WorkerInfo `json:"online"`
+	Offline []string     `json:"Offline"`
+	Server  []string     `json:"server"`
 }
 
 // 客户端配置信息
 type ConfigInfo struct {
 	Volume int32
-	Mute int32
+	Mute   int32
 	sync.RWMutex
 }
-func (cfg ConfigInfo) GetVolume()int{
-	volume:=atomic.LoadInt32(&cfg.Volume)
+
+func (cfg ConfigInfo) GetVolume() int {
+	volume := atomic.LoadInt32(&cfg.Volume)
 	return int(volume)
 
 }
-func (cfg ConfigInfo) GetMute()bool{
-	mute:=atomic.LoadInt32(&cfg.Mute)
-	if mute==1{
+func (cfg ConfigInfo) GetMute() bool {
+	mute := atomic.LoadInt32(&cfg.Mute)
+	if mute == 1 {
 		return true
-	}else{
-		return false;
+	} else {
+		return false
 	}
 }
-func (cfg *ConfigInfo)SetVolume(volume int){
-	atomic.StoreInt32(&cfg.Volume,int32(volume))
+func (cfg *ConfigInfo) SetVolume(volume int) {
+	atomic.StoreInt32(&cfg.Volume, int32(volume))
 }
-func (cfg *ConfigInfo)SetMute(mute bool){
-	if mute{
-		atomic.StoreInt32(&cfg.Mute,1)
-	}else{
-		atomic.StoreInt32(&cfg.Mute,0)
+func (cfg *ConfigInfo) SetMute(mute bool) {
+	if mute {
+		atomic.StoreInt32(&cfg.Mute, 1)
+	} else {
+		atomic.StoreInt32(&cfg.Mute, 0)
 	}
 }
 
 type WorkerInfo struct {
-	Ip     string
-	Server []string
-	Config ConfigInfo
+	Ip       string
+	Server   []string
+	Config   ConfigInfo
 	Resource []string
 }
 

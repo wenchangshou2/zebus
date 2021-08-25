@@ -234,6 +234,7 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 	} else {
 		c.Group = "default"
 	}
+
 	c.proto = data.Proto
 	if data.SocketType != "Daemon" {
 		c.SocketType = "Services"
@@ -246,7 +247,12 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 		c.SocketType = "Daemon"
 		nameAry := strings.Split(data.SocketName, "/")
 		if len(nameAry) <= 2 {
-			remoteIp := strings.Split(c.conn.RemoteAddr().String(), ":")[0]
+			remoteIp := ""
+			if data.RegisterName != "" {
+				remoteIp = data.RegisterName
+			} else {
+				remoteIp = strings.Split(c.conn.RemoteAddr().String(), ":")[0]
+			}
 			c.SocketName = fmt.Sprintf("/zebus/%s", remoteIp)
 			if setting.EtcdSetting.Enable {
 				G_workerMgr.PutServerInfo(remoteIp, "Daemon")
@@ -255,7 +261,11 @@ func (c *Client) registerToDaemon(data e.RequestCmd) {
 			c.SocketName = strings.TrimPrefix(data.SocketName, "/")
 		}
 	}
-	c.Ip = strings.Split(c.conn.RemoteAddr().String(), ":")[0]
+	if data.RegisterName != "" {
+		c.Ip = data.RegisterName
+	} else {
+		c.Ip = strings.Split(c.conn.RemoteAddr().String(), ":")[0]
+	}
 	c.IsRegister = true
 	b, err := c.generateResponse(&map[string]interface{}{
 		"MessageType": data.MessageType,

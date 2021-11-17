@@ -17,10 +17,6 @@ import (
 	"go.etcd.io/etcd/clientv3"
 )
 
-var (
-	G_etcd_client *clientv3.Client
-)
-
 type WorkerMgr struct {
 	client         *clientv3.Client
 	kv             clientv3.KV
@@ -31,7 +27,7 @@ type WorkerMgr struct {
 	sync.RWMutex
 }
 
-//type ClientInfoList map[string]e.ConfigInfo
+// ClientInfoList type ClientInfoList map[string]e.ConfigInfo
 type ClientInfoList struct {
 	clientList map[string]*e.ConfigInfo
 	sync.RWMutex
@@ -66,12 +62,12 @@ func (list *ClientInfoList) GetAll() map[string]*e.ConfigInfo {
 	return list.clientList
 }
 
-//func (workerMgr *WorkerMgr)GetClient()
+// G_workerMgr func (workerMgr *WorkerMgr)GetClient()
 var (
 	G_workerMgr *WorkerMgr
 )
 
-// 初始经状态同步
+// InitWorkerMgr 初始经状态同步
 func InitWorkerMgr(hub *ZEBUSD) (err error) {
 	var (
 		config clientv3.Config
@@ -80,6 +76,10 @@ func InitWorkerMgr(hub *ZEBUSD) (err error) {
 		lease  clientv3.Lease
 	)
 	config = clientv3.Config{Endpoints: []string{setting.EtcdSetting.ConnStr}, DialTimeout: 5 * time.Second}
+	if setting.EtcdSetting.Auth {
+		config.Username = setting.EtcdSetting.User
+		config.Password = setting.EtcdSetting.Password
+	}
 	if client, err = clientv3.New(config); err != nil {
 		return
 	}
@@ -97,7 +97,7 @@ func InitWorkerMgr(hub *ZEBUSD) (err error) {
 		go G_workerMgr.deployUpdateNotify()
 		go G_workerMgr.ResourceUpdateNotify()
 	}
-	logging.G_Logger.Info("info workermgr success")
+	logging.G_Logger.Info("info worker success")
 	return
 }
 func (WorkerMgr *WorkerMgr) updateConfig(addr, item, val string) {
@@ -154,6 +154,7 @@ func (WorkerMgr *WorkerMgr) deployUpdateNotify() {
 	)
 	if getResp, err = WorkerMgr.kv.Get(context.TODO(), "/config/pc", clientv3.WithPrefix()); err != nil {
 		logging.G_Logger.Warn("同步配置失败")
+		return
 	}
 	for _, ev := range getResp.Kvs {
 		keys := strings.Split(string(ev.Key), "/")
@@ -193,8 +194,8 @@ func (WorkerMgr *WorkerMgr) ResourceUpdateNotify() {
 	watcher = clientv3.NewWatcher(WorkerMgr.client)
 	for {
 		rch := watcher.Watch(context.Background(), "/resource", clientv3.WithPrefix(), clientv3.WithRev(watchStartRevision))
-		for wresp := range rch {
-			for _, ev := range wresp.Events {
+		for resp := range rch {
+			for _, ev := range resp.Events {
 				switch ev.Type {
 				case mvccpb.PUT:
 					keys := strings.Split(string(ev.Kv.Key), "/")
@@ -283,7 +284,7 @@ func (WorkerMgr *WorkerMgr) isAllowPut(serverName string) bool {
 	return true
 }
 
-// Daemon上线时调用，表示展期机器的上线
+// PutServerInfo Daemon上线时调用，表示展期机器的上线
 func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) (err error) {
 	var (
 		topic string
@@ -310,7 +311,7 @@ func (WorkerMgr *WorkerMgr) PutServerInfo(serverName string, serverType string) 
 	return
 }
 
-//GetAllClient: 获取所有的客户端
+// GetAllClient  获取所有的客户端
 func (WorkerMgr *WorkerMgr) GetAllClient() (clients []string, err error) {
 	var (
 		resp *clientv3.GetResponse
@@ -332,7 +333,7 @@ func (WorkerMgr WorkerMgr) GetClientConfigInfo() map[string]*e.ConfigInfo {
 	return WorkerMgr.clientInfoList.GetAll()
 }
 
-// GetAllClientInfo: 获取所有的服务信息
+// GetAllClientInfo : 获取所有的服务信息
 func (WorkerMgr *WorkerMgr) GetAllClientInfo(onlineServer []string) map[string]interface{} {
 	var (
 		err       error

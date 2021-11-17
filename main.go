@@ -9,7 +9,6 @@ import (
 	_ "net/http/pprof"
 	"os"
 
-	"github.com/jessevdk/go-flags"
 	"github.com/kardianos/service"
 	"github.com/wenchangshou2/zebus/pkg/certification"
 	"github.com/wenchangshou2/zebus/pkg/http_api"
@@ -158,21 +157,17 @@ func (s *Service) BuildTLSConfig() (*tls.Config, error) {
 
 func main() {
 	var (
-		err  error
-		s    service.Service
-		args []string
+		err error
+		s   service.Service
+		// args []string
 	)
-	//opts:=NewOptions()
-	//flagSet:=SyncFlagSet(opts)
-	//flagSet.Parse(os.Args[1:])
-	//fmt.Println("vv",flagSet.Lookup("etcd-server"))
+
 	var opts Options
-	args, err = flags.ParseArgs(&opts, os.Args[1:])
-	fmt.Println("args", args)
-	if err != nil {
-		fmt.Printf("参数解析错误:%s\n", err.Error())
-		panic("参数解析错误")
-	}
+	// args, err = flags.ParseArgs(&opts, os.Args[1:])
+	// if err != nil {
+	// 	fmt.Printf("参数解析错误:%s\n", err.Error())
+	// 	panic("参数解析错误")
+	// }
 
 	svcConfig := &service.Config{
 		Name:        "zoolon-zebus",

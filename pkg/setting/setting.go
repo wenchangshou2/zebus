@@ -27,6 +27,9 @@ type Server struct {
 	AuthModel    string
 }
 type Etcd struct {
+	Auth bool
+	User string
+	Password string
 	ConnStr string
 	Enable  bool
 	Timeout int

@@ -3,18 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"go.etcd.io/etcd/api/v3/mvccpb"
+	"go.etcd.io/etcd/client/v3"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/coreos/etcd/mvcc/mvccpb"
 	"github.com/wenchangshou2/zebus/pkg/e"
 	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/setting"
 	utils2 "github.com/wenchangshou2/zebus/pkg/utils"
-	"go.etcd.io/etcd/clientv3"
 )
 
 type WorkerMgr struct {
@@ -164,8 +164,8 @@ func (WorkerMgr *WorkerMgr) deployUpdateNotify() {
 	watcher = clientv3.NewWatcher(WorkerMgr.client)
 	for {
 		rch := watcher.Watch(context.Background(), "/config/pc", clientv3.WithPrefix(), clientv3.WithRev(watchStartRevision))
-		for wresp := range rch {
-			for _, ev := range wresp.Events {
+		for wrest := range rch {
+			for _, ev := range wrest.Events {
 				switch ev.Type {
 				case mvccpb.PUT:
 					keys := strings.Split(string(ev.Kv.Key), "/")

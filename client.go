@@ -17,7 +17,7 @@ import (
 
 	"github.com/wenchangshou2/zebus/pkg/certification"
 	"github.com/wenchangshou2/zebus/pkg/pqueue"
-	"go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 
 	"github.com/wenchangshou2/zebus/pkg/setting"

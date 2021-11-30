@@ -5,10 +5,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/prometheus/common/log"
 	"golang.org/x/sys/windows/registry"
 	"io"
 	"io/ioutil"
+	"log"
 	"os/exec"
 	"strings"
 )

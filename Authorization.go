@@ -3,16 +3,15 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"time"
-
-	"github.com/pkg/errors"
+	"errors"
 	"github.com/wenchangshou2/zebus/pkg/e"
 	"github.com/wenchangshou2/zebus/pkg/logging"
 	"github.com/wenchangshou2/zebus/pkg/safety"
 	"github.com/wenchangshou2/zebus/pkg/utils"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"time"
 )
 
 // AuthorizationInfo 认证信息

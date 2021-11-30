@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/coreos/etcd/clientv3"
 	"github.com/wenchangshou2/zebus/pkg/e"
 	"github.com/wenchangshou2/zebus/pkg/setting"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"time"
 )
 

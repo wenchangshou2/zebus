@@ -1,7 +1,7 @@
 package certification
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 	"strings"
 )
 
